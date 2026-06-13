@@ -449,7 +449,6 @@ body{background:var(--bg);color:var(--text);font-family:'Courier New',monospace;
               </div>
             </div>
             <div id="battle-controls" style="margin-top:8px;">
-              <button class="battle-btn" id="btn-defend" title="Queue a DEFEND stance for your next turn — halves incoming damage and boosts regen">🛡 DEFEND</button>
               <button class="battle-btn danger" id="btn-flee">FLEE</button>
             </div>
             <div id="turn-display" style="font-size:9px;color:var(--text3);letter-spacing:1px;margin-top:6px;text-align:center;">—</div>
@@ -1424,7 +1423,7 @@ let B = {
   active:false,creature:null,playerHP:0,enemyHP:0,
   deathTimer:0,dying:false,fleeTimer:0,
   lastTick:0,
-  turnCount:0,defending:false,defendQueued:false,
+  turnCount:0,
   playerTimer:3000,enemyTimer:3000,
 };
 
@@ -1597,8 +1596,6 @@ function startBattle(creatureId){
   B.enemyHP=c.hp;
   B.lastTick=Date.now();
   B.turnCount=0;
-  B.defending=false;
-  B.defendQueued=false;
   B.playerTimer=3000/(S.stats.apn||1);
   B.enemyTimer=3000;
   updateBattleUI();
@@ -1656,33 +1653,22 @@ function firePlayerTurn(){
   const st=S.stats;
   B.turnCount++;
   const t=B.turnCount;
-  const action=B.defendQueued?'defend':'attack';
-  B.defendQueued=false;
-  const btnDef=document.getElementById('btn-defend');
-  if(btnDef) btnDef.classList.remove('active');
-  if(action==='defend'){
-    B.defending=true;
-    const regen=Math.min((st.rgn??0)*5,maxHP()-B.playerHP);
-    if(regen>0) B.playerHP=Math.min(maxHP(),B.playerHP+regen);
-    addLog(`<span class="log-info">Turn ${t}: 🛡 You brace${regen>0?' (+'+regen.toFixed(1)+' HP)':''}.`);
+  const isMiss=Math.random()>(st.acc??1);
+  if(isMiss){
+    addLog(`<span class="log-info">Turn ${t}: You swing at <b>${c.name}</b> — MISS!</span>`);
   } else {
-    const isMiss=Math.random()>(st.acc??1);
-    if(isMiss){
-      addLog(`<span class="log-info">Turn ${t}: You swing at <b>${c.name}</b> — MISS!</span>`);
+    const isCrit=Math.random()<(st.crc??0);
+    const base=Math.max(0.5,(st.atk*(st.mxd??1))-c.def);
+    const dmg=base*(isCrit?(st.crd??1):1);
+    B.enemyHP=Math.max(0,B.enemyHP-dmg);
+    if(isCrit){
+      addLog(`<span class="log-crit">Turn ${t}: ✦ CRIT — <b>${dmg.toFixed(1)}</b> to ${c.name}!</span>`);
     } else {
-      const isCrit=Math.random()<(st.crc??0);
-      const base=Math.max(0.5,(st.atk*(st.mxd??1))-c.def);
-      const dmg=base*(isCrit?(st.crd??1):1);
-      B.enemyHP=Math.max(0,B.enemyHP-dmg);
-      if(isCrit){
-        addLog(`<span class="log-crit">Turn ${t}: ✦ CRIT — <b>${dmg.toFixed(1)}</b> to ${c.name}!</span>`);
-      } else {
-        addLog(`<span class="log-info">Turn ${t}: You deal <b>${dmg.toFixed(1)}</b> to <b>${c.name}</b>.</span>`);
-      }
+      addLog(`<span class="log-info">Turn ${t}: You deal <b>${dmg.toFixed(1)}</b> to <b>${c.name}</b>.</span>`);
     }
-    if((st.rgn??0)>0) B.playerHP=Math.min(maxHP(),B.playerHP+(st.rgn*2));
   }
-  if(B.enemyHP<=0){B.defending=false;onWin();}
+  if((st.rgn??0)>0) B.playerHP=Math.min(maxHP(),B.playerHP+(st.rgn*2));
+  if(B.enemyHP<=0) onWin();
 }
 function fireEnemyTurn(){
   const c=B.creature;
@@ -1690,23 +1676,19 @@ function fireEnemyTurn(){
   const isDodge=Math.random()<(st.dog??0);
   if(isDodge){
     addLog(`<span class="log-info">↳ ${c.name} attacks — you <b>dodge!</b></span>`);
-    B.defending=false;
     return;
   }
   const rawDmg=Math.max(1,c.atk/(1+(st.arm??0)*0.15));
   const isBlock=Math.random()<(st.blk??0);
-  let dmg=isBlock?Math.max(0,rawDmg-(st.bld??0)):rawDmg;
-  if(B.defending) dmg*=0.5;
+  const dmg=isBlock?Math.max(0,rawDmg-(st.bld??0)):rawDmg;
   const isCounter=Math.random()<(st.ctr??0);
   const counterDmg=isCounter?Math.max(0.1,(st.atk*0.5)-c.def):0;
   B.playerHP=Math.max(0,B.playerHP-dmg);
   if(counterDmg>0) B.enemyHP=Math.max(0,B.enemyHP-counterDmg);
   let msg=`↳ <b>${c.name}</b> hits for <b>${dmg.toFixed(1)}</b>`;
   if(isBlock) msg+=` <span style="color:var(--text2)">(blocked ${(rawDmg-dmg).toFixed(1)})</span>`;
-  if(B.defending) msg+=` <span style="color:#4ecdc4">[guarded]</span>`;
   if(counterDmg>0) msg+=`. <span class="log-crit">↩ COUNTER ${counterDmg.toFixed(1)}!</span>`;
   addLog(`<span class="log-die">${msg}.</span>`);
-  B.defending=false;
   if(B.playerHP<=0) onLose();
 }
 function onWin(){
@@ -1847,7 +1829,6 @@ function updateBattleStats(){
 }
 function updateBattleUI(){
   const c=B.creature;
-  const btnDef=document.getElementById('btn-defend');
   const turnEl=document.getElementById('turn-display');
   const ptimerBar=document.getElementById('ptimer-bar');
   const etimerBar=document.getElementById('etimer-bar');
@@ -1863,7 +1844,6 @@ function updateBattleUI(){
     document.getElementById('battle-art').innerHTML='';
     document.getElementById('battle-status').textContent='No active battle.';
     if(turnEl) turnEl.textContent='—';
-    if(btnDef) btnDef.disabled=true;
     if(ptimerBar){ptimerBar.style.width='0%';ptimerText.textContent='—';}
     if(etimerBar){etimerBar.style.width='0%';etimerText.textContent='—';}
     updateBattleStats();
@@ -1885,10 +1865,6 @@ function updateBattleUI(){
     const eFill=Math.max(0,Math.min(100,(1-B.enemyTimer/3000)*100));
     if(ptimerBar){ptimerBar.style.width=pFill+'%';ptimerText.textContent=(Math.max(0,B.playerTimer)/1000).toFixed(1)+'s';}
     if(etimerBar){etimerBar.style.width=eFill+'%';etimerText.textContent=(Math.max(0,B.enemyTimer)/1000).toFixed(1)+'s';}
-  }
-  if(btnDef){
-    btnDef.disabled=!B.active||B.dying;
-    btnDef.textContent=B.defendQueued?'🛡 DEFEND ✓':'🛡 DEFEND';
   }
   if(turnEl){
     if(B.dying) turnEl.textContent='DEFEATED — RECOVERING...';
@@ -2202,13 +2178,6 @@ function setupSettings(){
   });
 
   // Battle controls
-  document.getElementById('btn-defend').addEventListener('click',()=>{
-    if(!B.active||B.dying){toast('No active battle.');return;}
-    B.defendQueued=!B.defendQueued;
-    const btn=document.getElementById('btn-defend');
-    btn.classList.toggle('active',B.defendQueued);
-    btn.textContent=B.defendQueued?'🛡 DEFEND ✓':'🛡 DEFEND';
-  });
   document.getElementById('btn-flee').addEventListener('click',()=>{
     if(B.active){addLog(`<span class="log-die">✗ You fled from ${B.creature?B.creature.name:'battle'}.`);stopBattle();}
     else toast('No active battle to flee from.');
