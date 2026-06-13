@@ -330,6 +330,7 @@ body{background:var(--bg);color:var(--text);font-family:'Courier New',monospace;
   <div id="nav-tabs">
     <button class="nav-tab" data-tab="battle">BATTLE</button>
     <button class="nav-tab active" data-tab="gallery">WORLD<span class="dot" id="gallery-dot" style="display:none"></span></button>
+    <button class="nav-tab" data-tab="inventory">INVENTORY</button>
     <button class="nav-tab" data-tab="shop">SHOP</button>
     <button class="nav-tab" data-tab="archive">ARCHIVE<span class="dot" id="archive-dot"></span></button>
     <button class="nav-tab" data-tab="settings">SETTINGS</button>
@@ -488,6 +489,12 @@ body{background:var(--bg);color:var(--text);font-family:'Courier New',monospace;
     </div>
 
     <!-- SHOP TAB -->
+    <!-- INVENTORY TAB -->
+    <div class="tab-pane" id="tab-inventory">
+      <div class="section-header">INVENTORY</div>
+      <div id="inventory-grid"></div>
+    </div>
+
     <div class="tab-pane" id="tab-shop">
       <div class="section-header">SHOP</div>
       <div id="shop-grid"></div>
@@ -2060,6 +2067,25 @@ function setupToggles(){
 // ═══════════════════════════════════════════════════════
 // TABS
 // ═══════════════════════════════════════════════════════
+function renderInventory(){
+  const g=document.getElementById('inventory-grid');
+  const owned=SHOP_ITEMS.filter(item=>(S.shopOwned[item.id]||0)>0);
+  if(!owned.length){
+    g.innerHTML=`<div style="color:var(--text3);font-size:11px;padding:20px 0;">No items yet. Visit the Shop to purchase upgrades.</div>`;
+    return;
+  }
+  g.innerHTML=owned.map(item=>{
+    const qty=S.shopOwned[item.id]||0;
+    return `<div style="display:flex;align-items:center;gap:12px;padding:8px 10px;border:1px solid var(--bg4);margin-bottom:6px;background:var(--bg2);">
+      <div style="flex:1;">
+        <div style="font-size:10px;font-weight:bold;letter-spacing:1px;color:var(--text1);">${item.name}</div>
+        <div style="font-size:9px;color:var(--text3);margin-top:2px;">${item.desc}</div>
+      </div>
+      <div style="font-size:9px;color:var(--green);white-space:nowrap;">${item.effect}</div>
+      <div style="font-size:10px;color:var(--text2);min-width:28px;text-align:right;">×${qty}</div>
+    </div>`;
+  }).join('');
+}
 function switchTab(name){
   document.querySelectorAll('.nav-tab').forEach(t=>{
     t.classList.toggle('active',t.dataset.tab===name);
@@ -2068,6 +2094,7 @@ function switchTab(name){
     p.classList.toggle('active',p.id==='tab-'+name);
   });
   if(name==='gallery')renderGallery();
+  if(name==='inventory')renderInventory();
   if(name==='shop')renderShop();
   if(name==='archive'){renderSynth();renderGlossary();renderAchievements();}
 }
