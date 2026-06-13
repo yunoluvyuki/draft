@@ -1553,11 +1553,11 @@ const TYPE_COLORS={scrap:'#555',elite:'#8e44ad',boss:'#c0392b'};
 
 function renderGallery(){
   const g=document.getElementById('gallery-grid');
-  const visible=CREATURES.filter(c=>isUnlocked(c.id));
-  const hidden=CREATURES.length-visible.length;
-  const encountered=visible.filter(c=>getVictories(c.id)>0).length;
+  const visible=CREATURES.filter(c=>isUnlocked(c.id)&&!isMaxed(c));
+  const defeated=CREATURES.filter(c=>isMaxed(c)).length;
+  const hidden=CREATURES.length-visible.length-defeated;
   let html=`<div style="grid-column:1/-1;display:flex;align-items:center;gap:8px;margin-bottom:10px;">
-    <div style="font-size:8px;color:var(--text3);">${encountered}/${visible.length} encountered</div>
+    ${defeated>0?`<div style="font-size:8px;color:var(--text3);">${defeated} defeated</div>`:''}
     <div style="flex:1;height:1px;background:var(--text3);opacity:0.2;"></div>
     ${hidden>0?`<div style="font-size:8px;color:var(--text3);font-style:italic;opacity:0.6;">${hidden} in the dark…</div>`:''}
   </div>`;
