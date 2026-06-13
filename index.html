@@ -1971,6 +1971,7 @@ function updateBattleUI(){
 }
 function renderSessionRewards(){
   const el=document.getElementById('session-rewards-list');
+  if(!el)return;
   const entries=Object.entries(S.sessionRewards);
   if(!entries.length){el.innerHTML='<div style="color:var(--text3);font-size:9px;">Defeat creatures to earn rewards.</div>';return;}
   el.innerHTML=entries.map(([k,v])=>
