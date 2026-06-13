@@ -1593,7 +1593,7 @@ function renderGallery(){
         </div>
       </div>
       <div class="card-rewards">
-        <div class="rewards-header"><span style="color:${maxed?'var(--text3)':''}">REWARDS ×${calcGlossaryMult().toFixed(2)}</span><span class="vic">${c.vicReq} Victories | <span style="color:${vic>0?'var(--green)':'var(--text3)'}">${vic}</span>/${c.vicReq}</span></div>
+        <div class="rewards-header"><span style="color:${maxed?'var(--text3)':''}">REWARDS ×${calcGlossaryMult().toFixed(2)}</span><span class="vic">${c.vicReq} Victories | <span style="color:${vic>0?'var(--green)':'var(--text3)'}">${Math.min(vic,c.vicReq)}</span>/${c.vicReq}</span></div>
         <div class="victories-bar"><div class="victories-fill" style="width:${pct}%;background:${maxed?'#2a5a2a':color}"></div></div>
         <div class="reward-list">${rewardStr}</div>
       </div>
