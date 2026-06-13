@@ -86,7 +86,7 @@ body{background:var(--bg);color:var(--text);font-family:'Courier New',monospace;
 .si-crd{background:#e74c3c;}
 .si-arm{background:#7fb3d3;}
 .si-apn{background:#a569bd;}
-.si-frl{background:#1a9e7f;}
+.si-mth{background:#1a9e7f;}
 #fund-section{padding:0;}
 #fund-header{padding:2px 6px;display:flex;align-items:center;}
 #fund-header .label{font-size:11px;color:var(--text2);letter-spacing:1px;}
@@ -1459,7 +1459,7 @@ function getVic(s,id){return s.victories[id]||0;}
 // GAME STATE
 // ═══════════════════════════════════════════════════════
 const DEFAULT_STATE = ()=>({
-  stats:{hp:50,atk:3,mnd:0.7,mxd:1.0,spd:100,rgn:0,dog:0,crc:0,crd:1.0,arm:0,apn:1.0,frl:0,acc:1.0,blk:0,bld:0,ctr:0},
+  stats:{hp:50,atk:3,mnd:0.7,mxd:1.0,spd:100,rgn:0,dog:0,crc:0,crd:1.0,arm:0,apn:1.0,mth:0,acc:1.0,blk:0,bld:0,ctr:0},
   resources:{gra:0,wax:0,cha:0},
   victories:{},
   shopOwned:{},
@@ -1527,7 +1527,7 @@ function maxHP(){return S.stats.hp;}
 const STAT_DEFS=[
   {key:'hp',label:'HP',icon:'si-hp',cat:'defense',fmt:'n'},
   {key:'atk',label:'ATK',icon:'si-atk',cat:'offense',fmt:'n'},
-  {key:'mnd',label:'MND',icon:'si-mnd',cat:'defense',fmt:'pct'},
+  {key:'mnd',label:'MND',icon:'si-mnd',cat:'offense',fmt:'pct'},
   {key:'mxd',label:'MXD',icon:'si-mxd',cat:'offense',fmt:'x'},
   {key:'spd',label:'SPD',icon:'si-spd',cat:'utility',fmt:'n'},
   {key:'rgn',label:'RGN',icon:'si-rgn',cat:'defense',fmt:'n'},
@@ -1536,7 +1536,7 @@ const STAT_DEFS=[
   {key:'crd',label:'CRD',icon:'si-crd',cat:'offense',fmt:'x'},
   {key:'arm',label:'ARM',icon:'si-arm',cat:'defense',fmt:'n'},
   {key:'apn',label:'APN',icon:'si-apn',cat:'offense',fmt:'n'},
-  {key:'frl',label:'FRL',icon:'si-frl',cat:'chance',fmt:'pct'},
+  {key:'mth',label:'MTH',icon:'si-mth',cat:'offense',fmt:'pct'},
   {key:'acc',label:'ACC',icon:'si-acc',cat:'chance',fmt:'pct'},
   {key:'blk',label:'BLK',icon:'si-blk',cat:'defense',fmt:'pct'},
   {key:'bld',label:'BLD',icon:'si-bld',cat:'defense',fmt:'n'},
@@ -1802,7 +1802,7 @@ function firePlayerTurn(){
     if(isCrit){
       addLog(`<span class="log-crit">Turn ${t}: ✦ CRIT — <b>${dmg.toFixed(1)}</b> to ${c.name}!</span>`);
     } else {
-      addLog(`<span class="log-info">Turn ${t}: You deal <b>${dmg.toFixed(1)}</b> to <b>${c.name}</b>.</span>`);
+      addLog(`<span class="log-info">Turn ${t}: You deal <b>${dmg.toFixed( 1)}</b> to <b>${c.name}</b>.</span>`);
     }
   }
   if((st.rgn??0)>0) B.playerHP=Math.min(maxHP(),B.playerHP+(st.rgn*2));
@@ -2003,8 +2003,7 @@ function updateBattleStats(){
   const eMinDmg=c?enemyEffAtk*0.8:0;
   const eMaxDmg=c?enemyEffAtk*1.2:0;
   const offRows=[
-    {name:'Physical ATK',  p:fmt(st.atk),            e:c?fmt(c.atk):dash},
-    {name:'Magical ATK',   p:fmt(st.mnd||0),          e:'0'},
+    {name:'atk',  p:fmt(st.atk),            e:c?fmt(c.atk):dash},
     {name:'Min Damage',    p:n1(pMinDmg),             e:c?n1(eMinDmg):dash},
     {name:'Max Damage',    p:n1(pMaxDmg),             e:c?n1(eMaxDmg):dash},
     {name:'Attack Speed',  p:x2(st.apn),              e:'1.00×'},
