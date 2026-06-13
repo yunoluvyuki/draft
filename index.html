@@ -387,6 +387,7 @@ body{background:var(--bg);color:var(--text);font-family:'Courier New',monospace;
 .inv-tooltip-qty{font-size:8px;color:#666;margin-top:2px;}
 .inv-empty-msg{color:var(--text3);font-size:11px;padding:20px 0;}
 </style>
+<style id="fs-override"></style>
 </head>
 <body>
 
@@ -2238,7 +2239,7 @@ function setupSettings(){
   let zoom=S.settings.uiZoom||100;
   function applyZoom(z){
     S.settings.uiZoom=z;
-    document.getElementById('content-area').style.fontSize=(z/100*11)+'px';
+    document.body.style.zoom=z/100;
     document.getElementById('zoom-val').textContent=z+'%';
   }
   applyZoom(zoom);
@@ -2247,12 +2248,36 @@ function setupSettings(){
   document.getElementById('zoom-reset').addEventListener('click',()=>{zoom=100;applyZoom(zoom);});
 
   // Font Size
-  const FS_DEFAULT=13, FS_MIN=8, FS_MAX=24, FS_STEP=1;
+  const FS_DEFAULT=13,FS_MIN=8,FS_MAX=24,FS_STEP=1;
+  const FS_RULES=[
+    ['body',13],['#topbar .title',16],['.nav-tab',12],['.res-val',15],
+    ['.res-rate',11],['.res-icon',10],['.res-unknown',22],['#topbar .fps',12],
+    ['#add-btn',16],['#quint-count',13],['.btm-panel-hdr',11],
+    ['#specs-header .label',9],['.filter-tab',10],['.sort-btn',11],
+    ['.sort-label',11],['.stat-name',9],['.stat-val',13],
+    ['#fund-header .label',11],['.fund-row',10],['#protocols-header .title',11],
+    ['.protocol-title',10],['.protocol-sub',10],['.toggle-label',10],
+    ['.protocol-val',8],['#gallery-intro',11],['.card-name',10],
+    ['.card-tagline',8],['.card-stats',9],['.new-badge',7],
+    ['.rewards-header',8],['.reward-item',8],['.btn-challenge',9],
+    ['.btn-maxed',9],['#battle-creature-name',16],['#battle-creature-tag',10],
+    ['.hp-label',9],['#battle-log',9],['.battle-btn',9],['#battle-status',10],
+    ['.timer-label',8],['.timer-text',8],['#victory-panel h3',10],
+    ['.victory-stat',10],['#death-overlay h2',16],['#death-overlay .timer',24],
+    ['.bsp-box-title',11],['.bsp-box-sub',8],['.bsp-col-head',8],
+    ['.bsp-name',10],['.bsp-you',9],['.bsp-enemy',9],['.arch-tab',10],
+    ['.synth-table th',9],['.synth-table td',10],['.synth-concept-sub',8],
+    ['.synth-eta',8],['.synth-panel-title',8],['.quint-pending',24],
+    ['.quint-sub',8],['.quint-row',9],['#redraw-btn',9],['.redraw-req',8],
+    ['.settings-row-label',10],['.settings-check-label',10],
+    ['.settings-check-sublabel',8],['.zoom-val',10],['.zoom-btn',11],
+  ];
   let fs=S.settings.fontSize||FS_DEFAULT;
   function applyFontSize(size){
     S.settings.fontSize=size;
-    document.documentElement.style.setProperty('--fs',size+'px');
-    document.body.style.fontSize=size+'px';
+    const r=size/13;
+    const css=FS_RULES.map(([sel,base])=>`${sel}{font-size:${(base*r).toFixed(1)}px!important;}`).join('');
+    document.getElementById('fs-override').textContent=css;
     document.getElementById('fs-val').textContent=size+'px';
   }
   applyFontSize(fs);
