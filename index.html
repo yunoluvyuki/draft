@@ -1460,26 +1460,25 @@ function renderFundamentals(){
 // ═══════════════════════════════════════════════════════
 // GALLERY
 // ═══════════════════════════════════════════════════════
-const TIER_COLORS={1:'#555',2:'#2980b9',3:'#27ae60',4:'#e67e22',5:'#8e44ad'};
-const TIER_LABELS={1:'TIER 1',2:'TIER 2',3:'TIER 3',4:'TIER 4',5:'TIER 5'};
+const TIER_COLORS={1:'#666',2:'#2980b9',3:'#27ae60',4:'#9b59b6',5:'#c0392b'};
+const TIER_LABELS={1:'COMMON',2:'UNCOMMON',3:'RARE',4:'EPIC',5:'LEGENDARY'};
+const TIER_BG={1:'rgba(80,80,80,0.15)',2:'rgba(41,128,185,0.12)',3:'rgba(39,174,96,0.12)',4:'rgba(155,89,182,0.14)',5:'rgba(192,57,43,0.15)'};
 const TYPE_COLORS={scrap:'#555',elite:'#8e44ad',boss:'#c0392b'};
 
 function renderGallery(){
   const g=document.getElementById('gallery-grid');
-  // Group by tier
   const tiers=[1,2,3,4,5];
   let html='';
   tiers.forEach(tier=>{
-    const group=CREATURES.filter(c=>(c.tier||1)===tier||(tier===1&&!c.tier&&CREATURES.indexOf(c)<6)||(tier===2&&!c.tier&&CREATURES.indexOf(c)>=6&&CREATURES.indexOf(c)<15));
-    // simpler: just group all by tier field, default tier=1 for first 6, tier=2 for 7-15
     const tierCreatures=CREATURES.filter(c=>getTier(c)===tier);
     if(!tierCreatures.length)return;
     const color=TIER_COLORS[tier]||'#555';
+    const label=TIER_LABELS[tier]||'TIER '+tier;
     const unlocked=tierCreatures.filter(c=>getVictories(c.id)>0).length;
-    html+=`<div style="grid-column:1/-1;display:flex;align-items:center;gap:8px;margin:${tier>1?'16px':0} 0 6px;">
-      <div style="font-size:10px;font-weight:bold;letter-spacing:2px;color:${color};text-transform:uppercase;">── ${TIER_LABELS[tier]}</div>
+    html+=`<div style="grid-column:1/-1;display:flex;align-items:center;gap:8px;margin:${tier>1?'20px':0} 0 8px;">
+      <div style="font-size:9px;font-weight:bold;letter-spacing:3px;color:${color};text-transform:uppercase;padding:2px 7px;border:1px solid ${color};opacity:0.9;">◆ ${label}</div>
       <div style="font-size:8px;color:var(--text3);">${unlocked}/${tierCreatures.length} encountered</div>
-      <div style="flex:1;height:1px;background:${color};opacity:0.3;"></div>
+      <div style="flex:1;height:1px;background:${color};opacity:0.25;"></div>
     </div>`;
     html+=tierCreatures.map(c=>{
       const vic=getVictories(c.id);
@@ -1488,17 +1487,18 @@ function renderGallery(){
       const pct=Math.min(100,vic/c.vicReq*100);
       const rewardStr=Object.entries(c.rewards).map(([k,v])=>`<span class="reward-item ${['gra','wax','cha'].includes(k)?'res':''}">${k.toUpperCase()} +${v}</span>`).join('');
       const countStr=c.count!=null?`<span style="margin-left:4px;color:var(--text3);">${c.count}</span>`:'';
+      const rarityBadge=`<span style="position:absolute;top:4px;left:4px;font-size:6px;font-weight:bold;letter-spacing:1px;padding:1px 4px;background:${color};color:#fff;opacity:0.85;">${label}</span>`;
       const typeBadge=c.type&&c.type!=='scrap'?`<span style="position:absolute;bottom:4px;right:4px;font-size:7px;padding:1px 4px;background:${TYPE_COLORS[c.type]||'#555'};color:#fff;letter-spacing:1px;">${c.type.toUpperCase()}</span>`:'';
       let btnHtml='';
       if(maxed)btnHtml=`<button class="btn-challenge btn-maxed">MAXED</button>`;
       else if(isCurrent)btnHtml=`<button class="btn-challenge btn-current" onclick="stopBattle()">FIGHTING</button>`;
       else btnHtml=`<button class="btn-challenge" onclick="startBattle('${c.id}')">CHALLENGE</button>`;
-      const tierDot=`<div style="position:absolute;top:4px;right:4px;width:6px;height:6px;border-radius:50%;background:${color};"></div>`;
-      return `<div class="creature-card" id="card-${c.id}" style="border-color:${isCurrent?'var(--green)':maxed?'#333':'var(--border)'}">
+      const borderColor=isCurrent?'var(--green)':maxed?'#333':`${color}44`;
+      return `<div class="creature-card" id="card-${c.id}" style="border-color:${borderColor};background:${maxed?'transparent':TIER_BG[tier]||'transparent'}">
         <div class="card-top">
-          <div class="card-art" style="position:relative;">${c.new?'<span class="new-badge">NEW</span>':''}${tierDot}${typeBadge}${SVGs[c.id]||'<div style="color:#555;font-size:20px;">?</div>'}</div>
+          <div class="card-art" style="position:relative;">${rarityBadge}${c.new?'<span class="new-badge">NEW</span>':''}${typeBadge}${SVGs[c.id]||`<div style="color:${color};font-size:22px;opacity:0.4;">✦</div>`}</div>
           <div class="card-info">
-            <div class="card-name" style="color:${maxed?'var(--text3)':'var(--white)'}">${c.name}</div>
+            <div class="card-name" style="color:${maxed?'var(--text3)':color}">${c.name}</div>
             <div class="card-tagline">${c.tag}</div>
             <div class="card-stats">
               <span class="card-atk">✏ ${fmt(c.atk)}</span> /
@@ -1520,10 +1520,7 @@ function renderGallery(){
   g.innerHTML=html;
 }
 function getTier(c){
-  if(c.tier)return c.tier;
-  const idx=CREATURES.indexOf(c);
-  if(idx<6)return 1;
-  return 2;
+  return c.tier||1;
 }
 
 // ═══════════════════════════════════════════════════════
