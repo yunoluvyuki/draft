@@ -80,6 +80,7 @@ body{background:var(--bg);color:var(--text);font-family:'Courier New',monospace;
 .si-crd{background:#e74c3c;}
 .si-arm{background:#7fb3d3;}
 .si-apn{background:#a569bd;}
+.si-armp{background:#c0392b;}
 .si-mth{background:#1a9e7f;}
 #fund-section{padding:0;}
 #fund-header{padding:2px 6px;display:flex;align-items:center;}
