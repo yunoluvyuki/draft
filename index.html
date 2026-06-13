@@ -564,7 +564,7 @@ body{background:var(--bg);color:var(--text);font-family:'Courier New',monospace;
       </div>
       <!-- Masterpiece -->
       <div class="arch-pane" id="arch-masterpiece">
-        <div style="color:var(--text2);font-size:10px;margin-top:20px;">No masterpieces yet. Keep fighting.</div>
+        <div id="mastery-content"></div>
       </div>
     </div>
 
@@ -1475,6 +1475,7 @@ const DEFAULT_STATE = ()=>({
   lastSave:Date.now(),
   settings:{lightMode:false,invertImg:false,showProtocols:true,combatLog:true,uiZoom:100,battleNav:'manual',numNotation:'mixed',fontSize:13},
   protocols:{autoChallenge:false,autoRetry:false},
+  masteryUpgrades:{},
   sessionRewards:{},
   galleryUnlocked:[],
   galleryQueue:[],
@@ -1487,9 +1488,9 @@ let S = DEFAULT_STATE();
 let B = {
   active:false,creature:null,playerHP:0,enemyHP:0,
   deathTimer:0,dying:false,fleeTimer:0,
-  lastTick:0,
-  turnCount:0,
+  lastTick:0,turnCount:0,
   playerTimer:3000,enemyTimer:3000,
+  rarity:'common',
 };
 
 // ═══════════════════════════════════════════════════════
@@ -1628,6 +1629,35 @@ const TIER_DESC={
 };
 const TYPE_COLORS={scrap:'#555',elite:'#8e44ad',boss:'#c0392b'};
 
+// ── RARITY SYSTEM ─────────────────────────────────────
+const RARITY_COLORS={common:'#888',uncommon:'#27ae60',rare:'#2980b9',epic:'#9b59b6',legendary:'#f0b429'};
+const RARITY_LABELS={common:'COMMON',uncommon:'UNCOMMON',rare:'RARE',epic:'EPIC',legendary:'LEGENDARY'};
+const RARITY_MULTS={common:1,uncommon:1.5,rare:3,epic:7,legendary:15};
+const RARITY_BG={common:'rgba(80,80,80,0.15)',uncommon:'rgba(39,174,96,0.18)',rare:'rgba(41,128,185,0.18)',epic:'rgba(155,89,182,0.2)',legendary:'rgba(240,180,41,0.15)'};
+const RARITY_UPGRADES=[
+  {id:'unc_rate',rarity:'uncommon',label:'UNCOMMON ATTUNEMENT',desc:'+1% uncommon spawn chance per level.',base:{gra:500},scale:1.8,maxLevel:19,perLevel:1},
+  {id:'rare_rate',rarity:'rare',label:'RARE ATTUNEMENT',desc:'+0.5% rare spawn chance per level.',base:{gra:5000,wax:50},scale:2,maxLevel:20,perLevel:0.5},
+  {id:'epic_rate',rarity:'epic',label:'EPIC ATTUNEMENT',desc:'+0.2% epic spawn chance per level.',base:{gra:30000,wax:500},scale:2,maxLevel:20,perLevel:0.2},
+  {id:'leg_rate',rarity:'legendary',label:'LEGENDARY ATTUNEMENT',desc:'+0.05% legendary spawn chance per level.',base:{gra:200000,wax:5000,cha:5},scale:2,maxLevel:20,perLevel:0.05},
+];
+function getRarityChances(){
+  const ups=S.masteryUpgrades||{};
+  const unc=1+(ups.unc_rate||0)*1;
+  const rare=(ups.rare_rate||0)*0.5;
+  const epic=(ups.epic_rate||0)*0.2;
+  const leg=(ups.leg_rate||0)*0.05;
+  return{uncommon:Math.min(unc,40),rare:Math.min(rare,15),epic:Math.min(epic,5),legendary:Math.min(leg,2)};
+}
+function rollRarity(){
+  const ch=getRarityChances();
+  const r=Math.random()*100;
+  if(r<ch.legendary)return'legendary';
+  if(r<ch.legendary+ch.epic)return'epic';
+  if(r<ch.legendary+ch.epic+ch.rare)return'rare';
+  if(r<ch.legendary+ch.epic+ch.rare+ch.uncommon)return'uncommon';
+  return'common';
+}
+
 function renderGallery(){
   const g=document.getElementById('gallery-grid');
   const visible=CREATURES.filter(c=>isUnlocked(c.id)&&!isMaxed(c));
@@ -1654,10 +1684,14 @@ function renderGallery(){
     if(maxed)btnHtml=`<button class="btn-challenge btn-maxed">MAXED</button>`;
     else if(isCurrent)btnHtml=`<button class="btn-challenge btn-current" onclick="stopBattle()">FIGHTING</button>`;
     else btnHtml=`<button class="btn-challenge" onclick="startBattle('${c.id}')">CHALLENGE</button>`;
-    const borderColor=isCurrent?'var(--green)':maxed?'#333':`${color}44`;
-    return `<div class="creature-card" id="card-${c.id}" style="border-color:${borderColor};background:${maxed?'transparent':TIER_BG[tier]||'transparent'}">
+    const spawnRarityColor=isCurrent?(RARITY_COLORS[B.rarity]||'#888'):null;
+    const borderColor=isCurrent?spawnRarityColor:maxed?'#333':`${color}44`;
+    const rarityGlow=isCurrent&&B.rarity!=='common'?`box-shadow:0 0 8px ${spawnRarityColor}55;`:'';
+    const spawnBg=isCurrent?(RARITY_BG[B.rarity]||'transparent'):(maxed?'transparent':TIER_BG[tier]||'transparent');
+    const spawnBadge=isCurrent?`<span style="position:absolute;top:4px;right:4px;font-size:6px;font-weight:bold;letter-spacing:1px;padding:1px 4px;background:${spawnRarityColor};color:#fff;">${RARITY_LABELS[B.rarity]}</span>`:'';
+    return `<div class="creature-card" id="card-${c.id}" style="border-color:${borderColor};${rarityGlow}background:${spawnBg}">
       <div class="card-top">
-        <div class="card-art" style="position:relative;">${rarityBadge}${c.new?'<span class="new-badge">NEW</span>':''}${typeBadge}${SVGs[c.id]||`<div style="color:${color};font-size:22px;opacity:0.4;">✦</div>`}</div>
+        <div class="card-art" style="position:relative;">${rarityBadge}${spawnBadge}${c.new?'<span class="new-badge">NEW</span>':''}${typeBadge}${SVGs[c.id]||`<div style="color:${color};font-size:22px;opacity:0.4;">✦</div>`}</div>
         <div class="card-info">
           <div class="card-name" style="color:${maxed?'var(--text3)':color}">${c.name}</div>
           <div class="card-tagline">${c.tag}</div>
@@ -1693,6 +1727,7 @@ function startBattle(creatureId){
   B.creature=c;
   B.active=true;
   B.dying=false;
+  B.rarity=rollRarity();
   B.playerHP=maxHP();
   B.enemyHP=c.hp;
   B.lastTick=Date.now();
@@ -1700,7 +1735,9 @@ function startBattle(creatureId){
   B.playerTimer=3000/(S.stats.apn||1);
   B.enemyTimer=3000;
   updateBattleUI();
-  addLog(`<span class="log-info">⚔ Battle started: ${c.name}</span>`);
+  const rc=RARITY_COLORS[B.rarity];
+  const rl=RARITY_LABELS[B.rarity];
+  addLog(`<span style="color:${rc}">⚔ ${c.name} appears [${rl}]${B.rarity!=='common'?' ×'+RARITY_MULTS[B.rarity]:''}</span>`);
   if(S.settings.battleNav==='always') switchTab('gallery');
   else if(S.settings.battleNav==='manual') {} // stay
   renderGallery();
@@ -1801,8 +1838,10 @@ function onWin(){
   if(justMaxed) unlockNextCreature();
   const mult=calcGlossaryMult();
   const rewardMult=1+(S.redraws*0.05);
+  const rarityMult=RARITY_MULTS[B.rarity||'common']||1;
+  if(rarityMult>1)addLog(`<span style="color:${RARITY_COLORS[B.rarity]}">★ ${RARITY_LABELS[B.rarity]} bonus ×${rarityMult} applied!</span>`);
   Object.entries(c.rewards).forEach(([k,v])=>{
-    const amount=v*mult*rewardMult;
+    const amount=v*mult*rewardMult*rarityMult;
     if(['gra','wax','cha'].includes(k)){
       S.resources[k]=(S.resources[k]||0)+amount;
       if(k==='gra'){S.lifeGra=(S.lifeGra||0)+amount;}
@@ -1857,6 +1896,62 @@ function checkAchievements(){
   });
   if(newUnlocks.length) renderAchievements();
 }
+function renderMastery(){
+  const el=document.getElementById('mastery-content');
+  if(!el)return;
+  const ups=S.masteryUpgrades||{};
+  const ch=getRarityChances();
+  const common=Math.max(0,100-ch.uncommon-ch.rare-ch.epic-ch.legendary);
+  let html=`<div style="margin-bottom:14px;padding:10px;background:var(--bg3);border:1px solid var(--border);">
+    <div style="font-size:9px;letter-spacing:2px;color:var(--text3);margin-bottom:8px;">CURRENT SPAWN CHANCES</div>
+    <div style="display:flex;gap:14px;flex-wrap:wrap;font-size:10px;">
+      <span style="color:#888;">COMMON ${common.toFixed(2)}%</span>
+      <span style="color:var(--g-uncommon);">UNCOMMON ${ch.uncommon.toFixed(2)}%</span>
+      <span style="color:var(--g-rare);">RARE ${ch.rare.toFixed(2)}%</span>
+      <span style="color:var(--g-epic);">EPIC ${ch.epic.toFixed(2)}%</span>
+      <span style="color:var(--g-legendary);">LEGENDARY ${ch.legendary.toFixed(2)}%</span>
+    </div>
+  </div>
+  <div style="font-size:9px;color:var(--text3);margin-bottom:10px;">Rarer enemies drop <b style="color:var(--white);">multiplied rewards</b>: ×1.5 / ×3 / ×7 / ×15</div>
+  <div style="display:grid;grid-template-columns:repeat(2,1fr);gap:10px;">`;
+  RARITY_UPGRADES.forEach(up=>{
+    const level=ups[up.id]||0;
+    const isMaxed=level>=up.maxLevel;
+    const cost={};
+    Object.entries(up.base).forEach(([res,amt])=>{ cost[res]=Math.floor(amt*Math.pow(up.scale,level)); });
+    const canAfford=!isMaxed&&Object.entries(cost).every(([res,amt])=>(S.resources[res]||0)>=amt);
+    const rc=RARITY_COLORS[up.rarity];
+    const costStr=Object.entries(cost).map(([res,amt])=>`${res.toUpperCase()} ${fmt(amt)}`).join(' + ');
+    html+=`<div style="border:1px solid ${rc}44;padding:10px;background:${rc}0d;">
+      <div style="font-size:10px;font-weight:bold;color:${rc};letter-spacing:1px;margin-bottom:3px;">${up.label}</div>
+      <div style="font-size:8px;color:var(--text3);margin-bottom:8px;">${up.desc}</div>
+      <div style="font-size:9px;color:var(--text2);margin-bottom:6px;">Level <span style="color:var(--white);font-weight:bold;">${level}</span> / ${up.maxLevel}</div>
+      ${isMaxed
+        ?`<div style="font-size:9px;text-align:center;color:${rc};padding:4px 0;">✦ MAXED</div>`
+        :`<div style="font-size:8px;color:${canAfford?'var(--text2)':'var(--text4)'};margin-bottom:6px;">${costStr}</div>
+          <button onclick="buyMasteryUpgrade('${up.id}')" style="width:100%;padding:5px;background:${canAfford?rc+'22':'var(--bg3)'};border:1px solid ${canAfford?rc:'var(--border)'};color:${canAfford?rc:'var(--text3)'};cursor:${canAfford?'pointer':'not-allowed'};font-family:inherit;font-size:9px;letter-spacing:1px;text-transform:uppercase;">UPGRADE</button>`
+      }
+    </div>`;
+  });
+  html+='</div>';
+  el.innerHTML=html;
+}
+function buyMasteryUpgrade(id){
+  const up=RARITY_UPGRADES.find(u=>u.id===id);
+  if(!up)return;
+  if(!S.masteryUpgrades)S.masteryUpgrades={};
+  const level=S.masteryUpgrades[id]||0;
+  if(level>=up.maxLevel)return;
+  const cost={};
+  Object.entries(up.base).forEach(([res,amt])=>{ cost[res]=Math.floor(amt*Math.pow(up.scale,level)); });
+  if(!Object.entries(cost).every(([res,amt])=>(S.resources[res]||0)>=amt)){toast('Not enough resources.',2000);return;}
+  Object.entries(cost).forEach(([res,amt])=>{ S.resources[res]-=amt; });
+  S.masteryUpgrades[id]=level+1;
+  renderMastery();
+  renderStats();
+  toast(`${up.label} → Lv ${S.masteryUpgrades[id]}`,2000);
+}
+
 function renderAchievements(){
   const el=document.getElementById('arch-achievements');
   if(!el)return;
@@ -1954,8 +2049,11 @@ function updateBattleUI(){
     updateBattleStats();
     return;
   }
+  const rc=RARITY_COLORS[B.rarity||'common'];
+  const rl=RARITY_LABELS[B.rarity||'common'];
   document.getElementById('battle-creature-name').textContent=c.name;
-  document.getElementById('battle-creature-tag').textContent=c.tag;
+  document.getElementById('battle-creature-name').style.color=rc||'var(--white)';
+  document.getElementById('battle-creature-tag').textContent=`[${rl}] ${c.tag}`;
   document.getElementById('battle-art').innerHTML=SVGs[c.id]||'';
   const epct=Math.max(0,B.enemyHP/c.hp*100);
   const ppct=Math.max(0,B.playerHP/maxHP()*100);
@@ -2200,6 +2298,7 @@ document.querySelectorAll('.arch-tab').forEach(t=>{
     if(t.dataset.arch==='achievements')renderAchievements();
     if(t.dataset.arch==='synth')renderSynth();
     if(t.dataset.arch==='glossary')renderGlossary();
+    if(t.dataset.arch==='masterpiece')renderMastery();
   });
 });
 
