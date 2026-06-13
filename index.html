@@ -1796,7 +1796,7 @@ function firePlayerTurn(){
     addLog(`<span class="log-info">Turn ${t}: You swing at <b>${c.name}</b> — MISS!</span>`);
   } else {
     const isCrit=Math.random()<(st.crc??0);
-    const base=Math.max(0.5,(st.atk*(st.mxd??1))-c.def);
+    const base = Math.max(st.mnd, (st.atk * (st.mxd ?? 1)) - c.def);
     const dmg=base*(isCrit?(st.crd??1):1);
     B.enemyHP=Math.max(0,B.enemyHP-dmg);
     if(isCrit){
