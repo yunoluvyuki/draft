@@ -15,7 +15,8 @@
   --card-bg:#f5f5f0;--card-border:#ddd;
   --g-common:#888;--g-uncommon:#27ae60;--g-rare:#2980b9;--g-epic:#9b59b6;--g-legendary:#f0b429;
 }
-body{background:var(--bg);color:var(--text);font-family:'Courier New',monospace;font-size:13px;height:100vh;overflow:hidden;display:flex;flex-direction:column;user-select:none;}
+body{background:var(--bg);color:var(--text);font-family:'Courier New',monospace;font-size:13px;user-select:none;overflow:hidden;}
+#zoom-wrap{display:flex;flex-direction:column;height:100vh;overflow:hidden;transform-origin:top left;}
 
 /* ── TOPBAR ─────────────────────────────────────────── */
 #topbar{height:54px;background:#0e0e0e;border-bottom:1px solid var(--border);display:flex;align-items:center;padding:0 10px;flex-shrink:0;gap:0;}
@@ -390,6 +391,7 @@ body{background:var(--bg);color:var(--text);font-family:'Courier New',monospace;
 <style id="fs-override"></style>
 </head>
 <body>
+<div id="zoom-wrap">
 
 <!-- TOPBAR -->
 <div id="topbar">
@@ -861,6 +863,7 @@ body{background:var(--bg);color:var(--text);font-family:'Courier New',monospace;
   <div class="timer" id="death-timer">10</div>
 </div>
 
+</div><!-- /zoom-wrap -->
 <script>
 // ═══════════════════════════════════════════════════════
 // SVG ARTWORK
@@ -2239,7 +2242,11 @@ function setupSettings(){
   let zoom=S.settings.uiZoom||100;
   function applyZoom(z){
     S.settings.uiZoom=z;
-    document.body.style.zoom=z/100;
+    const scale=z/100;
+    const wrap=document.getElementById('zoom-wrap');
+    wrap.style.width=(100/scale)+'vw';
+    wrap.style.height=(100/scale)+'vh';
+    wrap.style.transform='scale('+scale+')';
     document.getElementById('zoom-val').textContent=z+'%';
   }
   applyZoom(zoom);
