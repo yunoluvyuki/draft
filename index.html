@@ -164,6 +164,14 @@ body{background:var(--bg);color:var(--text);font-family:'Courier New',monospace;
 .battle-btn.primary:hover:not(:disabled){background:#2a1010;}
 .battle-btn.danger{border-color:var(--red);color:var(--red);}
 #battle-status{font-size:10px;color:var(--text2);margin-top:8px;padding:6px;background:var(--bg3);border:1px solid var(--border);}
+#battle-timers{margin-top:10px;display:flex;flex-direction:column;gap:5px;}
+.timer-row{display:flex;align-items:center;gap:6px;}
+.timer-label{font-size:8px;color:var(--text3);letter-spacing:1px;width:70px;flex-shrink:0;}
+.timer-bar-wrap{flex:1;height:6px;background:var(--bg3);border:1px solid var(--border);overflow:hidden;}
+.timer-fill{height:100%;transition:width 0.1s linear;}
+.tfill-player{background:#e74c3c;}
+.tfill-enemy{background:#9b59b6;}
+.timer-text{font-size:8px;color:var(--text2);width:28px;text-align:right;flex-shrink:0;}
 #victory-panel{background:var(--bg2);border:1px solid var(--border);padding:12px;}
 #victory-panel h3{font-size:10px;color:var(--text2);letter-spacing:1px;margin-bottom:8px;}
 .victory-stat{display:flex;justify-content:space-between;font-size:10px;margin-bottom:3px;}
@@ -428,9 +436,20 @@ body{background:var(--bg);color:var(--text);font-family:'Courier New',monospace;
                 </div>
               </div>
             </div>
-            <div id="battle-controls" style="margin-top:10px;">
-              <button class="battle-btn primary" id="btn-attack">⚔ ATTACK</button>
-              <button class="battle-btn" id="btn-defend">🛡 DEFEND</button>
+            <div id="battle-timers">
+              <div class="timer-row">
+                <span class="timer-label">YOUR TURN</span>
+                <div class="timer-bar-wrap"><div class="timer-fill tfill-player" id="ptimer-bar" style="width:0%"></div></div>
+                <span class="timer-text" id="ptimer-text">—</span>
+              </div>
+              <div class="timer-row">
+                <span class="timer-label">ENEMY TURN</span>
+                <div class="timer-bar-wrap"><div class="timer-fill tfill-enemy" id="etimer-bar" style="width:0%"></div></div>
+                <span class="timer-text" id="etimer-text">—</span>
+              </div>
+            </div>
+            <div id="battle-controls" style="margin-top:8px;">
+              <button class="battle-btn" id="btn-defend" title="Queue a DEFEND stance for your next turn — halves incoming damage and boosts regen">🛡 DEFEND</button>
               <button class="battle-btn danger" id="btn-flee">FLEE</button>
             </div>
             <div id="turn-display" style="font-size:9px;color:var(--text3);letter-spacing:1px;margin-top:6px;text-align:center;">—</div>
@@ -1405,7 +1424,8 @@ let B = {
   active:false,creature:null,playerHP:0,enemyHP:0,
   deathTimer:0,dying:false,fleeTimer:0,
   lastTick:0,
-  turnCount:0,awaitingInput:false,defending:false,
+  turnCount:0,defending:false,defendQueued:false,
+  playerTimer:3000,enemyTimer:3000,
 };
 
 // ═══════════════════════════════════════════════════════
@@ -1577,8 +1597,10 @@ function startBattle(creatureId){
   B.enemyHP=c.hp;
   B.lastTick=Date.now();
   B.turnCount=0;
-  B.awaitingInput=true;
   B.defending=false;
+  B.defendQueued=false;
+  B.playerTimer=3000/(S.stats.apn||1);
+  B.enemyTimer=3000;
   updateBattleUI();
   addLog(`<span class="log-info">⚔ Battle started: ${c.name}</span>`);
   if(S.settings.battleNav==='always') switchTab('battle');
@@ -1609,77 +1631,83 @@ function battleTick(){
         S.currentCreature=null;
       }
     }
+    return;
+  }
+  if(!B.active||!B.creature)return;
+  const now=Date.now();
+  const dt=Math.min(now-B.lastTick,500);
+  B.lastTick=now;
+  B.playerTimer-=dt;
+  B.enemyTimer-=dt;
+  if(B.playerTimer<=0){
+    firePlayerTurn();
+    if(!B.active)return;
+    B.playerTimer=Math.max(200,3000/(S.stats.apn||1));
+  }
+  if(!B.active)return;
+  if(B.enemyTimer<=0){
+    fireEnemyTurn();
+    if(!B.active)return;
+    B.enemyTimer=3000;
   }
 }
-function doTurn(action){
-  if(!B.active||!B.creature||B.dying||!B.awaitingInput)return;
+function firePlayerTurn(){
   const c=B.creature;
   const st=S.stats;
   B.turnCount++;
-  B.awaitingInput=false;
   const t=B.turnCount;
-
-  // ── PLAYER ACTION ──────────────────────────────────────
-  if(action==='attack'){
+  const action=B.defendQueued?'defend':'attack';
+  B.defendQueued=false;
+  const btnDef=document.getElementById('btn-defend');
+  if(btnDef) btnDef.classList.remove('active');
+  if(action==='defend'){
+    B.defending=true;
+    const regen=Math.min((st.rgn??0)*5,maxHP()-B.playerHP);
+    if(regen>0) B.playerHP=Math.min(maxHP(),B.playerHP+regen);
+    addLog(`<span class="log-info">Turn ${t}: 🛡 You brace${regen>0?' (+'+regen.toFixed(1)+' HP)':''}.`);
+  } else {
     const isMiss=Math.random()>(st.acc??1);
     if(isMiss){
-      addLog(`<span class="log-info">Turn ${t}: You swing at <b>${c.name}</b> — <b>MISS!</b></span>`);
+      addLog(`<span class="log-info">Turn ${t}: You swing at <b>${c.name}</b> — MISS!</span>`);
     } else {
-      const isCrit=Math.random()<st.crc;
-      const base=Math.max(0.5,(st.atk*st.mxd - c.def));
-      const dmg=base*(isCrit?st.crd:1);
+      const isCrit=Math.random()<(st.crc??0);
+      const base=Math.max(0.5,(st.atk*(st.mxd??1))-c.def);
+      const dmg=base*(isCrit?(st.crd??1):1);
       B.enemyHP=Math.max(0,B.enemyHP-dmg);
       if(isCrit){
-        addLog(`<span class="log-crit">Turn ${t}: ✦ CRITICAL HIT — you deal <b>${dmg.toFixed(1)}</b> to ${c.name}!</span>`);
+        addLog(`<span class="log-crit">Turn ${t}: ✦ CRIT — <b>${dmg.toFixed(1)}</b> to ${c.name}!</span>`);
       } else {
-        addLog(`<span class="log-info">Turn ${t}: You attack <b>${c.name}</b> for <b>${dmg.toFixed(1)}</b> damage.</span>`);
+        addLog(`<span class="log-info">Turn ${t}: You deal <b>${dmg.toFixed(1)}</b> to <b>${c.name}</b>.</span>`);
       }
     }
-    // Passive regen on attack turns
-    const regen=st.rgn*2;
-    if(regen>0) B.playerHP=Math.min(maxHP(),B.playerHP+regen);
-  } else if(action==='defend'){
-    B.defending=true;
-    const regen=Math.min(st.rgn*5, maxHP()-B.playerHP);
-    if(regen>0) B.playerHP=Math.min(maxHP(),B.playerHP+regen);
-    addLog(`<span class="log-info">Turn ${t}: 🛡 You brace for impact${regen>0?' and recover <b>'+regen.toFixed(1)+'</b> HP':''}.`);
+    if((st.rgn??0)>0) B.playerHP=Math.min(maxHP(),B.playerHP+(st.rgn*2));
   }
-
-  // Check win after player's blow
-  if(B.enemyHP<=0){B.defending=false;onWin();return;}
-
-  // ── ENEMY RETALIATION ──────────────────────────────────
+  if(B.enemyHP<=0){B.defending=false;onWin();}
+}
+function fireEnemyTurn(){
+  const c=B.creature;
+  const st=S.stats;
   const isDodge=Math.random()<(st.dog??0);
   if(isDodge){
-    addLog(`<span class="log-info">↳ ${c.name} retaliates — you <b>dodge!</b></span>`);
-  } else {
-    const rawDmg=Math.max(1, c.atk/(1+(st.arm??0)*0.15));
-    const isBlock=Math.random()<(st.blk??0);
-    let dmg=isBlock?Math.max(0,rawDmg-(st.bld??0)):rawDmg;
-    if(B.defending) dmg=dmg*0.5;
-    const isCounter=Math.random()<(st.ctr??0);
-    const counterDmg=isCounter?Math.max(0.1,(st.atk*0.5-c.def)):0;
-    B.playerHP=Math.max(0,B.playerHP-dmg);
-    if(counterDmg>0) B.enemyHP=Math.max(0,B.enemyHP-counterDmg);
-    let msg=`↳ <b>${c.name}</b> strikes back for <b>${dmg.toFixed(1)}</b> dmg`;
-    if(isBlock) msg+=` <span style="color:var(--text2)">(blocked ${(rawDmg-dmg).toFixed(1)})</span>`;
-    if(B.defending) msg+=` <span style="color:#4ecdc4">[guarded — halved]</span>`;
-    if(counterDmg>0) msg+=`. <span class="log-crit">↩ COUNTER ${counterDmg.toFixed(1)} reflected!</span>`;
-    addLog(`<span class="log-die">${msg}.</span>`);
+    addLog(`<span class="log-info">↳ ${c.name} attacks — you <b>dodge!</b></span>`);
+    B.defending=false;
+    return;
   }
-
+  const rawDmg=Math.max(1,c.atk/(1+(st.arm??0)*0.15));
+  const isBlock=Math.random()<(st.blk??0);
+  let dmg=isBlock?Math.max(0,rawDmg-(st.bld??0)):rawDmg;
+  if(B.defending) dmg*=0.5;
+  const isCounter=Math.random()<(st.ctr??0);
+  const counterDmg=isCounter?Math.max(0.1,(st.atk*0.5)-c.def):0;
+  B.playerHP=Math.max(0,B.playerHP-dmg);
+  if(counterDmg>0) B.enemyHP=Math.max(0,B.enemyHP-counterDmg);
+  let msg=`↳ <b>${c.name}</b> hits for <b>${dmg.toFixed(1)}</b>`;
+  if(isBlock) msg+=` <span style="color:var(--text2)">(blocked ${(rawDmg-dmg).toFixed(1)})</span>`;
+  if(B.defending) msg+=` <span style="color:#4ecdc4">[guarded]</span>`;
+  if(counterDmg>0) msg+=`. <span class="log-crit">↩ COUNTER ${counterDmg.toFixed(1)}!</span>`;
+  addLog(`<span class="log-die">${msg}.</span>`);
   B.defending=false;
-
-  // Check lose
-  if(B.playerHP<=0){onLose();return;}
-
-  // Auto-challenge: if auto-challenge enabled and awaitingInput, fire a turn automatically
-  B.awaitingInput=true;
-  updateBattleUI();
-  renderStats();
-  if(S.protocols.autoChallenge&&B.active){
-    setTimeout(()=>doTurn('attack'),400);
-  }
+  if(B.playerHP<=0) onLose();
 }
 function onWin(){
   const c=B.creature;
@@ -1819,10 +1847,12 @@ function updateBattleStats(){
 }
 function updateBattleUI(){
   const c=B.creature;
-  const btnAtk=document.getElementById('btn-attack');
   const btnDef=document.getElementById('btn-defend');
-  const btnFlee=document.getElementById('btn-flee');
   const turnEl=document.getElementById('turn-display');
+  const ptimerBar=document.getElementById('ptimer-bar');
+  const etimerBar=document.getElementById('etimer-bar');
+  const ptimerText=document.getElementById('ptimer-text');
+  const etimerText=document.getElementById('etimer-text');
   if(!c){
     document.getElementById('battle-creature-name').textContent='SELECT A CREATURE';
     document.getElementById('battle-creature-tag').textContent='Go to Gallery to challenge a creature.';
@@ -1833,7 +1863,9 @@ function updateBattleUI(){
     document.getElementById('battle-art').innerHTML='';
     document.getElementById('battle-status').textContent='No active battle.';
     if(turnEl) turnEl.textContent='—';
-    btnAtk.disabled=true; btnDef.disabled=true;
+    if(btnDef) btnDef.disabled=true;
+    if(ptimerBar){ptimerBar.style.width='0%';ptimerText.textContent='—';}
+    if(etimerBar){etimerBar.style.width='0%';etimerText.textContent='—';}
     updateBattleStats();
     return;
   }
@@ -1846,17 +1878,26 @@ function updateBattleUI(){
   document.getElementById('enemy-hp-text').textContent=`${B.enemyHP.toFixed(1)} / ${c.hp}`;
   document.getElementById('player-hp-bar').style.width=ppct+'%';
   document.getElementById('player-hp-text').textContent=`${Math.max(0,B.playerHP).toFixed(1)} / ${maxHP().toFixed(1)}`;
-  const canAct=B.active&&B.awaitingInput&&!B.dying;
-  btnAtk.disabled=!canAct; btnDef.disabled=!canAct;
+  // Timer bars
+  if(B.active&&!B.dying){
+    const pInterval=Math.max(200,3000/(S.stats.apn||1));
+    const pFill=Math.max(0,Math.min(100,(1-B.playerTimer/pInterval)*100));
+    const eFill=Math.max(0,Math.min(100,(1-B.enemyTimer/3000)*100));
+    if(ptimerBar){ptimerBar.style.width=pFill+'%';ptimerText.textContent=(Math.max(0,B.playerTimer)/1000).toFixed(1)+'s';}
+    if(etimerBar){etimerBar.style.width=eFill+'%';etimerText.textContent=(Math.max(0,B.enemyTimer)/1000).toFixed(1)+'s';}
+  }
+  if(btnDef){
+    btnDef.disabled=!B.active||B.dying;
+    btnDef.textContent=B.defendQueued?'🛡 DEFEND ✓':'🛡 DEFEND';
+  }
   if(turnEl){
     if(B.dying) turnEl.textContent='DEFEATED — RECOVERING...';
-    else if(B.active&&canAct) turnEl.textContent=`TURN ${B.turnCount+1} — YOUR MOVE`;
-    else if(B.active) turnEl.textContent=`TURN ${B.turnCount} — RESOLVING...`;
+    else if(B.active) turnEl.textContent=`TURN ${B.turnCount} | ATK SPEED: ${(S.stats.apn||1).toFixed(2)}× | KILLS: ${S.victories[c.id]||0}/${c.vicReq}`;
     else turnEl.textContent='—';
   }
   const eatk=Math.max(1,c.atk/(1+(S.stats.arm??0)*0.15));
   document.getElementById('battle-status').textContent=
-    B.active?`Your ATK: ${S.stats.atk.toFixed(1)} | Enemy ATK: ${eatk.toFixed(1)} | Kills: ${S.victories[c.id]||0}/${c.vicReq}`
+    B.active?`Your ATK: ${S.stats.atk.toFixed(1)} | Enemy ATK: ${eatk.toFixed(1)} | Turn every ${(3000/(S.stats.apn||1)/1000).toFixed(1)}s`
     :'Battle paused.';
   updateBattleStats();
 }
@@ -2161,8 +2202,13 @@ function setupSettings(){
   });
 
   // Battle controls
-  document.getElementById('btn-attack').addEventListener('click',()=>doTurn('attack'));
-  document.getElementById('btn-defend').addEventListener('click',()=>doTurn('defend'));
+  document.getElementById('btn-defend').addEventListener('click',()=>{
+    if(!B.active||B.dying){toast('No active battle.');return;}
+    B.defendQueued=!B.defendQueued;
+    const btn=document.getElementById('btn-defend');
+    btn.classList.toggle('active',B.defendQueued);
+    btn.textContent=B.defendQueued?'🛡 DEFEND ✓':'🛡 DEFEND';
+  });
   document.getElementById('btn-flee').addEventListener('click',()=>{
     if(B.active){addLog(`<span class="log-die">✗ You fled from ${B.creature?B.creature.name:'battle'}.`);stopBattle();}
     else toast('No active battle to flee from.');
