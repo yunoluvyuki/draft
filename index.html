@@ -1553,62 +1553,53 @@ const TYPE_COLORS={scrap:'#555',elite:'#8e44ad',boss:'#c0392b'};
 
 function renderGallery(){
   const g=document.getElementById('gallery-grid');
-  const tiers=[1,2,3,4,5];
-  let html='';
-  tiers.forEach(tier=>{
-    const tierCreatures=CREATURES.filter(c=>getTier(c)===tier&&isUnlocked(c.id));
-    const tierTotal=CREATURES.filter(c=>getTier(c)===tier).length;
-    const tierHidden=tierTotal-tierCreatures.length;
-    if(!tierCreatures.length&&!tierHidden)return;
+  const visible=CREATURES.filter(c=>isUnlocked(c.id));
+  const hidden=CREATURES.length-visible.length;
+  const encountered=visible.filter(c=>getVictories(c.id)>0).length;
+  let html=`<div style="grid-column:1/-1;display:flex;align-items:center;gap:8px;margin-bottom:10px;">
+    <div style="font-size:8px;color:var(--text3);">${encountered}/${visible.length} encountered</div>
+    <div style="flex:1;height:1px;background:var(--text3);opacity:0.2;"></div>
+    ${hidden>0?`<div style="font-size:8px;color:var(--text3);font-style:italic;opacity:0.6;">${hidden} in the dark…</div>`:''}
+  </div>`;
+  html+=visible.map(c=>{
+    const tier=getTier(c);
     const color=TIER_COLORS[tier]||'#555';
     const label=TIER_LABELS[tier]||'TIER '+tier;
-    const unlocked=tierCreatures.filter(c=>getVictories(c.id)>0).length;
-    html+=`<div style="grid-column:1/-1;margin:${tier>1?'24px':0} 0 8px;">
-      <div style="display:flex;align-items:center;gap:8px;">
-        <div style="font-size:9px;font-weight:bold;letter-spacing:3px;color:${color};text-transform:uppercase;padding:2px 7px;border:1px solid ${color};opacity:0.9;">◆ ${label}</div>
-        <div style="font-size:8px;color:var(--text3);">${unlocked}/${tierCreatures.length} encountered</div>
-        <div style="flex:1;height:1px;background:${color};opacity:0.25;"></div>
-      </div>
-      <div style="font-size:8px;color:var(--text3);font-style:italic;margin-top:4px;padding-left:2px;">${TIER_DESC[tier]||''}${tierHidden>0?` <span style="color:${color};opacity:0.5;font-style:normal;">&nbsp;·&nbsp;${tierHidden} in the dark…</span>`:''}</div>
-    </div>`;
-    if(!tierCreatures.length)return;
-    html+=tierCreatures.map(c=>{
-      const vic=getVictories(c.id);
-      const maxed=isMaxed(c);
-      const isCurrent=S.currentCreature===c.id;
-      const pct=Math.min(100,vic/c.vicReq*100);
-      const rewardStr=Object.entries(c.rewards).map(([k,v])=>`<span class="reward-item ${['gra','wax','cha'].includes(k)?'res':''}">${k.toUpperCase()} +${v}</span>`).join('');
-      const countStr=c.count!=null?`<span style="margin-left:4px;color:var(--text3);">${c.count}</span>`:'';
-      const rarityBadge=`<span style="position:absolute;top:4px;left:4px;font-size:6px;font-weight:bold;letter-spacing:1px;padding:1px 4px;background:${color};color:#fff;opacity:0.85;">${label}</span>`;
-      const typeBadge=c.type&&c.type!=='scrap'?`<span style="position:absolute;bottom:4px;right:4px;font-size:7px;padding:1px 4px;background:${TYPE_COLORS[c.type]||'#555'};color:#fff;letter-spacing:1px;">${c.type.toUpperCase()}</span>`:'';
-      let btnHtml='';
-      if(maxed)btnHtml=`<button class="btn-challenge btn-maxed">MAXED</button>`;
-      else if(isCurrent)btnHtml=`<button class="btn-challenge btn-current" onclick="stopBattle()">FIGHTING</button>`;
-      else btnHtml=`<button class="btn-challenge" onclick="startBattle('${c.id}')">CHALLENGE</button>`;
-      const borderColor=isCurrent?'var(--green)':maxed?'#333':`${color}44`;
-      return `<div class="creature-card" id="card-${c.id}" style="border-color:${borderColor};background:${maxed?'transparent':TIER_BG[tier]||'transparent'}">
-        <div class="card-top">
-          <div class="card-art" style="position:relative;">${rarityBadge}${c.new?'<span class="new-badge">NEW</span>':''}${typeBadge}${SVGs[c.id]||`<div style="color:${color};font-size:22px;opacity:0.4;">✦</div>`}</div>
-          <div class="card-info">
-            <div class="card-name" style="color:${maxed?'var(--text3)':color}">${c.name}</div>
-            <div class="card-tagline">${c.tag}</div>
-            <div class="card-stats">
-              <span class="card-atk">✏ ${fmt(c.atk)}</span> /
-              <span class="card-def">🛡 ${c.def}</span>
-              <span class="card-hp">⚡ ${fmt(c.hp)}</span>
-              ${countStr}
-            </div>
+    const vic=getVictories(c.id);
+    const maxed=isMaxed(c);
+    const isCurrent=S.currentCreature===c.id;
+    const pct=Math.min(100,vic/c.vicReq*100);
+    const rewardStr=Object.entries(c.rewards).map(([k,v])=>`<span class="reward-item ${['gra','wax','cha'].includes(k)?'res':''}">${k.toUpperCase()} +${v}</span>`).join('');
+    const countStr=c.count!=null?`<span style="margin-left:4px;color:var(--text3);">${c.count}</span>`:'';
+    const rarityBadge=`<span style="position:absolute;top:4px;left:4px;font-size:6px;font-weight:bold;letter-spacing:1px;padding:1px 4px;background:${color};color:#fff;opacity:0.85;">${label}</span>`;
+    const typeBadge=c.type&&c.type!=='scrap'?`<span style="position:absolute;bottom:4px;right:4px;font-size:7px;padding:1px 4px;background:${TYPE_COLORS[c.type]||'#555'};color:#fff;letter-spacing:1px;">${c.type.toUpperCase()}</span>`:'';
+    let btnHtml='';
+    if(maxed)btnHtml=`<button class="btn-challenge btn-maxed">MAXED</button>`;
+    else if(isCurrent)btnHtml=`<button class="btn-challenge btn-current" onclick="stopBattle()">FIGHTING</button>`;
+    else btnHtml=`<button class="btn-challenge" onclick="startBattle('${c.id}')">CHALLENGE</button>`;
+    const borderColor=isCurrent?'var(--green)':maxed?'#333':`${color}44`;
+    return `<div class="creature-card" id="card-${c.id}" style="border-color:${borderColor};background:${maxed?'transparent':TIER_BG[tier]||'transparent'}">
+      <div class="card-top">
+        <div class="card-art" style="position:relative;">${rarityBadge}${c.new?'<span class="new-badge">NEW</span>':''}${typeBadge}${SVGs[c.id]||`<div style="color:${color};font-size:22px;opacity:0.4;">✦</div>`}</div>
+        <div class="card-info">
+          <div class="card-name" style="color:${maxed?'var(--text3)':color}">${c.name}</div>
+          <div class="card-tagline">${c.tag}</div>
+          <div class="card-stats">
+            <span class="card-atk">✏ ${fmt(c.atk)}</span> /
+            <span class="card-def">🛡 ${c.def}</span>
+            <span class="card-hp">⚡ ${fmt(c.hp)}</span>
+            ${countStr}
           </div>
         </div>
-        <div class="card-rewards">
-          <div class="rewards-header"><span style="color:${maxed?'var(--text3)':''}">REWARDS ×${calcGlossaryMult().toFixed(2)}</span><span class="vic">${c.vicReq} Victories | <span style="color:${vic>0?'var(--green)':'var(--text3)'}">${vic}</span>/${c.vicReq}</span></div>
-          <div class="victories-bar"><div class="victories-fill" style="width:${pct}%;background:${maxed?'#2a5a2a':color}"></div></div>
-          <div class="reward-list">${rewardStr}</div>
-        </div>
-        <div class="card-btn">${btnHtml}</div>
-      </div>`;
-    }).join('');
-  });
+      </div>
+      <div class="card-rewards">
+        <div class="rewards-header"><span style="color:${maxed?'var(--text3)':''}">REWARDS ×${calcGlossaryMult().toFixed(2)}</span><span class="vic">${c.vicReq} Victories | <span style="color:${vic>0?'var(--green)':'var(--text3)'}">${vic}</span>/${c.vicReq}</span></div>
+        <div class="victories-bar"><div class="victories-fill" style="width:${pct}%;background:${maxed?'#2a5a2a':color}"></div></div>
+        <div class="reward-list">${rewardStr}</div>
+      </div>
+      <div class="card-btn">${btnHtml}</div>
+    </div>`;
+  }).join('');
   g.innerHTML=html;
 }
 function getTier(c){
