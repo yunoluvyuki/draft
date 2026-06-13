@@ -1797,8 +1797,8 @@ function firePlayerTurn(){
   } else {
     const isCrit=Math.random()<(st.crc??0);
     const base=st.atk - c.def;
-    const minDmg=Math.max(st.mnd??0.7, base);
-    const maxDmg=Math.max(minDmg, base*(st.mxd??1));
+    const minDmg=st.atk*(st.mnd??0.7);
+    const maxDmg=st.atk*(st.mxd??1.0);
     let totalDmg=0;
     let hits=0;
     do {
@@ -2008,8 +2008,8 @@ function updateBattleStats(){
   // Derived offensive values
   const enemyEffAtk=c?Math.max(0.5,c.atk/(1+st.arm*0.15)):0;
   const base=c?st.atk-c.def:st.atk;
-  const pMinDmg=Math.max(st.mnd??0.7, base);
-  const pMaxDmg=Math.max(pMinDmg, base*(st.mxd??1));
+  const pMinDmg=st.atk*(st.mnd??0.7);
+  const pMaxDmg=st.atk*(st.mxd??1.0);
   const eMinDmg=c?enemyEffAtk*0.8:0;
   const eMaxDmg=c?enemyEffAtk*1.2:0;
   const offRows=[
