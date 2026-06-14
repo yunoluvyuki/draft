@@ -1534,7 +1534,6 @@ function setupSettings(){
   document.getElementById('btn-hard-reset').addEventListener('click',()=>{
     if(confirm('HARD RESET: All progress will be permanently lost. Are you absolutely sure?')){
       localStorage.removeItem('rejected_draft_save');
-      localStorage.removeItem('rd_tutorial_done');
       S=DEFAULT_STATE();
       B={active:false,creature:null,playerHP:0,enemyHP:0,deathTimer:0,dying:false,fleeTimer:0,lastTick:0};
       synthRates={old:0,bronze:0,silver:0,gold:0,plat:0};

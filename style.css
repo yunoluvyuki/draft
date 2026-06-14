@@ -299,23 +299,6 @@ body{background:var(--bg);color:var(--text);font-family:'Courier New',monospace;
 .notation-mini-btn{padding:2px 5px;background:var(--bg4);border:1px solid var(--border2);color:var(--text2);font-family:inherit;font-size:8px;cursor:pointer;white-space:nowrap;}
 .notation-mini-btn:hover{color:var(--white);}
 .danger-zone-header{margin-top:10px;padding:5px 8px;background:rgba(192,57,43,0.12);border:1px solid rgba(192,57,43,0.3);font-size:8px;color:var(--red2);letter-spacing:2px;text-transform:uppercase;display:flex;align-items:center;gap:4px;margin-bottom:6px;}
-/* Tutorial Popup */
-#tutorial-overlay{position:fixed;inset:0;background:rgba(0,0,0,0.5);z-index:300;display:flex;align-items:center;justify-content:center;}
-#tutorial-box{background:var(--bg2);border:1px solid var(--border2);width:320px;padding:0;}
-#tutorial-header{padding:6px 12px;font-size:8px;color:var(--text3);border-bottom:1px solid var(--border);letter-spacing:1px;}
-#tutorial-body{padding:16px;}
-#tutorial-body h2{font-size:15px;color:var(--white);margin-bottom:10px;letter-spacing:1px;}
-#tutorial-body p{font-size:10px;color:var(--text2);line-height:1.6;}
-#tutorial-footer{padding:8px 12px;border-top:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;}
-#tutorial-footer .tut-nav{display:flex;gap:6px;}
-.tut-btn{padding:5px 14px;background:var(--bg3);border:1px solid var(--border2);color:var(--text);cursor:pointer;font-family:inherit;font-size:9px;letter-spacing:1px;text-transform:uppercase;}
-.tut-btn.primary{background:#1a1a2e;border-color:var(--blue);color:#5dade2;}
-.tut-btn.primary:hover{background:#22224a;}
-.tut-skip{font-size:9px;color:var(--red2);cursor:pointer;text-decoration:underline;text-underline-offset:2px;}
-.tut-skip-sub{font-size:8px;color:var(--text3);}
-/* Community / Wishlist sections */
-.community-text{font-size:9px;color:var(--text2);line-height:1.6;margin-bottom:8px;}
-.wishlist-text{font-size:9px;color:var(--text2);line-height:1.6;margin-bottom:8px;font-style:italic;}
 
 /* ── SCROLLBAR ───────────────────────────────────────── */
 ::-webkit-scrollbar{width:5px;height:5px;}
