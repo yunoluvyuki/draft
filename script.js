@@ -347,7 +347,7 @@ final_draft:`<svg viewBox="0 0 100 140" xmlns="http://www.w3.org/2000/svg" fill=
 // ═══════════════════════════════════════════════════════
 const RESOURCE_LABELS={old:'OLD',bronze:'BRONZE',silver:'SILVER',gold:'GOLD',plat:'PLAT'};
 const CREATURES = [
-  {id:'hollow_wretch',name:'HOLLOW WRETCH',tag:'Nothing left but need.',atk:2,def:1.0,hp:10,count:null,rewards:{atk:0.12,old:0.15},vicReq:5,new:false,type:'scrap'},
+  {id:'hollow_wretch',name:'HOLLOW WRETCH',tag:'Nothing left but need.',atk:2,def:1.0,hp:10,count:null,rewards:{atk:0.12,old:0.15},vicReq:5,new:false,type:'scrap',img:'attached_assets/img/1hollow_wretch.jpg'},
   {id:'plague_hound',name:'PLAGUE HOUND',tag:'Loyal to the rot.',atk:3,def:1.1,hp:550,count:3,rewards:{hp:0.4,old:0.18},vicReq:5,new:false,type:'scrap'},
   {id:'ashwalker',name:'ASHWALKER',tag:'Stepped out of the fire.',atk:4,def:1.1,hp:600,count:'10%',rewards:{atk:0.13,old:0.2},vicReq:5,new:false,type:'scrap'},
   {id:'bonepicker',name:'BONEPICKER',tag:'Patience at its worst.',atk:5,def:1.2,hp:650,count:null,rewards:{old:0.22,atk:0.11},vicReq:5,new:false,type:'scrap'},
@@ -781,7 +781,7 @@ function renderBattle(){
     const spawnBadge=spawnRarity?`<span style="position:absolute;top:4px;right:4px;font-size:6px;font-weight:bold;letter-spacing:1px;padding:1px 4px;background:${spawnRarityColor};color:#fff;">${RARITY_LABELS[spawnRarity]}</span>`:'';
     return `<div class="creature-card" id="card-${c.id}" style="border-color:${borderColor};${rarityGlow}background:${spawnBg}">
       <div class="card-top">
-        <div class="card-art" style="position:relative;">${spawnBadge}${c.new?'<span class="new-badge">NEW</span>':''}${typeBadge}${SVGs[c.id]||`<div style="color:${color};font-size:22px;opacity:0.4;">✦</div>`}</div>
+        <div class="card-art" style="position:relative;">${spawnBadge}${c.new?'<span class="new-badge">NEW</span>':''}${typeBadge}${c.img?`<img src="${c.img}" style="width:100%;height:100%;object-fit:cover;">`:SVGs[c.id]||`<div style="color:${color};font-size:22px;opacity:0.4;">✦</div>`}</div>
         <div class="card-info">
           <div class="card-name" style="color:${maxed?'var(--text3)':color}">${c.name}</div>
           <div class="card-tagline">${c.tag}</div>
@@ -1106,7 +1106,7 @@ function updateBattleUI(){
   document.getElementById('battle-creature-name').textContent=c.name;
   document.getElementById('battle-creature-name').style.color=rc||'var(--white)';
   document.getElementById('battle-creature-tag').textContent=`[${rl}] ${c.tag}`;
-  document.getElementById('battle-art').innerHTML=SVGs[c.id]||'';
+  document.getElementById('battle-art').innerHTML=c.img?`<img src="${c.img}" style="width:100%;height:100%;object-fit:cover;">`:(SVGs[c.id]||'');
   const epct=Math.max(0,B.enemyHP/c.hp*100);
   const ppct=Math.max(0,B.playerHP/maxHP()*100);
   document.getElementById('enemy-hp-bar').style.width=epct+'%';
