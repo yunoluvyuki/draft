@@ -207,17 +207,8 @@ body{background:var(--bg);color:var(--text);font-family:'Courier New',monospace;
 .prestige-tab.active{color:var(--white);border-bottom-color:var(--white);}
 .prestige-pane{display:none;}
 .prestige-pane.active{display:block;}
-/* Synthesizer */
+/* Treasury */
 #synth-layout{display:flex;gap:16px;}
-#synth-table-wrap{flex:1;}
-.synth-table{width:100%;border-collapse:collapse;}
-.synth-table th{font-size:9px;color:var(--text3);text-transform:uppercase;letter-spacing:1px;text-align:left;padding:6px 8px;border-bottom:1px solid var(--border);}
-.synth-table td{padding:8px;border-bottom:1px solid var(--border);font-size:10px;vertical-align:middle;}
-.synth-concept-name{color:var(--white);font-weight:bold;}
-.synth-concept-sub{font-size:8px;color:var(--text3);}
-.synth-milestone-bar{height:6px;background:var(--bg4);border:1px solid var(--border);margin-top:3px;}
-.synth-milestone-fill{height:100%;background:var(--purple2);}
-.synth-eta{font-size:8px;color:var(--cyan);margin-left:4px;}
 #synth-panel{width:160px;flex-shrink:0;}
 .synth-panel-box{background:var(--bg2);border:1px solid var(--border);padding:12px;margin-bottom:8px;}
 .synth-panel-title{font-size:8px;color:var(--text3);letter-spacing:1px;text-transform:uppercase;margin-bottom:6px;}

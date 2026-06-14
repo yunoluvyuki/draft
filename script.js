@@ -530,7 +530,6 @@ const CREATURES = [
 ];
 
 const SHOP_ITEMS = [
-  {id:'synth_chain',name:'SYNTHESIS CHAIN',desc:'Unlocks passive resource conversion (each coin slowly produces the one below it).',effect:'Unlocks passive production chain',cost:{old:1000},statBonus:{},unlock:'synthUnlocked',maxOwned:1},
   {id:'test_mnd',name:'[TEST] MND +10%',desc:'Test upgrade — free.',effect:'MND +10%',cost:{old:0},statBonus:{mnd:0.10}},
   {id:'test_mxd',name:'[TEST] MXD +10%',desc:'Test upgrade — free.',effect:'MXD +10%',cost:{old:0},statBonus:{mxd:0.10}},
   {id:'iron_quill',name:'IRON QUILL',desc:'A sharpened writing instrument, repurposed.',effect:'ATK +5',cost:{old:50},statBonus:{atk:5}},
@@ -563,14 +562,12 @@ const DEFAULT_STATE = ()=>({
   quintLifetime:0,
   reincarnations:0,
   activeTime:0,
-  offlineTime:0,
   deaths:0,
   lifeOld:0,
   lastSave:Date.now(),
   settings:{lightMode:false,invertImg:false,showProtocols:true,combatLog:true,uiZoom:100,battleNav:'manual',numNotation:'mixed',fontSize:13},
   protocols:{autoChallenge:false,autoRetry:false},
   masteryUpgrades:{},
-  synthUnlocked:false,
   sessionRewards:{},
   battleUnlocked:[],
   battleQueue:[],
@@ -1144,53 +1141,14 @@ function renderSessionRewards(){
 }
 
 // ═══════════════════════════════════════════════════════
-// CONCEPTUAL SYNTHESIZER
+// BLOOD COIN / REINCARNATE
 // ═══════════════════════════════════════════════════════
-const SYNTH_CONCEPTS=[
-  {id:'old',name:'Old Coin',sub:'Blood Coin Gain',milestone:1618,baseRate:0},
-  {id:'bronze',name:'Bronze Coin',sub:'Produces Old Coin',milestone:1618,baseRate:0},
-  {id:'silver',name:'Silver Coin',sub:'Produces Bronze Coin',milestone:1618,baseRate:0},
-  {id:'gold',name:'Gold Coin',sub:'Produces Silver Coin',milestone:1618,baseRate:0},
-  {id:'plat',name:'Platinum Coin',sub:'Produces Gold Coin',milestone:1618,baseRate:0},
-];
-let synthRates={old:0,bronze:0,silver:0,gold:0,plat:0};
-function synthTick(dt){
-  const platRate=S.victories['contrast_crusher']||0;
-  const goldRate=S.synthUnlocked?S.resources.plat*0.002:0;
-  const silverRate=S.synthUnlocked?S.resources.gold*0.002:0;
-  const bronzeRate=S.synthUnlocked?S.resources.silver*0.002:0;
-  const oldRate=S.synthUnlocked?S.resources.bronze*0.005:0;
-  synthRates.plat=platRate;
-  synthRates.gold=goldRate;
-  synthRates.silver=silverRate;
-  synthRates.bronze=bronzeRate;
-  synthRates.old=oldRate;
-  S.resources.plat+=platRate*dt;
-  S.resources.gold+=goldRate*dt;
-  S.resources.silver+=silverRate*dt;
-  S.resources.bronze+=bronzeRate*dt;
-  S.resources.old+=oldRate*dt;
-  // Quintessence from graphite milestone
+function checkQuintMilestone(){
   if(S.resources.old>=S.quintPending*100+100){
     S.quintPending+=1;
   }
 }
-function renderSynth(){
-  const tb=document.getElementById('synth-tbody');
-  tb.innerHTML=SYNTH_CONCEPTS.map(c=>{
-    const total=S.resources[c.id]||0;
-    const pct=Math.min(100,total/c.milestone*100);
-    const rate=synthRates[c.id]||0;
-    const eta=rate>0?fmtTime((c.milestone-total)/rate):'—';
-    const etaStr=total<c.milestone?`<span class="synth-eta">${eta}</span>`:'<span class="synth-eta" style="color:var(--green)">DONE</span>';
-    return`<tr>
-      <td><div class="synth-concept-name">${c.name}</div><div class="synth-concept-sub">${c.sub}</div></td>
-      <td>${fmt(total)}</td>
-      <td>${c.milestone} ${etaStr}<div class="synth-milestone-bar"><div class="synth-milestone-fill" style="width:${pct}%"></div></div></td>
-      <td>${S.victories[CREATURES.find(x=>x.rewards.silver!==undefined)?.id]||0}</td>
-      <td>${rate>0?'+'+rate.toFixed(4)+'/s':'0'}</td>
-    </tr>`;
-  }).join('');
+function updateQuintUI(){
   document.getElementById('quint-pending').textContent='+'+fmt(S.quintPending);
   document.getElementById('quint-pend-val').textContent='+'+fmt(S.quintPending);
   document.getElementById('quint-life-val').textContent=fmt(S.quintLifetime);
@@ -1198,7 +1156,6 @@ function renderSynth(){
   const ready=S.quintPending>=100;
   const rb=document.getElementById('reincarnate-btn');
   rb.className=ready?'ready':'';
-  rb.id='reincarnate-btn';
   document.getElementById('reincarnate-req').textContent=ready?'READY TO REINCARNATE!':'REQUIRES 100 PENDING BLOOD COIN';
 }
 
@@ -1260,19 +1217,12 @@ function buyShopItem(id){
 // ═══════════════════════════════════════════════════════
 // RESOURCES DISPLAY
 // ═══════════════════════════════════════════════════════
-let lastResources={old:0,bronze:0,silver:0,gold:0,plat:0};
-let resRates={old:0,bronze:0,silver:0,gold:0,plat:0};
 function updateResources(){
   document.getElementById('res-old').textContent=fmt(S.resources.old);
   document.getElementById('res-bronze').textContent=fmt(S.resources.bronze);
   document.getElementById('res-silver').textContent=fmt(S.resources.silver);
   document.getElementById('res-gold').textContent=fmt(S.resources.gold);
   document.getElementById('res-plat').textContent=fmt(S.resources.plat);
-  document.getElementById('res-old-rate').textContent=(synthRates.old>0?'+':'')+synthRates.old.toFixed(3)+'/s';
-  document.getElementById('res-bronze-rate').textContent=(synthRates.bronze>0?'+':'')+synthRates.bronze.toFixed(3)+'/s';
-  document.getElementById('res-silver-rate').textContent=(synthRates.silver>0?'+':'')+synthRates.silver.toFixed(3)+'/s';
-  document.getElementById('res-gold-rate').textContent=(synthRates.gold>0?'+':'')+synthRates.gold.toFixed(3)+'/s';
-  document.getElementById('res-plat-rate').textContent=(synthRates.plat>0?'+':'')+synthRates.plat.toFixed(3)+'/s';
 }
 
 // ═══════════════════════════════════════════════════════
@@ -1360,7 +1310,7 @@ function switchTab(name){
   if(name==='inventory')renderInventory();
   if(name==='shop')renderShop();
   if(name==='archive'){
-    renderSynth();renderGlossary();
+    updateQuintUI();renderGlossary();
     document.getElementById('archive-dot').style.display='none';
   }
 }
@@ -1387,7 +1337,7 @@ document.querySelectorAll('.prestige-tab').forEach(t=>{
   t.addEventListener('click',()=>{
     document.querySelectorAll('.prestige-tab').forEach(x=>x.classList.toggle('active',x===t));
     document.querySelectorAll('.prestige-pane').forEach(x=>x.classList.toggle('active',x.id==='arch-'+t.dataset.arch));
-    if(t.dataset.arch==='synth')renderSynth();
+    if(t.dataset.arch==='synth')updateQuintUI();
     if(t.dataset.arch==='glossary')renderGlossary();
     if(t.dataset.arch==='masterpiece')renderMastery();
   });
@@ -1453,8 +1403,7 @@ function setupSettings(){
     ['.victory-stat',10],['#death-overlay h2',16],['#death-overlay .timer',24],
     ['.bsp-box-title',11],['.bsp-box-sub',8],['.bsp-col-head',8],
     ['.bsp-name',10],['.bsp-you',9],['.bsp-enemy',9],['.prestige-tab',10],
-    ['.synth-table th',9],['.synth-table td',10],['.synth-concept-sub',8],
-    ['.synth-eta',8],['.synth-panel-title',8],['.quint-pending',24],
+    ['.synth-panel-title',8],['.quint-pending',24],
     ['.quint-sub',8],['.quint-row',9],['#reincarnate-btn',9],['.reincarnate-req',8],
     ['.settings-row-label',10],['.settings-check-label',10],
     ['.settings-check-sublabel',8],['.zoom-val',10],['.zoom-btn',11],
@@ -1543,7 +1492,6 @@ function setupSettings(){
       localStorage.removeItem('rejected_draft_save');
       S=DEFAULT_STATE();
       B={active:false,creature:null,playerHP:0,enemyHP:0,deathTimer:0,dying:false,fleeTimer:0,lastTick:0};
-      synthRates={old:0,bronze:0,silver:0,gold:0,plat:0};
       initBattleQueue();
       renderAll();
       toast('Game has been reset.',3000);
@@ -1564,7 +1512,7 @@ function setupSettings(){
     switchTab('archive');
     document.querySelectorAll('.prestige-tab').forEach(x=>x.classList.toggle('active',x.dataset.arch==='synth'));
     document.querySelectorAll('.prestige-pane').forEach(x=>x.classList.toggle('active',x.id==='arch-synth'));
-    renderSynth();
+    updateQuintUI();
   });
 
   // Reincarnate
@@ -1585,7 +1533,6 @@ function setupSettings(){
     S.battleUnlocked=[];
     S.battleQueue=[];
     B={active:false,creature:null,playerHP:0,enemyHP:0,deathTimer:0,dying:false,fleeTimer:0,lastTick:0};
-    synthRates={old:0,bronze:0,silver:0,gold:0,plat:0};
     initBattleQueue();
     renderAll();
   });
@@ -1612,26 +1559,11 @@ function loadGame(){
     S.victories=Object.assign({},loaded.victories||{});
     S.shopOwned=Object.assign({},loaded.shopOwned||{});
     S.spawnRarity=Object.assign({},loaded.spawnRarity||{});
-    S.synthUnlocked=loaded.synthUnlocked||false;
     S.deaths=loaded.deaths||0;
     S.lifeOld=loaded.lifeOld||0;
     S.reincarnations=loaded.reincarnations||0;
     S.quintPending=loaded.quintPending||0;
     S.quintLifetime=loaded.quintLifetime||0;
-    // Offline progress
-    const offline=Math.min((Date.now()-(loaded.lastSave||Date.now()))/1000, 86400);
-    if(offline>10){
-      S.offlineTime=(S.offlineTime||0)+offline;
-      if(S.synthUnlocked){
-        const offlineRate=0.5+(S.reincarnations*0.1);
-        const offlineOld=offline*offlineRate;
-        const offlineBronze=offline*(offlineRate*0.05);
-        S.resources.old+=offlineOld;
-        S.resources.bronze+=offlineBronze;
-        S.lifeOld+=offlineOld;
-        setTimeout(()=>toast(`Welcome back! +${fmt(offlineOld)} OLD, +${fmt(offlineBronze)} BRONZE offline (${fmtTime(offline)})`,5000),500);
-      }
-    }
   }catch(e){console.error('Load failed',e);}
   initBattleQueue();
 }
@@ -1659,7 +1591,7 @@ document.querySelectorAll('#fund-filters .filter-tab').forEach(t=>{
 // ═══════════════════════════════════════════════════════
 function renderAll(){
   renderStats();renderFundamentals();renderBattle();renderShop();
-  renderSynth();renderGlossary();
+  updateQuintUI();renderGlossary();
   updateBattleUI();renderSessionRewards();updateResources();
 }
 
@@ -1678,7 +1610,7 @@ function gameLoop(){
     frameCount=0;fpsTimer=0;
   }
   battleTick();
-  synthTick(dt);
+  checkQuintMilestone();
   S.activeTime=(S.activeTime||0)+dt;
   // Update UI periodically
   if(frameCount%3===0){
@@ -1686,13 +1618,12 @@ function gameLoop(){
     updateResources();
     updateArchiveDot();
     document.getElementById('active-time').textContent=fmtTime(S.activeTime);
-    document.getElementById('offline-time').textContent=fmtTime(S.offlineTime||0);
   }
   if(frameCount%30===0){
     renderStats();renderFundamentals();
-      const archActive=document.getElementById('tab-archive').classList.contains('active');
+    const archActive=document.getElementById('tab-archive').classList.contains('active');
     if(archActive){
-      if(document.getElementById('arch-synth').classList.contains('active'))renderSynth();
+      if(document.getElementById('arch-synth').classList.contains('active'))updateQuintUI();
     }
     // renderBattle() removed from periodic loop — it is called on every real
     // state change (startBattle/stopBattle/onWin/unlockNextCreature/tab-switch/load).
