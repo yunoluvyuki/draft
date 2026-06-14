@@ -16,7 +16,7 @@
     <button class="nav-tab active" data-tab="gallery">BATTLE<span class="dot" id="gallery-dot" style="display:none"></span></button>
     <button class="nav-tab" data-tab="inventory">INVENTORY</button>
     <button class="nav-tab" data-tab="shop">SHOP</button>
-    <button class="nav-tab" data-tab="archive">PRESTIGE<span class="dot" id="archive-dot"></span></button>
+    <button class="nav-tab" data-tab="archive">PRESTIGE<span class="dot" id="archive-dot" style="display:none"></span></button>
     <button class="nav-tab" data-tab="settings">SETTINGS</button>
   </div>
   <div id="resources">
@@ -45,7 +45,6 @@
       <div class="res-val" id="res-plat">0</div>
       <div class="res-rate" id="res-plat-rate">+0/s</div>
     </div>
-    <div class="res-unknown">?</div>
   </div>
   <button id="add-btn">+</button>
   <div id="quint-count">0</div>
@@ -168,8 +167,8 @@
               <div class="quint-row"><span class="softcap-label">PENDING</span><span class="softcap-val" id="quint-pend-val">+0</span></div>
               <div class="quint-row"><span class="softcap-label">LIFETIME</span><span class="softcap-val" id="quint-life-val">0</span></div>
               <div class="quint-row"><span class="softcap-label">FIRST SOFTCAP</span><span class="softcap-val">1000</span></div>
-              <button id="redraw-btn">REDRAW WORLD</button>
-              <div class="redraw-req" id="redraw-req">REQUIRES 100 PENDING BLOOD COIN</div>
+              <button id="reincarnate-btn">REINCARNATE</button>
+              <div class="reincarnate-req" id="reincarnate-req">REQUIRES 100 PENDING BLOOD COIN</div>
             </div>
             <div class="synth-panel-box">
               <div class="synth-panel-title">TIME</div>
@@ -317,7 +316,7 @@
             <tr><td>DEFEAT</td><td><input type="checkbox" checked></td><td><input type="checkbox"></td><td><input type="checkbox"></td></tr>
             <tr><td>TOOL</td><td><input type="checkbox" checked></td><td><input type="checkbox"></td><td><input type="checkbox"></td></tr>
             <tr><td>REWARD</td><td><input type="checkbox" checked></td><td><input type="checkbox"></td><td><input type="checkbox"></td></tr>
-            <tr><td>REDRAW</td><td><input type="checkbox" checked></td><td><input type="checkbox"></td><td><input type="checkbox" checked></td></tr>
+            <tr><td>REINCARNATE</td><td><input type="checkbox" checked></td><td><input type="checkbox"></td><td><input type="checkbox" checked></td></tr>
             <tr><td>MILESTONE</td><td><input type="checkbox" checked></td><td><input type="checkbox"></td><td><input type="checkbox"></td></tr>
             <tr><td>SHOP</td><td><input type="checkbox" checked></td><td><input type="checkbox"></td><td><input type="checkbox"></td></tr>
           </table>

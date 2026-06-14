@@ -22,9 +22,9 @@ body{background:var(--bg);color:var(--text);font-family:'Courier New',monospace;
 .nav-tab .dot{width:7px;height:7px;border-radius:50%;background:var(--green);position:absolute;top:8px;right:8px;}
 #resources{display:flex;align-items:center;gap:2px;flex:1;}
 .res-block{display:flex;flex-direction:column;align-items:center;padding:0 14px;border-right:1px solid var(--border);min-width:84px;}
-.res-val{font-size:15px;color:var(--white);font-weight:bold;}
-.res-rate{font-size:11px;color:var(--text3);}
-.res-icon{font-size:10px;color:var(--text3);margin-bottom:1px;}
+.res-val{font-size:18px;color:var(--white);font-weight:bold;}
+.res-rate{font-size:13px;color:var(--text3);}
+.res-icon{font-size:12px;color:var(--text3);margin-bottom:1px;}
 .res-unknown{color:var(--text4);font-size:22px;padding:0 16px;border-right:1px solid var(--border);}
 #topbar .fps{margin-left:auto;color:var(--text3);font-size:12px;padding-right:6px;}
 #add-btn{width:26px;height:26px;border:1px solid var(--border2);background:var(--bg3);color:var(--purple2);cursor:pointer;font-size:16px;display:flex;align-items:center;justify-content:center;margin:0 4px;font-family:inherit;}
@@ -226,10 +226,10 @@ body{background:var(--bg);color:var(--text);font-family:'Courier New',monospace;
 .quint-row{display:flex;justify-content:space-between;font-size:9px;margin-top:4px;}
 .softcap-label{color:var(--text3);}
 .softcap-val{color:var(--text);}
-#redraw-btn{width:100%;padding:8px;background:var(--bg3);border:1px solid var(--border2);color:var(--text2);font-family:inherit;font-size:9px;letter-spacing:1px;text-transform:uppercase;cursor:not-allowed;margin-top:8px;}
-#redraw-btn.ready{cursor:pointer;border-color:var(--purple2);color:var(--purple2);background:#1a0e2e;}
-#redraw-btn.ready:hover{background:#25143d;}
-.redraw-req{font-size:8px;color:var(--red2);text-align:center;margin-top:4px;}
+#reincarnate-btn{width:100%;padding:8px;background:var(--bg3);border:1px solid var(--border2);color:var(--text2);font-family:inherit;font-size:9px;letter-spacing:1px;text-transform:uppercase;cursor:not-allowed;margin-top:8px;}
+#reincarnate-btn.ready{cursor:pointer;border-color:var(--purple2);color:var(--purple2);background:#1a0e2e;}
+#reincarnate-btn.ready:hover{background:#25143d;}
+.reincarnate-req{font-size:8px;color:var(--red2);text-align:center;margin-top:4px;}
 .time-box{display:flex;justify-content:space-between;font-size:9px;color:var(--text2);}
 /* Glossary */
 #gloss-filters{display:flex;gap:4px;flex-wrap:wrap;margin-bottom:12px;}
