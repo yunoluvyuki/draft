@@ -1026,7 +1026,6 @@ function onWin(){
   addLog(`<span class="log-info">↳ Rewards: ${gainStrs.join(', ')}</span>`);
 
   // Render
-  renderSessionRewards();
   renderStats();
   renderFundamentals();
   renderBattle();
@@ -1701,7 +1700,7 @@ document.querySelectorAll('#fund-filters .filter-tab').forEach(t=>{
 function renderAll(){
   renderStats();renderFundamentals();renderBattle();renderShop();
   updateQuintUI();renderGlossary();
-  updateBattleUI();renderSessionRewards();updateResources();
+  updateBattleUI();updateResources();
 }
 
 // ═══════════════════════════════════════════════════════
