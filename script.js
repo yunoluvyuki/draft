@@ -1652,9 +1652,10 @@ function setupSettings(){
 // ═══════════════════════════════════════════════════════
 // SAVE / LOAD
 // ═══════════════════════════════════════════════════════
+
 function saveGame(){
   S.lastSave = Date.now();
-  S.savedPlayerHP = B.playerHP; 
+  S.savedPlayerHP = B.playerHP;
   localStorage.setItem('rejected_draft_save', JSON.stringify(S));
 }
 
@@ -1662,7 +1663,7 @@ function loadGame(){
   try{
     const raw = localStorage.getItem('rejected_draft_save');
     if(!raw){
-      B.playerHP = maxHP(); 
+      B.playerHP = maxHP(); // ✅ fresh game, start with full HP
       return;
     }
     const loaded = JSON.parse(raw);
@@ -1680,7 +1681,7 @@ function loadGame(){
     S.reincarnations = loaded.reincarnations || 0;
     S.quintPending = loaded.quintPending || 0;
     S.quintLifetime = loaded.quintLifetime || 0;
-    B.playerHP = loaded.savedPlayerHP ?? maxHP();
+    B.playerHP = (loaded.savedPlayerHP && loaded.savedPlayerHP > 0) ? loaded.savedPlayerHP : maxHP();
   }catch(e){console.error('Load failed', e);}
   initBattleQueue();
 }
