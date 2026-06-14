@@ -830,15 +830,12 @@ function startBattle(creatureId){
   B.playerHP=maxHP();
   B.enemyHP=B.creature.hp;
   B.lastTick=Date.now();
-  B.turnCount=0;
   B.playerTimer=3000/(S.stats.asp||1);
   B.enemyTimer=3000;
   updateBattleUI();
   const rc=RARITY_COLORS[B.rarity];
   const rl=RARITY_LABELS[B.rarity];
   addLog(`<span style="color:${rc}">⚔ ${c.name} appears [${rl}]${B.rarity!=='common'?' ×'+RARITY_MULTS[B.rarity]:''}</span>`);
-  if(S.settings.battleNav==='always') switchTab('battle');
-  else if(S.settings.battleNav==='manual') {} // stay
   renderBattle();
   document.getElementById('ac-details').textContent=c.name;
 }
@@ -886,34 +883,56 @@ function battleTick(){
   }
 }
 function firePlayerTurn(){
-  const c=B.creature;
-  const st=S.stats;
-  B.turnCount++;
-  const t=B.turnCount;
-  const isMiss=Math.random()>(st.acc??1);
+  const c = B.creature;
+  const st = S.stats;
+
+  // Hit Check
+  const ddc = c.ddc ?? 0;
+  const acc = st.acc ?? 1;
+  const isMiss = acc >= ddc ? false : Math.random() < (ddc - acc);
+
   if(isMiss){
-    addLog(`<span class="log-info">Turn ${t}: You swing at <b>${c.name}</b> — MISS!</span>`);
+    addLog(`<span class="log-info">You swing at <b>${c.name}</b> — MISS!</span>`);
   } else {
-    const isCrit=Math.random()<(st.crc??0);
-    const minDmg=st.atk*(st.mnd??0.7);
-    const maxDmg=st.atk*(st.mxd??1.0);
-    let totalDmg=0;
-    let hits=0;
+
+    // Damage Calc
+    const isCrit = Math.random() < (st.crc ?? 0);
+    const mnd = st.atk * (st.mnd ?? 0.7);
+    const mxd = st.atk * (st.mxd ?? 1.0);
+    let totalDmg = 0;
+    let hits = 0;
+
     do {
-      const rolled=minDmg + Math.random()*(maxDmg-minDmg);
-      totalDmg+=rolled*(isCrit?(st.crd??1):1);
+      let rolled = mnd + Math.random() * (mxd - mnd);
+      if(isCrit) rolled *= (st.crd ?? 1);         // 2. crit multiplier
+      const isBlock = Math.random() < (c.blk ?? 0);
+      if(isBlock) rolled = Math.max(0, rolled - (c.bld ?? 0)); // 3. block reduction
+      rolled = Math.max(0, rolled - (c.arm ?? 0));             // 4. armor reduction
+      totalDmg += rolled;
       hits++;
-    } while(Math.random()<(st.mth??0) && hits<10);
-    B.enemyHP=Math.max(0,B.enemyHP-totalDmg);
-    const hitStr=hits>1?` <span style="color:var(--cyan)">(${hits} hits!)</span>`:'';
+    } while(Math.random() < (st.mth ?? 0) && hits < 10);
+
+    // Apply Damage
+    B.enemyHP = Math.max(0, B.enemyHP - totalDmg);
+
+    // Counter Check
+    if(Math.random() < (c.ctr ?? 0)){
+      addLog(`<span class="log-warn"><b>${c.name}</b> counters!</span>`);
+      fireEnemyCounterAttack();
+      if(!B.active) return;
+    }
+
+    // Log
+    const hitStr = hits > 1 ? ` <span style="color:var(--cyan)">(${hits} hits!)</span>` : '';
     if(isCrit){
-      addLog(`<span class="log-crit">Turn ${t}: ✦ CRIT — <b>${totalDmg.toFixed(1)}</b> to ${c.name}!${hitStr}</span>`);
+      addLog(`<span class="log-crit">✦ CRIT — <b>${totalDmg.toFixed(1)}</b> to ${c.name}!${hitStr}</span>`);
     } else {
-      addLog(`<span class="log-info">Turn ${t}: You deal <b>${totalDmg.toFixed(1)}</b> to <b>${c.name}</b>.${hitStr}</span>`);
+      addLog(`<span class="log-info">You deal <b>${totalDmg.toFixed(1)}</b> to <b>${c.name}</b>.${hitStr}</span>`);
     }
   }
-  if((st.rgn??0)>0) B.playerHP=Math.min(maxHP(),B.playerHP+(st.rgn*2));
-  if(B.enemyHP<=0) onWin();
+
+  // Win Check
+  if(B.enemyHP <= 0) onWin();
 }
 function fireEnemyTurn(){
   const c=B.creature;
