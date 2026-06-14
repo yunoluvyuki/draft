@@ -1423,11 +1423,11 @@ function setupSettings(){
   // Font Size
   const FS_DEFAULT=13,FS_MIN=8,FS_MAX=24,FS_STEP=1;
   const FS_RULES=[
-    ['body',13],['#topbar .title',16],['.nav-tab',12],['.res-val',15],
-    ['.res-rate',11],['.res-icon',10],['.res-unknown',22],['#topbar .fps',12],
+    ['body',13],['#topbar .title',16],['.nav-tab',12],['.res-val',18],
+    ['.res-rate',13],['.res-icon',12],['#topbar .fps',12],
     ['#add-btn',16],['#quint-count',13],['.btm-panel-hdr',11],
     ['#specs-header .label',9],['.filter-tab',10],['.sort-btn',11],
-    ['.sort-label',11],['.stat-name',9],['.stat-val',13],
+    ['.sort-label',11],['.stat-name',9],['.stat-val',17],
     ['#fund-header .label',11],['.fund-row',10],['#protocols-header .title',11],
     ['.protocol-title',10],['.protocol-sub',10],['.toggle-label',10],
     ['.protocol-val',8],['#gallery-intro',11],['.card-name',10],
