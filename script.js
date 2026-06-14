@@ -982,7 +982,6 @@ function fireEnemyTurn(){
 }
 function onWin(){
   const c=B.creature;
-  S.spawnRarity[c.id]=rollRarity();
   if(!S.victories[c.id])S.victories[c.id]=0;
   S.victories[c.id]++;
   const justMaxed=S.victories[c.id]===c.vicReq;
