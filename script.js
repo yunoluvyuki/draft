@@ -1042,10 +1042,14 @@ function onWin(){
   }
 
   // Reset Battle State (only if continuing)
-  B.active = true;
-  B.playerHP = maxHP();
-  B.enemyHP = B.creature.hp;
-  B.lastTick = Date.now();
+  if(S.protocols.autoRetry){
+    B.active = true;
+    B.playerHP = maxHP();
+    B.enemyHP = B.creature.hp;
+    B.lastTick = Date.now();
+  } else {
+    stopBattle();
+  }
 }
 function onLose(){
   B.active=false;
