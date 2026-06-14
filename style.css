@@ -141,11 +141,14 @@ body{background:var(--bg);color:var(--text);font-family:'Courier New',monospace;
 #battle-creature-display{background:var(--bg2);border:1px solid var(--border);padding:16px;margin-bottom:12px;}
 #battle-top{display:flex;gap:16px;align-items:flex-start;}
 .battle-side-box{flex:1;display:flex;gap:16px;align-items:flex-start;background:var(--bg2);border:1px solid var(--border);padding:10px;}
-#battle-player-box{flex-direction:column;align-items:flex-start;}
-#battle-player-box .hp-bar-wrap,#battle-player-box .timer-row{align-self:stretch;}
+#battle-player-box{flex-direction:column;gap:10px;}
+.top-row{display:flex;flex-direction:row;gap:0;}
+.player-info{display:flex;flex-direction:column;justify-content:flex-start;padding:8px 12px;gap:6px;}
+#battle-player-box .timer-row{display:flex;flex-direction:column;gap:4px;}
 #battle-enemy-box #battle-meta{display:flex;flex-direction:column;flex:1;}
 .battle-side-label{font-size:10px;letter-spacing:1px;color:var(--text3);}
 #battle-art,#player-art{width:120px;height:120px;background:var(--bg3);display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+#player-art{width:150px;}
 #battle-art svg,#player-art svg{width:100px;height:100px;}
 #battle-meta{flex:1;}
 #battle-creature-name,#player-name{font-size:16px;color:var(--white);font-weight:bold;letter-spacing:2px;}
