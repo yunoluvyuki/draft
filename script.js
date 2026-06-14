@@ -719,7 +719,7 @@ const TYPE_COLORS={scrap:'#555',elite:'#8e44ad',boss:'#c0392b'};
 const RARITY_COLORS={common:'#888',uncommon:'#27ae60',rare:'#2980b9',epic:'#9b59b6',legendary:'#f0b429'};
 const RARITY_LABELS={common:'COMMON',uncommon:'UNCOMMON',rare:'RARE',epic:'EPIC',legendary:'LEGENDARY'};
 const RARITY_MULTS={common:1,uncommon:1.5,rare:3,epic:6,legendary:15};
-const RARITY_BG={common:'rgba(80,80,80,0.15)',uncommon:'rgba(39,174,96,0.18)',rare:'rgba(41,128,185,0.18)',epic:'rgba(155,89,182,0.2)',legendary:'rgba(240,180,41,0.15)'};
+const RARITY_BG={common:'rgba(80,80,80,0.15)',uncommon:'rgba(39,174,96,0.4)',rare:'rgba(41,128,185,0.18)',epic:'rgba(155,89,182,0.2)',legendary:'rgba(240,180,41,0.15)'};
 const RARITY_UPGRADES=[
   {id:'unc_rate',rarity:'uncommon',label:'UNCOMMON ATTUNEMENT',desc:'+1% uncommon spawn chance per level.',base:{old:500},scale:1.8,maxLevel:19,perLevel:1},
   {id:'rare_rate',rarity:'rare',label:'RARE ATTUNEMENT',desc:'+0.5% rare spawn chance per level.',base:{old:5000,bronze:50},scale:2,maxLevel:20,perLevel:0.5},
@@ -1459,15 +1459,14 @@ function setupSettings(){
     ['.settings-check-sublabel',8],['.zoom-val',10],['.zoom-btn',11],
   ];
   let fs=S.settings.fontSize||FS_DEFAULT;
+  const FS_BASE=FS_RULES.map(([sel,fallback])=>{
+    const el=document.querySelector(sel);
+    return el?parseFloat(getComputedStyle(el).fontSize):fallback;
+  });
   function applyFontSize(size){
     S.settings.fontSize=size;
     const r=size/FS_DEFAULT;
-    document.getElementById('fs-override').textContent='';
-    const css=FS_RULES.map(([sel,fallback])=>{
-      const el=document.querySelector(sel);
-      const base=el?parseFloat(getComputedStyle(el).fontSize):fallback;
-      return `${sel}{font-size:${(base*r).toFixed(1)}px!important;}`;
-    }).join('');
+    const css=FS_RULES.map(([sel],i)=>`${sel}{font-size:${(FS_BASE[i]*r).toFixed(1)}px!important;}`).join('');
     document.getElementById('fs-override').textContent=css;
     document.getElementById('fs-val').textContent=size+'px';
   }
