@@ -991,35 +991,53 @@ function fireEnemyTurn(){
   if(B.playerHP <= 0) onLose();
 }
 function onWin(){
-  const c=B.creature;
-  if(!S.victories[c.id])S.victories[c.id]=0;
+  if(!B.active) return;
+  B.active = false;
+
+  const c = B.creature;
+
+  // Victory Tracking
+  if(!S.victories[c.id]) S.victories[c.id] = 0;
   S.victories[c.id]++;
-  const maxwin=S.victories[c.id]===c.vicReq;
+  const justCompleted = S.victories[c.id] === c.vicReq;
   addLog(`<span class="log-win">✓ Defeated ${c.name}! (${S.victories[c.id]}/${c.vicReq})</span>`);
-  if(maxwin) unlockNextCreature();
-  const mult=calcGlossaryMult();
-  const rewardMult=1+(S.reincarnations*0.05);
-  const rarityMult=RARITY_MULTS[B.rarity||'common']||1;
-  if(rarityMult>1)addLog(`<span style="color:${RARITY_COLORS[B.rarity]}">★ ${RARITY_LABELS[B.rarity]} bonus ×${rarityMult} applied!</span>`);
-  const gainStrs=[];
-  Object.entries(c.rewards).forEach(([k,v])=>{
-    const amount=v*mult*rewardMult*rarityMult;
-    if(['old','bronze','silver'].includes(k)){
-      S.resources[k]=(S.resources[k]||0)+amount;
-      if(k==='old'){S.lifeOld=(S.lifeOld||0)+amount;}
-    } else if(S.stats[k]!==undefined){
-      S.stats[k]+=amount;
-      if(!S.sessionRewards[k])S.sessionRewards[k]=0;
-      S.sessionRewards[k]+=amount;
+  if(justCompleted) unlockNextCreature();
+
+  // Reward Multipliers
+  const mult = calcGlossaryMult();
+  const rewardMult = 1 + (S.reincarnations * 0.05);
+  const rarityMult = RARITY_MULTS[B.rarity || 'common'] || 1;
+  if(rarityMult > 1) addLog(`<span style="color:${RARITY_COLORS[B.rarity]}">★ ${RARITY_LABELS[B.rarity]} bonus ×${rarityMult} applied!</span>`);
+
+  // Apply Rewards
+  const gainStrs = [];
+  Object.entries(c.rewards).forEach(([k, v]) => {
+    const amount = v * mult * rewardMult * rarityMult;
+    if(['old', 'bronze', 'silver'].includes(k)){
+      S.resources[k] = (S.resources[k] || 0) + amount;
+      if(k === 'old') S.lifeOld = (S.lifeOld || 0) + amount;
+    } else if(S.stats[k] !== undefined){
+      S.stats[k] += amount;
+      if(!S.sessionRewards[k]) S.sessionRewards[k] = 0;
+      S.sessionRewards[k] += amount;
     }
-    gainStrs.push(`${RESOURCE_LABELS[k]||k.toUpperCase()} +${amount.toFixed(2)}`);
+    gainStrs.push(`${RESOURCE_LABELS[k] || k.toUpperCase()} +${amount.toFixed(2)}`);
   });
   addLog(`<span class="log-info">↳ Rewards: ${gainStrs.join(', ')}</span>`);
+
+  // Render
   renderSessionRewards();
-  renderStats();renderFundamentals();renderBattle();
-  B.playerHP=maxHP();
+  renderStats();
+  renderFundamentals();
+  renderBattle();
+
+  // Reset Battle State
+  B.active = true;
+  B.playerHP = maxHP();
   B.enemyHP = B.creature.hp;
-  B.lastTick=Date.now();
+  B.lastTick = Date.now();
+
+  // Auto Challenge or Stop
   if(isMaxed(c)){
     if(S.protocols.autoChallenge){
       advanceAutoChallenge();
