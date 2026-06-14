@@ -145,10 +145,10 @@ body{background:var(--bg);color:var(--text);font-family:'Courier New',monospace;
 #battle-player-box .hp-bar-wrap{width:100%;}
 #battle-enemy-box #battle-meta{display:flex;flex-direction:column;flex:1;}
 .battle-side-label{font-size:10px;letter-spacing:1px;color:var(--text3);}
-#battle-art{width:120px;height:120px;background:var(--card-bg);display:flex;align-items:center;justify-content:center;flex-shrink:0;}
-#battle-art svg{width:100px;height:100px;}
+#battle-art,#player-art{width:120px;height:120px;background:var(--card-bg);display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+#battle-art svg,#player-art svg{width:100px;height:100px;}
 #battle-meta{flex:1;}
-#battle-creature-name{font-size:16px;color:var(--white);font-weight:bold;letter-spacing:2px;}
+#battle-creature-name,#player-name{font-size:16px;color:var(--white);font-weight:bold;letter-spacing:2px;}
 #battle-creature-tag{font-size:10px;color:var(--text2);font-style:italic;margin-bottom:8px;}
 .hp-bar-wrap{margin-bottom:6px;}
 .hp-label{font-size:9px;color:var(--text2);display:flex;justify-content:space-between;margin-bottom:2px;}

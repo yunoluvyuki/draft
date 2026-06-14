@@ -1178,6 +1178,7 @@ function updateBattleUI(){
     document.getElementById('player-hp-bar').style.width='100%';
     document.getElementById('player-hp-text').textContent=`${maxHP().toFixed(1)} / ${maxHP().toFixed(1)}`;
     document.getElementById('battle-art').innerHTML='';
+    document.getElementById('player-art').innerHTML='<div style="font-size:22px;opacity:0.4;">★</div>';
     document.getElementById('battle-status').textContent='No active battle.';
     if(turnEl) turnEl.textContent='—';
     if(ptimerBar){ptimerBar.style.width='0%';ptimerText.textContent='—';}
@@ -1191,6 +1192,7 @@ function updateBattleUI(){
   document.getElementById('battle-creature-name').style.color=rc||'var(--white)';
   document.getElementById('battle-creature-tag').textContent=`[${rl}] ${c.tag}`;
   document.getElementById('battle-art').innerHTML=c.img?`<img src="${c.img}" style="width:100%;height:100%;object-fit:cover;">`:(SVGs[c.id]||'');
+  document.getElementById('player-art').innerHTML='<div style="font-size:22px;opacity:0.4;">★</div>';
   const epct=Math.max(0,B.enemyHP/c.hp*100);
   const ppct=Math.max(0,B.playerHP/maxHP()*100);
   document.getElementById('enemy-hp-bar').style.width=epct+'%';
