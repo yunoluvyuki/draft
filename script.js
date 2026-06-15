@@ -528,17 +528,64 @@ const CREATURES = [
   {id:'bleeding_throne',name:'BLEEDING THRONE',tag:'Sovereignty at a cost.',atk:18667,def:450,hp:500000,count:'50%',rewards:{atk:200,arm:75,old:110000,bronze:40000,silver:1300,mxd:4.0},vicReq:5,new:false},
   {id:'the_hollow_crown',name:'THE HOLLOW CROWN',tag:'All that remains of what ruled.',atk:20000,def:480,hp:550000,count:null,rewards:{atk:250,arm:100,old:150000,bronze:60000,silver:2000,mxd:5.0,crc:1.0,asp:10},vicReq:5,new:false},
 ];
-
+// ═══════════════════════════════════════════════════════
+// SHOP FUNCTION
+// ═══════════════════════════════════════════════════════
 const SHOP_ITEMS = [
-  {id:'test_hp',name:'[TEST] HP +1%',desc:'Test upgrade hp',effect:'HP +1%',cost:{old:0},statBonus:{hp:1}},// +1%
-  {id:'test_atk',name:'test atk',desc:'test upgrade atk',effect:'atk +1%',cost:{old:0},statBonus:{atk:1}},// +1%
-  {id:'test_mnd',name:'test mnd',desc:'test upgrade mnd',effect:'mnd +1%',cost:{old:0},statBonus:{mnd:1}},// +1%
-  {id:'test_mxd',name:'test mxd',desc:'test upgrade mxd',effect:'mxd +1%',cost:{old:0},statBonus:{mxd:1}},// +1%
-  {id:'test_spd',name:'test spd',desc:'test upgrade spd',effect:'spd +1%',cost:{old:0},statBonus:{spd:1}},// +1%
-  {id:'test_rgn',name:'test rgn',desc:'test upgrade rgn',effect:'rgn +1%',cost:{old:0},statBonus:{rgn:1}},// +1%
-  {id:'test_rgn',name:'test rgn',desc:'test upgrade rgn',effect:'rgn +1%',cost:{old:0},statBonus:{rgn:1}},// +1%
-
+  {id:'test_hp',  name:'[TEST] HP +1%',  desc:'Test upgrade hp',  effect:'HP +1%',  cost:{old:0}, statBonus:{hp:1},   isPct:true},
+  {id:'test_atk', name:'test atk',       desc:'test upgrade atk', effect:'atk +1%', cost:{old:0}, statBonus:{atk:1},  isPct:true},
+  {id:'test_mnd', name:'test mnd',       desc:'test upgrade mnd', effect:'mnd +1%', cost:{old:0}, statBonus:{mnd:0.01}},
+  {id:'test_mxd', name:'test mxd',       desc:'test upgrade mxd', effect:'mxd +1%', cost:{old:0}, statBonus:{mxd:0.01}},
+  {id:'test_spd', name:'test spd',       desc:'test upgrade spd', effect:'spd +100',cost:{old:0}, statBonus:{spd:100}},
+  {id:'test_rgn', name:'test rgn',       desc:'test upgrade rgn', effect:'rgn +1%', cost:{old:0}, statBonus:{rgn:1},  isPct:true},
+  {id:'test_ddc', name:'test ddc',       desc:'test upgrade ddc', effect:'ddc +1%', cost:{old:0}, statBonus:{ddc:0.01}},
+  {id:'test_crc', name:'test crc',       desc:'test upgrade crc', effect:'crc +1%', cost:{old:0}, statBonus:{crc:0.01}},
+  {id:'test_crd', name:'test crd',       desc:'test upgrade crd', effect:'crd +0.1',cost:{old:0}, statBonus:{crd:0.1}},
+  {id:'test_arm', name:'test arm',       desc:'test upgrade arm', effect:'arm +1%', cost:{old:0}, statBonus:{arm:1},  isPct:true},
+  {id:'test_mth', name:'test mth',       desc:'test upgrade mth', effect:'mth +1%', cost:{old:0}, statBonus:{mth:0.01}},
+  {id:'test_acc', name:'test acc',       desc:'test upgrade acc', effect:'acc +1%', cost:{old:0}, statBonus:{acc:0.01}},
+  {id:'test_blk', name:'test blk',       desc:'test upgrade blk', effect:'blk +1%', cost:{old:0}, statBonus:{blk:0.01}},
+  {id:'test_bld', name:'test bld',       desc:'test upgrade bld', effect:'bld +1%', cost:{old:0}, statBonus:{bld:1},  isPct:true},
+  {id:'test_ctr', name:'test ctr',       desc:'test upgrade ctr', effect:'ctr +1%', cost:{old:0}, statBonus:{ctr:0.01}},
 ];
+
+function buyShopItem(id){
+  const item = SHOP_ITEMS.find(x => x.id === id);
+  if(!item) return;
+  const owned = S.shopOwned[item.id] || 0;
+  if(item.maxOwned && owned >= item.maxOwned){ toast('Already owned!'); return; }
+  const canAfford = Object.entries(item.cost).every(([k,v]) => (S.resources[k] || 0) >= v);
+  if(!canAfford){ toast('Not enough resources!'); return; }
+  Object.entries(item.cost).forEach(([k,v]) => { S.resources[k] -= v; });
+  Object.entries(item.statBonus).forEach(([k,v]) => {
+    const val = item.isPct ? S.stats[k] * v : v; 
+    S.stats[k] = (S.stats[k] || 0) + val;
+  });
+  if(item.unlock) S[item.unlock] = true;
+  S.shopOwned[item.id] = (S.shopOwned[item.id] || 0) + 1;
+  toast(`Purchased: ${item.name}!`);
+  renderShop();
+  renderStats();
+}
+
+function renderShop(){
+  const g = document.getElementById('shop-grid');
+  if(!g) return;
+  g.innerHTML = SHOP_ITEMS.map(item => {
+    const owned = S.shopOwned[item.id] || 0;
+    const costStr = Object.entries(item.cost).map(([k,v]) => `${fmt(v)} ${k.toUpperCase()}`).join(' + ');
+    const maxed = item.maxOwned && owned >= item.maxOwned;
+    const canAfford = !maxed && Object.entries(item.cost).every(([k,v]) => (S.resources[k] || 0) >= v);
+    return `<div class="shop-card">
+      <div class="shop-name">${item.name}</div>
+      <div class="shop-desc">${item.desc}</div>
+      <div class="shop-effect">${item.effect}</div>
+      <div class="shop-cost">Cost: ${costStr}</div>
+      <div class="shop-own">Owned: ${owned}${item.maxOwned ? '/' + item.maxOwned : ''}</div>
+      <button class="btn-buy" onclick="buyShopItem('${item.id}')" ${canAfford ? '' : 'disabled'}>${maxed ? 'OWNED' : 'BUY'}</button>
+    </div>`;
+  }).join('');
+}
 
 // ═══════════════════════════════════════════════════════
 // GAME STATE
@@ -1379,6 +1426,7 @@ function switchTab(name){
     p.classList.toggle('active', p.id === 'tab-' + name);
   });
   if(name === 'battle') renderBattle();
+  if(name === 'shop') renderShop();   
   if(name === 'archive'){
     updateQuintUI();
     renderGlossary();
@@ -1677,6 +1725,7 @@ function renderAll(){
   renderStats();
   renderFundamentals();
   renderBattle();
+  renderShop();       
   updateQuintUI();
   renderGlossary();
   updateBattleUI();
@@ -1714,6 +1763,7 @@ function gameLoop(){
     if(archActive){
       if(document.getElementById('arch-treasury').classList.contains('active')) updateQuintUI();
     }
+    if(document.getElementById('tab-shop').classList.contains('active')) renderShop(); 
     saveGame();
   }
   requestAnimationFrame(gameLoop);
