@@ -532,20 +532,20 @@ const CREATURES = [
 // SHOP FUNCTION
 // ═══════════════════════════════════════════════════════
 const SHOP_ITEMS = [
-  {id:'test_hp',  name:'[TEST] HP +1%',  desc:'Test upgrade hp',  effect:'HP +1%',  cost:{old:0}, statBonus:{hp:1},   isPct:true},
-  {id:'test_atk', name:'test atk',       desc:'test upgrade atk', effect:'atk +1%', cost:{old:0}, statBonus:{atk:1},  isPct:true},
+  {id:'test_hp',  name:'[TEST] HP +1%',  desc:'Test upgrade hp',  effect:'HP +1%',  cost:{old:0}, statBonus:{hp:0.01},  isPct:true},
+  {id:'test_atk', name:'test atk',       desc:'test upgrade atk', effect:'atk +1%', cost:{old:0}, statBonus:{atk:0.01}, isPct:true},
   {id:'test_mnd', name:'test mnd',       desc:'test upgrade mnd', effect:'mnd +1%', cost:{old:0}, statBonus:{mnd:0.01}},
   {id:'test_mxd', name:'test mxd',       desc:'test upgrade mxd', effect:'mxd +1%', cost:{old:0}, statBonus:{mxd:0.01}},
   {id:'test_spd', name:'test spd',       desc:'test upgrade spd', effect:'spd +100',cost:{old:0}, statBonus:{spd:100}},
-  {id:'test_rgn', name:'test rgn',       desc:'test upgrade rgn', effect:'rgn +1%', cost:{old:0}, statBonus:{rgn:1},  isPct:true},
+  {id:'test_rgn', name:'test rgn',       desc:'test upgrade rgn', effect:'rgn +1%', cost:{old:0}, statBonus:{rgn:0.01}, isPct:true},
   {id:'test_ddc', name:'test ddc',       desc:'test upgrade ddc', effect:'ddc +1%', cost:{old:0}, statBonus:{ddc:0.01}},
   {id:'test_crc', name:'test crc',       desc:'test upgrade crc', effect:'crc +1%', cost:{old:0}, statBonus:{crc:0.01}},
   {id:'test_crd', name:'test crd',       desc:'test upgrade crd', effect:'crd +0.1',cost:{old:0}, statBonus:{crd:0.1}},
-  {id:'test_arm', name:'test arm',       desc:'test upgrade arm', effect:'arm +1%', cost:{old:0}, statBonus:{arm:1},  isPct:true},
+  {id:'test_arm', name:'test arm',       desc:'test upgrade arm', effect:'arm +1%', cost:{old:0}, statBonus:{arm:0.01}, isPct:true},
   {id:'test_mth', name:'test mth',       desc:'test upgrade mth', effect:'mth +1%', cost:{old:0}, statBonus:{mth:0.01}},
   {id:'test_acc', name:'test acc',       desc:'test upgrade acc', effect:'acc +1%', cost:{old:0}, statBonus:{acc:0.01}},
   {id:'test_blk', name:'test blk',       desc:'test upgrade blk', effect:'blk +1%', cost:{old:0}, statBonus:{blk:0.01}},
-  {id:'test_bld', name:'test bld',       desc:'test upgrade bld', effect:'bld +1%', cost:{old:0}, statBonus:{bld:1},  isPct:true},
+  {id:'test_bld', name:'test bld',       desc:'test upgrade bld', effect:'bld +1%', cost:{old:0}, statBonus:{bld:0.01}, isPct:true},
   {id:'test_ctr', name:'test ctr',       desc:'test upgrade ctr', effect:'ctr +1%', cost:{old:0}, statBonus:{ctr:0.01}},
 ];
 
@@ -1677,7 +1677,7 @@ function loadGame(){
   try{
     const raw = localStorage.getItem('rejected_draft_save');
     if(!raw){
-      B.playerHP = maxHP(); // ✅ fresh game, start with full HP
+      B.playerHP = maxHP();
       return;
     }
     const loaded = JSON.parse(raw);
