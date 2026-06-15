@@ -9,7 +9,7 @@
   --card-bg:#f5f5f0;--card-border:#ddd;
   --g-common:#888;--g-uncommon:#27ae60;--g-rare:#2980b9;--g-epic:#9b59b6;--g-legendary:#f0b429;
 }
-body{background:var(--bg);color:var(--text);font-family:'Courier New',monospace;font-size:16px;user-select:none;overflow:hidden;}
+body{background:var(--bg);color:var(--text);font-family:'Courier New',monospace;font-size:16px;user-select:none;overflow:hidden;font-weight:bold;}
 #zoom-wrap{display:flex;flex-direction:column;height:100vh;overflow:hidden;transform-origin:top left;}
 
 /* ── TOPBAR ─────────────────────────────────────────── */
