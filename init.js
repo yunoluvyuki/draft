@@ -111,7 +111,7 @@ function setupSettings(){
   });
 
   // Zoom
-  let zoom=S.settings.uiZoom||100;
+  let zoom=S.settings.uiZoom||120;
   function applyZoom(z){
     S.settings.uiZoom=z;
     const scale=z/100;
