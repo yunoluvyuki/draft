@@ -68,15 +68,9 @@ body{background:var(--bg);color:var(--text);font-family:'Courier New',monospace;
 .stat-cell{background:var(--bg3);border:1px solid var(--border);padding:3px 6px;display:flex;flex-direction:column;}
 .stat-name{font-size:9px;color:#ffffff;text-transform:uppercase;}
 .stat-val{font-size:17px;color:#ffffff;font-weight:bold;line-height:1.2;}
-.stat-icon{width:9px;height:9px;border-radius:50%;display:inline-block;margin-right:3px;vertical-align:middle;}
+.stat-icon{width:14px;height:14px;border-radius:50%;display:inline-block;margin-right:3px;vertical-align:middle;}
 .si-hp{background:var(--red2);}
-.si-atk {
-  display: inline-block;
-  width: 14px;
-  height: 14px;
-  background: url('attached_assets/img/stat icon image/atk.png') center/contain no-repeat;
-  vertical-align: middle;
-}
+.si-atk{background:url('attached_assets/img/atk.png') center/contain no-repeat;border-radius:0;}
 .si-mnd{background:var(--blue);}
 .si-mxd{background:var(--cyan);}
 .si-spd{background:#5dade2;}
