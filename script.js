@@ -1601,11 +1601,16 @@ function setupSettings(){
   document.getElementById('btn-hard-reset').addEventListener('click',()=>{
     if(confirm('HARD RESET: All progress will be permanently lost. Are you absolutely sure?')){
       localStorage.removeItem('rejected_draft_save');
-      S=DEFAULT_STATE();
-      B={active:false,creature:null,playerHP:0,enemyHP:0,deathTimer:0,dying:false,fleeTimer:0,lastTick:0};
+      S = DEFAULT_STATE();
+      B = {
+        active:false, creature:null, playerHP:0, enemyHP:0,
+        deathTimer:0, dying:false, fleeTimer:0, lastTick:0,
+        playerTimer:3000, enemyTimer:3000, rarity:'common'
+      };
+      B.playerHP = maxHP();
       initBattleQueue();
       renderAll();
-      toast('Game has been reset.',3000);
+      toast('Game has been reset.', 3000);
     }
   });
   document.getElementById('btn-credits').addEventListener('click',()=>{
