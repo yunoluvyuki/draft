@@ -69,7 +69,7 @@ body{background:var(--bg);color:var(--text);font-family:'Courier New',monospace;
 .stat-name{font-size:16px;color:#ffffff;text-transform:uppercase;font-weight:bold;display:flex;align-items:center;gap:4px;white-space:nowrap;}
 .stat-val{font-size:16px;color:#ffffff;font-weight:bold;line-height:1.2;white-space:nowrap;flex-shrink:0;}
 .stat-icon{width:14px;height:14px;border-radius:50%;display:inline-block;margin-right:3px;vertical-align:middle;flex-shrink:0;}
-.si-hp{background:var(--red2);}
+.si-hp{width:22px;height:22px;background:url('attached_assets/img/icon/hp.png') center/contain no-repeat;border-radius:0;}
 .si-atk{width:22px;height:22px;background:url('attached_assets/img/icon/atk.png') center/contain no-repeat;border-radius:0;}
 .si-mnd{background:var(--blue);}
 .si-mxd{background:var(--cyan);}
