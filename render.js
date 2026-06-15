@@ -90,7 +90,7 @@ function renderBattle(){
           <div class="card-tagline">${c.tag}</div>
           <div class="card-stats">
             <span class="card-atk">✏ ${fmt(c.atk*spawnRarityMultDisplay)}</span> /
-            <span class="card-def">🛡 ${c.def}</span>
+            <span class="card-def">🛡 ${c.arm}</span>
             <span class="card-hp">⚡ ${fmt(c.hp*spawnRarityMultDisplay)}</span>
             ${countStr}
           </div>
