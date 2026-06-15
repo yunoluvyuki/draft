@@ -14,7 +14,7 @@ const DEFAULT_STATE = ()=>({
   deaths:0,
   lifeOld:0,
   lastSave:Date.now(),
-  settings:{lightMode:false,invertImg:false,showProtocols:true,combatLog:true,uiZoom:120,battleNav:'manual',numNotation:'mixed',fontSize:13},
+  settings:{lightMode:false,invertImg:false,showProtocols:true,combatLog:true,uiZoom:120,battleNav:'manual',numNotation:'mixed',fontSize:16},
   protocols:{autoChallenge:false,autoRetry:false},
   masteryUpgrades:{},
   sessionRewards:{},

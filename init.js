@@ -127,7 +127,7 @@ function setupSettings(){
   document.getElementById('zoom-reset').addEventListener('click',()=>{zoom=100;applyZoom(zoom);});
 
   // Font Size
-  const FS_DEFAULT=13,FS_MIN=8,FS_MAX=24,FS_STEP=1;
+  const FS_DEFAULT=16,FS_MIN=8,FS_MAX=24,FS_STEP=1;
   const FS_RULES=[
     ['body',13],['#topbar .title',16],['.nav-tab',12],['.res-val',18],
     ['.res-rate',13],['.res-icon',12],['#topbar .fps',12],
