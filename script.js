@@ -530,30 +530,19 @@ const CREATURES = [
 ];
 
 const SHOP_ITEMS = [
-  {id:'test_mnd',name:'[TEST] MND +10%',desc:'Test upgrade — free.',effect:'MND +10%',cost:{old:0},statBonus:{mnd:0.10}},
-  {id:'test_mxd',name:'[TEST] MXD +10%',desc:'Test upgrade — free.',effect:'MXD +10%',cost:{old:0},statBonus:{mxd:0.10}},
-  {id:'iron_quill',name:'IRON QUILL',desc:'A sharpened writing instrument, repurposed.',effect:'ATK +5',cost:{old:50},statBonus:{atk:5}},
-  {id:'sketch_shield',name:'SKETCH SHIELD',desc:'Hastily drawn, surprisingly effective.',effect:'ARM +2',cost:{old:80},statBonus:{arm:2}},
-  {id:'ink_vial',name:'INK VIAL',desc:'Concentrated darkness in liquid form.',effect:'HP +20',cost:{old:100},statBonus:{hp:20}},
-  {id:'wax_seal',name:'WAX SEAL',desc:'Bonds your wounds shut.',effect:'RGN +0.5',cost:{old:120,bronze:5},statBonus:{rgn:0.5}},
-  {id:'charcoal_blade',name:'CHARCOAL BLADE',desc:'Smudges enemies into submission.',effect:'ATK +10, ASP +0.5',cost:{old:200,silver:5},statBonus:{atk:10,asp:0.5}},
-  {id:'draft_armor',name:'DRAFT ARMOR',desc:'Layers of rejected paper, hardened.',effect:'ARM +5, HP +30',cost:{old:300,bronze:20},statBonus:{arm:5,hp:30}},
-  {id:'perspective_lens',name:'PERSPECTIVE LENS',desc:'See the angles others miss.',effect:'CRC +1%, CRD +0.1',cost:{old:250,bronze:15},statBonus:{crc:0.01,crd:0.1}},
-  {id:'phantom_step',name:'PHANTOM STEP',desc:'Leave no trace behind.',effect:'DOG +1%, SPD +100',cost:{old:180,bronze:8},statBonus:{dog:0.01,spd:100}},
-  {id:'wax_tablet',name:'WAX TABLET',desc:'Ancient storage, modern power.',effect:'MND +5%, ASP +1',cost:{old:500,bronze:50},statBonus:{mnd:0.05,asp:1}},
-  {id:'charcoal_sigil',name:'CHARCOAL SIGIL',desc:'Drawn in the dark before dawn.',effect:'CRC +2%, CRD +0.25',cost:{old:800,bronze:80,silver:10},statBonus:{crc:0.02,crd:0.25}},
-  {id:'bone_quill',name:'BONE QUILL',desc:'Stripped of flesh. Pure intent.',effect:'ATK +25, ARM +8',cost:{old:1200,bronze:120},statBonus:{atk:25,arm:8}},
-  {id:'ink_reservoir',name:'INK RESERVOIR',desc:'Bottomless if you believe hard enough.',effect:'HP +100, RGN +3',cost:{old:1500,silver:30},statBonus:{hp:100,rgn:3}},
-  {id:'void_fragment',name:'VOID FRAGMENT',desc:'Chipped from the edge of a sketch.',effect:'DOG +3%, MXD +0.5',cost:{old:3000,bronze:400,silver:80},statBonus:{dog:0.03,mxd:0.5}},
-  {id:'master_palette',name:'MASTER PALETTE',desc:'Every color of pain.',effect:'ATK +80, ASP +2',cost:{old:6000,bronze:800},statBonus:{atk:80,asp:2}},
-  {id:'draft_crown',name:'DRAFT CROWN',desc:'Worn by those who survived the critique.',effect:'HP +300, ARM +20, CRC +3%',cost:{old:10000,bronze:2000,silver:300},statBonus:{hp:300,arm:20,crc:0.03}},
+  {id:'test_hp',name:'[TEST] HP +1%',desc:'Test upgrade hp',effect:'HP +1%',cost:{old:0},statBonus:{hp:1}},// +1%
+  {id:'test_atk',name:'test atk',desc:'test upgrade atk',effect:'atk +1%',cost:{old:0},statBonus:{atk:1}},// +1%
+  {id:'test_mnd',name:'test mnd',desc:'test upgrade mnd',effect:'mnd +1%',cost:{old:0},statBonus:{mnd:1}},// +1%
+  {id:'test_mxd',name:'test mxd',desc:'test upgrade mxd',effect:'mxd +1%',cost:{old:0},statBonus:{mxd:1}},// +1%
+  {id:'test_mxd',name:'test mxd',desc:'test upgrade mxd',effect:'mxd +1%',cost:{old:0},statBonus:{mxd:1}},// +1%
+
 ];
 
 // ═══════════════════════════════════════════════════════
 // GAME STATE
 // ═══════════════════════════════════════════════════════
 const DEFAULT_STATE = ()=>({
-  stats:{hp:50,atk:3,mnd:0.7,mxd:1.2,spd:100,rgn:0,dog:0,crc:0,crd:1.0,arm:0,asp:1.0,mth:0,acc:1.0,blk:0,bld:0,ctr:0},
+  stats:{hp:50,atk:3,mnd:0.7,mxd:1.2,spd:0,rgn:0,dog:0,crc:0,crd:1.0,arm:0,mth:0,acc:1.0,blk:0,bld:0,ctr:0},
   resources:{old:0,bronze:0,silver:0,gold:0,plat:0},
   victories:{},
   shopOwned:{},
@@ -819,24 +808,125 @@ function renderBattle(){
 // battle
 // ═══════════════════════════════════════════════════════
 function startBattle(creatureId){
-  const c=getCreature(creatureId);
-  if(!c)return;
-  S.currentCreature=creatureId;
-  B.rarity=getSpawnRarity(creatureId);
-  const rarityMult=RARITY_MULTS[B.rarity]||1;
-  B.creature={...c,atk:c.atk*rarityMult,hp:c.hp*rarityMult};
-  B.active=true;
-  B.dying=false;
-  B.enemyHP=B.creature.hp;
-  B.lastTick=Date.now();
-  B.playerTimer=3000/(S.stats.asp||1);
-  B.enemyTimer=3000;
+  const c = getCreature(creatureId);
+  if(!c) return;
+  S.currentCreature = creatureId;
+  B.rarity = getSpawnRarity(creatureId);
+  const rarityMult = RARITY_MULTS[B.rarity] || 1;
+  B.creature = {...c, atk:c.atk*rarityMult, hp:c.hp*rarityMult};
+  B.active = true;
+  B.dying = false;
+  B.enemyHP = B.creature.hp;
+  B.lastTick = Date.now();
+  B.playerTimer = Math.max(200, 3000 - S.stats.spd);
+  B.enemyTimer = Math.max(200, 3000 - (B.creature.spd ?? 0));
   updateBattleUI();
-  const rc=RARITY_COLORS[B.rarity];
-  const rl=RARITY_LABELS[B.rarity];
+  const rc = RARITY_COLORS[B.rarity];
+  const rl = RARITY_LABELS[B.rarity];
   addLog(`<span style="color:${rc}">⚔ ${c.name} appears [${rl}]${B.rarity!=='common'?' ×'+RARITY_MULTS[B.rarity]:''}</span>`);
   renderBattle();
-  document.getElementById('ac-details').textContent=c.name;
+  document.getElementById('ac-details').textContent = c.name;
+}
+function updateBattleUI(){
+  const c = B.creature;
+  const turnEl = document.getElementById('turn-display');
+  const ptimerBar = document.getElementById('ptimer-bar');
+  const etimerBar = document.getElementById('etimer-bar');
+  const ptimerText = document.getElementById('ptimer-text');
+  const etimerText = document.getElementById('etimer-text');
+
+  if(!c){
+    const ppct = Math.max(0, B.playerHP / maxHP() * 100);
+    document.getElementById('battle-creature-name').textContent = 'SELECT A CREATURE';
+    document.getElementById('battle-creature-tag').textContent = 'Go to Battle to challenge a creature.';
+    document.getElementById('enemy-hp-bar').style.width = '0%';
+    document.getElementById('enemy-hp-text').textContent = '—';
+    document.getElementById('player-hp-bar').style.width = ppct + '%';
+    document.getElementById('player-hp-text').textContent = `${Math.max(0, B.playerHP).toFixed(1)} / ${maxHP().toFixed(1)}`;
+    document.getElementById('battle-art').innerHTML = '';
+    document.getElementById('battle-status').textContent = 'No active battle.';
+    if(turnEl) turnEl.textContent = '—';
+    if(ptimerBar){ ptimerBar.style.width = '0%'; ptimerText.textContent = '—'; }
+    if(etimerBar){ etimerBar.style.width = '0%'; etimerText.textContent = '—'; }
+    updateBattleStats();
+    return;
+  }
+
+  const rc = RARITY_COLORS[B.rarity || 'common'];
+  const rl = RARITY_LABELS[B.rarity || 'common'];
+  document.getElementById('battle-creature-name').textContent = c.name;
+  document.getElementById('battle-creature-name').style.color = rc || 'var(--white)';
+  document.getElementById('battle-creature-tag').textContent = `[${rl}] ${c.tag}`;
+  document.getElementById('battle-art').innerHTML = c.img ? `<img src="${c.img}" style="width:100%;height:100%;object-fit:cover;">` : (SVGs[c.id] || '');
+  document.getElementById('player-art').innerHTML = '<div style="font-size:22px;opacity:0.4;">★</div>';
+
+  const epct = Math.max(0, B.enemyHP / c.hp * 100);
+  const ppct = Math.max(0, B.playerHP / maxHP() * 100);
+  document.getElementById('enemy-hp-bar').style.width = epct + '%';
+  document.getElementById('enemy-hp-text').textContent = `${B.enemyHP.toFixed(1)} / ${c.hp}`;
+  document.getElementById('player-hp-bar').style.width = ppct + '%';
+  document.getElementById('player-hp-text').textContent = `${Math.max(0, B.playerHP).toFixed(1)} / ${maxHP().toFixed(1)}`;
+
+  // Timer bars
+  if(B.active && !B.dying){
+    const pInterval = Math.max(200, 3000 - S.stats.spd);
+    const eInterval = Math.max(200, 3000 - (c.spd ?? 0));
+    const pFill = Math.max(0, Math.min(100, (1 - B.playerTimer / pInterval) * 100));
+    const eFill = Math.max(0, Math.min(100, (1 - B.enemyTimer / eInterval) * 100));
+    if(ptimerBar){ ptimerBar.style.width = pFill + '%'; ptimerText.textContent = (Math.max(0, B.playerTimer) / 1000).toFixed(1) + 's'; }
+    if(etimerBar){ etimerBar.style.width = eFill + '%'; etimerText.textContent = (Math.max(0, B.enemyTimer) / 1000).toFixed(1) + 's'; }
+  }
+
+  if(turnEl){
+    if(B.dying) turnEl.textContent = 'DEFEATED — RECOVERING...';
+    else if(B.active) turnEl.textContent = `YOUR TURN: ${(Math.max(200, 3000 - S.stats.spd) / 1000).toFixed(1)}s | ENEMY TURN: ${(Math.max(200, 3000 - (c.spd ?? 0)) / 1000).toFixed(1)}s | KILLS: ${S.victories[c.id] || 0}/${c.vicReq}`;
+    else turnEl.textContent = '—';
+  }
+
+  document.getElementById('battle-status').textContent = B.active
+    ? `Your ATK: ${S.stats.atk.toFixed(1)} | Enemy ATK: ${c.atk.toFixed(1)} | Your turn: ${(Math.max(200, 3000 - S.stats.spd) / 1000).toFixed(1)}s | Enemy turn: ${(Math.max(200, 3000 - (c.spd ?? 0)) / 1000).toFixed(1)}s`
+    : 'Battle paused.';
+
+  updateBattleStats();
+}
+
+function updateBattleStats(){
+  const c = B.creature;
+  const st = S.stats;
+  const dash = '—';
+  const pct = v => (v * 100).toFixed(1) + '%';
+  const x2 = v => v.toFixed(2) + '×';
+  const n1 = v => v.toFixed(1);
+
+  const pMinDmg = st.atk * (st.mnd ?? 0.7);
+  const pMaxDmg = st.atk * (st.mxd ?? 1.0);
+  const eMinDmg = c ? c.atk * (c.mnd ?? 0.7) : 0;
+  const eMaxDmg = c ? c.atk * (c.mxd ?? 1.0) : 0;
+
+  const offRows = [
+    {name:'ATK',              p:fmt(st.atk),                                                        e:c ? fmt(c.atk) : dash},
+    {name:'Min Damage',       p:n1(pMinDmg),                                                        e:c ? n1(eMinDmg) : dash},
+    {name:'Max Damage',       p:n1(pMaxDmg),                                                        e:c ? n1(eMaxDmg) : dash},
+    {name:'Turn Speed',       p:(Math.max(200, 3000 - st.spd) / 1000).toFixed(1)+'s',               e:c ? (Math.max(200, 3000 - (c.spd ?? 0)) / 1000).toFixed(1)+'s' : dash},
+    {name:'Accuracy',         p:pct(st.acc ?? 1),                                                   e:c ? pct(c.acc ?? 1) : dash},
+    {name:'Crit Chance',      p:pct(st.crc ?? 0),                                                   e:c ? pct(c.crc ?? 0) : dash},
+    {name:'Crit Damage',      p:x2(st.crd ?? 1),                                                    e:c ? x2(c.crd ?? 1) : dash},
+    {name:'Multi-Hit Chance', p:pct(st.mth ?? 0),                                                   e:c ? pct(c.mth ?? 0) : dash},
+  ];
+
+  const defRows = [
+    {name:'HP',             p:fmt(st.hp),              e:c ? fmt(c.hp) : dash},
+    {name:'HP Regen',       p:n1(st.rgn ?? 0)+'/s',    e:'0/s'},
+    {name:'Armor',          p:fmt(st.arm ?? 0),        e:c ? fmt(c.arm ?? 0) : dash},
+    {name:'Block Chance',   p:pct(st.blk ?? 0),        e:c ? pct(c.blk ?? 0) : dash},
+    {name:'Block Damage',   p:fmt(st.bld ?? 0),        e:c ? fmt(c.bld ?? 0) : dash},
+    {name:'Dodge Chance',   p:pct(st.ddc ?? 0),        e:c ? pct(c.ddc ?? 0) : dash},
+    {name:'Counter Chance', p:pct(st.ctr ?? 0),        e:c ? pct(c.ctr ?? 0) : dash},
+  ];
+
+  const row = (s, dot) => `<div class="bsp-row"><div class="bsp-name"><span class="bsp-dot" style="background:${dot}"></span>${s.name}</div><div class="bsp-you">${s.p}</div><div class="bsp-enemy">${s.e}</div></div>`;
+  document.getElementById('bsp-off').innerHTML = offRows.map(s => row(s, '#e74c3c')).join('');
+  document.getElementById('bsp-def').innerHTML = defRows.map(s => row(s, '#4ecdc4')).join('');
 }
 
 function stopBattle(){
@@ -856,7 +946,7 @@ function battleTick(){
     if(remaining <= 0){
       document.getElementById('death-overlay').style.display = 'none';
       B.dying = false;
-      B.playerHP = maxHP(); 
+      B.playerHP = maxHP();
       if(S.protocols.autoRetry && B.creature){
         startBattle(B.creature.id);
       } else {
@@ -875,13 +965,13 @@ function battleTick(){
   if(B.playerTimer <= 0){
     firePlayerTurn();
     if(!B.active) return;
-    B.playerTimer = Math.max(200, 3000 / (S.stats.asp || 1));
+    B.playerTimer = Math.max(200, 3000 - S.stats.spd);
   }
   if(!B.active) return;
   if(B.enemyTimer <= 0){
     fireEnemyTurn();
     if(!B.active) return;
-    B.enemyTimer = 3000;
+    B.enemyTimer = Math.max(200, 3000 - (B.creature.spd ?? 0));
   }
 }
 
@@ -1130,106 +1220,7 @@ function addLog(html){
   log.innerHTML=`<div class="log-entry">${html}</div>`+log.innerHTML;
   if(log.children.length>50)log.removeChild(log.lastChild);
 }
-function updateBattleStats(){
-  const c = B.creature;
-  const st = S.stats;
-  const dash = '—';
-  const pct = v => (v * 100).toFixed(1) + '%';
-  const x2 = v => v.toFixed(2) + '×';
-  const n1 = v => v.toFixed(1);
 
-  const pMinDmg = st.atk * (st.mnd ?? 0.7);
-  const pMaxDmg = st.atk * (st.mxd ?? 1.0);
-  const eMinDmg = c ? c.atk * (c.mnd ?? 0.7) : 0;
-  const eMaxDmg = c ? c.atk * (c.mxd ?? 1.0) : 0;
-
-  const offRows = [
-    {name:'ATK',              p:fmt(st.atk),          e:c ? fmt(c.atk) : dash},
-    {name:'Min Damage',       p:n1(pMinDmg),          e:c ? n1(eMinDmg) : dash},
-    {name:'Max Damage',       p:n1(pMaxDmg),          e:c ? n1(eMaxDmg) : dash},
-    {name:'Attack Speed',     p:x2(st.asp ?? 1),      e:'1.00×'},
-    {name:'Accuracy',         p:pct(st.acc ?? 1),     e:c ? pct(c.acc ?? 1) : dash},
-    {name:'Crit Chance',      p:pct(st.crc ?? 0),     e:c ? pct(c.crc ?? 0) : dash},
-    {name:'Crit Damage',      p:x2(st.crd ?? 1),      e:c ? x2(c.crd ?? 1) : dash},
-    {name:'Multi-Hit Chance', p:pct(st.mth ?? 0),     e:c ? pct(c.mth ?? 0) : dash},
-  ];
-
-  const defRows = [
-    {name:'HP',            p:fmt(st.hp),              e:c ? fmt(c.hp) : dash},
-    {name:'HP Regen',      p:n1(st.rgn ?? 0) + '/s', e:'0/s'},
-    {name:'Armor',         p:fmt(st.arm ?? 0),        e:c ? fmt(c.arm ?? 0) : dash},
-    {name:'Block Chance',  p:pct(st.blk ?? 0),        e:c ? pct(c.blk ?? 0) : dash},
-    {name:'Block Damage',  p:fmt(st.bld ?? 0),        e:c ? fmt(c.bld ?? 0) : dash},
-    {name:'Dodge Chance',  p:pct(st.ddc ?? 0),        e:c ? pct(c.ddc ?? 0) : dash},
-    {name:'Counter Chance',p:pct(st.ctr ?? 0),        e:c ? pct(c.ctr ?? 0) : dash},
-  ];
-
-  const row = (s, dot) => `<div class="bsp-row"><div class="bsp-name"><span class="bsp-dot" style="background:${dot}"></span>${s.name}</div><div class="bsp-you">${s.p}</div><div class="bsp-enemy">${s.e}</div></div>`;
-  document.getElementById('bsp-off').innerHTML = offRows.map(s => row(s, '#e74c3c')).join('');
-  document.getElementById('bsp-def').innerHTML = defRows.map(s => row(s, '#4ecdc4')).join('');
-}
-function updateBattleUI(){
-  const c = B.creature;
-  const turnEl = document.getElementById('turn-display');
-  const ptimerBar = document.getElementById('ptimer-bar');
-  const etimerBar = document.getElementById('etimer-bar');
-  const ptimerText = document.getElementById('ptimer-text');
-  const etimerText = document.getElementById('etimer-text');
-
-  if(!c){
-    const ppct = Math.max(0, B.playerHP / maxHP() * 100);
-    document.getElementById('battle-creature-name').textContent = 'SELECT A CREATURE';
-    document.getElementById('battle-creature-tag').textContent = 'Go to Battle to challenge a creature.';
-    document.getElementById('enemy-hp-bar').style.width = '0%';
-    document.getElementById('enemy-hp-text').textContent = '—';
-    document.getElementById('player-hp-bar').style.width = ppct + '%';
-    document.getElementById('player-hp-text').textContent = `${Math.max(0, B.playerHP).toFixed(1)} / ${maxHP().toFixed(1)}`;
-    document.getElementById('battle-art').innerHTML = '';
-    document.getElementById('battle-status').textContent = 'No active battle.';
-    if(turnEl) turnEl.textContent = '—';
-    if(ptimerBar){ ptimerBar.style.width = '0%'; ptimerText.textContent = '—'; }
-    if(etimerBar){ etimerBar.style.width = '0%'; etimerText.textContent = '—'; }
-    updateBattleStats();
-    return;
-  }
-
-  const rc = RARITY_COLORS[B.rarity || 'common'];
-  const rl = RARITY_LABELS[B.rarity || 'common'];
-  document.getElementById('battle-creature-name').textContent = c.name;
-  document.getElementById('battle-creature-name').style.color = rc || 'var(--white)';
-  document.getElementById('battle-creature-tag').textContent = `[${rl}] ${c.tag}`;
-  document.getElementById('battle-art').innerHTML = c.img ? `<img src="${c.img}" style="width:100%;height:100%;object-fit:cover;">` : (SVGs[c.id] || '');
-  document.getElementById('player-art').innerHTML = '<div style="font-size:22px;opacity:0.4;">★</div>';
-
-  const epct = Math.max(0, B.enemyHP / c.hp * 100);
-  const ppct = Math.max(0, B.playerHP / maxHP() * 100);
-  document.getElementById('enemy-hp-bar').style.width = epct + '%';
-  document.getElementById('enemy-hp-text').textContent = `${B.enemyHP.toFixed(1)} / ${c.hp}`;
-  document.getElementById('player-hp-bar').style.width = ppct + '%';
-  document.getElementById('player-hp-text').textContent = `${Math.max(0, B.playerHP).toFixed(1)} / ${maxHP().toFixed(1)}`;
-
-  // Timer bars
-  if(B.active && !B.dying){
-    const pInterval = Math.max(200, 3000 / (S.stats.asp || 1));
-    const pFill = Math.max(0, Math.min(100, (1 - B.playerTimer / pInterval) * 100));
-    const eFill = Math.max(0, Math.min(100, (1 - B.enemyTimer / 3000) * 100));
-    if(ptimerBar){ ptimerBar.style.width = pFill + '%'; ptimerText.textContent = (Math.max(0, B.playerTimer) / 1000).toFixed(1) + 's'; }
-    if(etimerBar){ etimerBar.style.width = eFill + '%'; etimerText.textContent = (Math.max(0, B.enemyTimer) / 1000).toFixed(1) + 's'; }
-  }
-
-  if(turnEl){
-    if(B.dying) turnEl.textContent = 'DEFEATED — RECOVERING...';
-    else if(B.active) turnEl.textContent = `ATK SPEED: ${(S.stats.asp || 1).toFixed(2)}× | KILLS: ${S.victories[c.id] || 0}/${c.vicReq}`;
-    else turnEl.textContent = '—';
-  }
-
-  // ✅ use c.atk directly — arm reduction happens in combat not here
-  document.getElementById('battle-status').textContent = B.active
-    ? `Your ATK: ${S.stats.atk.toFixed(1)} | Enemy ATK: ${c.atk.toFixed(1)} | Turn every ${(3000 / (S.stats.asp || 1) / 1000).toFixed(1)}s`
-    : 'Battle paused.';
-
-  updateBattleStats();
-}
 function renderSessionRewards(){
   const el=document.getElementById('session-rewards-list');
   if(!el)return;
