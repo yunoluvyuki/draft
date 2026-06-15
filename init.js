@@ -133,7 +133,7 @@ function setupSettings(){
     ['.res-rate',13],['.res-icon',12],['#topbar .fps',12],
     ['#add-btn',16],['#quint-count',13],['.btm-panel-hdr',11],
     ['#specs-header .label',9],['.filter-tab',10],['.sort-btn',11],
-    ['.sort-label',11],['.stat-name',9],['.stat-val',17],
+    ['.sort-label',11],['.stat-name',16],['.stat-val',17],
     ['#fund-header .label',11],['.fund-row',10],['#protocols-header .title',11],
     ['.protocol-title',10],['.protocol-sub',10],['.toggle-label',10],
     ['.protocol-val',8],['#battle-intro',11],['.card-name',10],
