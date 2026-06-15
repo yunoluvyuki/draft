@@ -91,7 +91,8 @@ function updateBattleUI(){
   if(!c){
     const ppct = Math.max(0, B.playerHP / maxHP() * 100);
     document.getElementById('battle-creature-name').textContent = 'SELECT A CREATURE';
-    document.getElementById('battle-creature-tag').textContent = 'Go to Battle to challenge a creature.';
+    document.getElementById('battle-creature-name').style.color = 'var(--white)';
+    document.getElementById('battle-creature-tag').textContent = '';
     document.getElementById('enemy-hp-bar').style.width = '0%';
     document.getElementById('enemy-hp-text').textContent = '—';
     document.getElementById('player-hp-bar').style.width = ppct + '%';
@@ -108,7 +109,7 @@ function updateBattleUI(){
   const rl = RARITY_LABELS[B.rarity || 'common'];
   document.getElementById('battle-creature-name').textContent = c.name;
   document.getElementById('battle-creature-name').style.color = rc || 'var(--white)';
-  document.getElementById('battle-creature-tag').textContent = `[${rl}] ${c.tag}`;
+  document.getElementById('battle-creature-tag').textContent = '';
   document.getElementById('battle-art').innerHTML = c.img ? `<img src="${c.img}" style="width:100%;height:100%;object-fit:cover;">` : (SVGs[c.id] || '');
   document.getElementById('player-art').innerHTML = '<div style="font-size:22px;opacity:0.4;">★</div>';
 
