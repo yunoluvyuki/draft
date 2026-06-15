@@ -226,18 +226,18 @@ body{background:var(--bg);color:var(--text);font-family:'Courier New',monospace;
 #reincarnate-btn.ready:hover{background:#25143d;}
 .reincarnate-req{font-size:8px;color:var(--red2);text-align:center;margin-top:4px;}
 .time-box{display:flex;justify-content:space-between;font-size:9px;color:var(--text2);}
-/* Glossary */
-#gloss-filters{display:flex;gap:4px;flex-wrap:wrap;margin-bottom:12px;}
-.gloss-filter{padding:3px 8px;font-size:9px;cursor:pointer;color:var(--text3);border:1px solid var(--border);background:none;font-family:inherit;}
-.gloss-filter.active{background:var(--bg3);color:var(--text);border-color:var(--border2);}
-#gloss-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(120px,1fr));gap:6px;}
-.gloss-card{background:var(--bg2);border:1px solid var(--border);aspect-ratio:1;display:flex;align-items:center;justify-content:center;position:relative;overflow:hidden;}
-.gloss-card.unlocked{background:var(--card-bg);}
-.gloss-card.unlocked svg{width:80%;height:80%;}
-.gloss-card.locked{flex-direction:column;gap:4px;}
-.gloss-locked-name{font-size:7px;color:var(--text4);text-align:center;padding:2px;}
-.gloss-q{font-size:20px;color:var(--text4);}
-.gloss-chance{font-size:7px;color:var(--text4);}
+/* Codex */
+#codex-filters{display:flex;gap:4px;flex-wrap:wrap;margin-bottom:12px;}
+.codex-filter{padding:3px 8px;font-size:9px;cursor:pointer;color:var(--text3);border:1px solid var(--border);background:none;font-family:inherit;}
+.codex-filter.active{background:var(--bg3);color:var(--text);border-color:var(--border2);}
+#codex-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(120px,1fr));gap:6px;}
+.codex-card{background:var(--bg2);border:1px solid var(--border);aspect-ratio:1;display:flex;align-items:center;justify-content:center;position:relative;overflow:hidden;}
+.codex-card.unlocked{background:var(--card-bg);}
+.codex-card.unlocked svg{width:80%;height:80%;}
+.codex-card.locked{flex-direction:column;gap:4px;}
+.codex-locked-name{font-size:7px;color:var(--text4);text-align:center;padding:2px;}
+.codex-q{font-size:20px;color:var(--text4);}
+.codex-chance{font-size:7px;color:var(--text4);}
 
 /* ── SHOP ────────────────────────────────────────────── */
 #shop-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:8px;}

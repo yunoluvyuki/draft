@@ -22,7 +22,7 @@ const FUND_DEFS={
     {key:'quint',label:'BLOOD COIN',val:()=>fmt(S.quintLifetime),cat:'economy'},
   ]
 };
-function calcGlossaryMult(){
+function calcCodexMult(){
   const unlocked=CREATURES.filter(c=>getVictories(c.id)>0).length;
   return 1+(unlocked*0.01);
 }
@@ -151,22 +151,22 @@ function renderMastery(){
 }
 
 // ═══════════════════════════════════════════════════════
-// GLOSSARY
+// CODEX
 // ═══════════════════════════════════════════════════════
-const GLOSS_TYPES=['ALL','SCRAP'];
-function renderGlossary(){
-  const filtersEl=document.getElementById('gloss-filters');
+const CODEX_TYPES=['ALL','SCRAP'];
+function renderCodex(){
+  const filtersEl=document.getElementById('codex-filters');
   const total=CREATURES.length;
   const unlocked=CREATURES.filter(c=>getVictories(c.id)>0).length;
-  filtersEl.innerHTML=`<button class="gloss-filter active">${'ALL'} ${unlocked}/${total}</button>
-  <button class="gloss-filter">SCRAP ${unlocked}/${total}</button>`;
-  const grid=document.getElementById('gloss-grid');
+  filtersEl.innerHTML=`<button class="codex-filter active">${'ALL'} ${unlocked}/${total}</button>
+  <button class="codex-filter">SCRAP ${unlocked}/${total}</button>`;
+  const grid=document.getElementById('codex-grid');
   // Show unlocked + some locked (total 219 conceptually, show first 30)
   const unlockList=CREATURES.filter(c=>getVictories(c.id)>0);
   const lockFiller=Array.from({length:Math.max(0,20-unlockList.length)},(_,i)=>({locked:true,idx:i}));
   grid.innerHTML=[
-    ...unlockList.map(c=>`<div class="gloss-card unlocked">${SVGs[c.id]||''}</div>`),
-    ...lockFiller.map((_,i)=>`<div class="gloss-card locked"><div class="gloss-q">?</div><div class="gloss-chance">CHANCE: 100%</div><div class="gloss-locked-name">??? ???</div></div>`)
+    ...unlockList.map(c=>`<div class="codex-card unlocked">${SVGs[c.id]||''}</div>`),
+    ...lockFiller.map((_,i)=>`<div class="codex-card locked"><div class="codex-q">?</div><div class="codex-chance">CHANCE: 100%</div><div class="codex-locked-name">??? ???</div></div>`)
   ].join('');
 }
 
@@ -201,7 +201,7 @@ function renderAll(){
   renderBattle();
   renderShop();       
   updateQuintUI();
-  renderGlossary();
+  renderCodex();
   updateBattleUI();
   updateResources();
 }

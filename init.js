@@ -52,7 +52,7 @@ function switchTab(name){
   if(name === 'shop') renderShop();   
   if(name === 'archive'){
     updateQuintUI();
-    renderGlossary();
+    renderCodex();
     document.getElementById('archive-dot').style.display = 'none';
   }
 }
@@ -81,7 +81,7 @@ document.querySelectorAll('.prestige-tab').forEach(t=>{
     document.querySelectorAll('.prestige-tab').forEach(x=>x.classList.toggle('active',x===t));
     document.querySelectorAll('.prestige-pane').forEach(x=>x.classList.toggle('active',x.id==='arch-'+t.dataset.arch));
     if(t.dataset.arch==='treasury')updateQuintUI();
-    if(t.dataset.arch==='glossary')renderGlossary();
+    if(t.dataset.arch==='codex')renderCodex();
     if(t.dataset.arch==='masterpiece')renderMastery();
   });
 });
@@ -101,7 +101,7 @@ function setupSettings(){
   document.getElementById('btn-invert-img').addEventListener('click',()=>{
     S.settings.invertImg=!S.settings.invertImg;
     const f=S.settings.invertImg?'invert(1)':'';
-    document.querySelectorAll('.card-art svg,.card-art img,#battle-art svg,#portrait-box svg,.gloss-card.unlocked svg').forEach(s=>s.style.filter=f);
+    document.querySelectorAll('.card-art svg,.card-art img,#battle-art svg,#portrait-box svg,.codex-card.unlocked svg').forEach(s=>s.style.filter=f);
     document.getElementById('btn-invert-img').textContent=S.settings.invertImg?'RESTORE IMAGES':'SWITCH TO INVERTED IMAGES';
   });
   document.getElementById('btn-fullscreen').addEventListener('click',()=>{
