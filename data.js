@@ -347,7 +347,12 @@ final_draft:`<svg viewBox="0 0 100 140" xmlns="http://www.w3.org/2000/svg" fill=
 // ═══════════════════════════════════════════════════════
 const RESOURCE_LABELS={old:'OLD',bronze:'BRONZE',silver:'SILVER',gold:'GOLD',plat:'PLAT'};
 const CREATURES = [
-  {id:'hollow_wretch',name:'HOLLOW WRETCH',tag:'Nothing left but need.',atk:2,arm:1.0,hp:10,count:null,rewards:{atk:0.12,old:0.15},vicReq:5,new:false,img:'attached_assets/img/creature/1hollow_wretch.png'},
+  {id:'hollow_wretch',name:'HOLLOW WRETCH',tag:'Nothing left but need.'
+    ,atk:2,arm:1.0,hp:10,
+    rewards:{atk:0.12,old:0.15},
+    vicReq:5,
+    img:'attached_assets/img/creature/1hollow_wretch.png'},
+    
   {id:'plague_hound',name:'PLAGUE HOUND',tag:'Loyal to the rot.',atk:3,arm:1.1,hp:550,count:3,rewards:{hp:0.4,old:0.18},vicReq:5,new:false,img:'attached_assets/img/creature/2plague_hound.png'},
   {id:'ashwalker',name:'ASHWALKER',tag:'Stepped out of the fire.',atk:4,arm:1.1,hp:600,count:'10%',rewards:{atk:0.13,old:0.2},vicReq:5,new:false,img:'attached_assets/img/creature/3ashwalker.png'},
   {id:'bonepicker',name:'BONEPICKER',tag:'Patience at its worst.',atk:5,arm:1.2,hp:650,count:null,rewards:{old:0.22,atk:0.11},vicReq:5,new:false},
