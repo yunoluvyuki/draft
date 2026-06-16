@@ -49,6 +49,7 @@ function switchTab(name){
     p.classList.toggle('active', p.id === 'tab-' + name);
   });
   if(name === 'battle') renderBattle();
+  if(name === 'inventory') renderInventory();
   if(name === 'shop') renderShop();   
   if(name === 'archive'){
     updateBloodUI();
@@ -265,6 +266,9 @@ function setupSettings(){
     toast(`Reincarnated! Permanent bonus: ${bonus}x — you feel sharper.`,5000);
     const base=DEFAULT_STATE();
     S.stats=base.stats;
+    S.baseStats={...base.stats};
+    S.equipment={equipped:{weapon:null,helmet:null,armor:null,gloves:null,boots:null,ring:null},inventory:[]};
+    S.equipNextId=0;
     S.victories={};
     S.resources={old:0,bronze:0,silver:0,gold:0,plat:0};
     S.currentCreature=null;

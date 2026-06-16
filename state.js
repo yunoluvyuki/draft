@@ -24,7 +24,13 @@ const DEFAULT_STATE = ()=>({
   sessionEarned:{bronze:0,silver:0,gold:0,plat:0}, // resets on reincarnate
   mCoins:{old:0,bronze:0,silver:0,gold:0,plat:0},  // current M.Coin counts, resets on reincarnate
   codexBonusApplied: 0,  // how many codex bonuses have been applied
-
+  // Equipment system
+  equipment:{
+    equipped:{ weapon:null, helmet:null, armor:null, gloves:null, boots:null, ring:null },
+    inventory:[],
+  },
+  baseStats:null,   // stats before equipment bonuses; set on first equip
+  equipNextId:0,    // incrementing ID for item instances
 });
 let S = DEFAULT_STATE();
 

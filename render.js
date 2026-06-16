@@ -8,7 +8,7 @@ function renderStats(){
   g.innerHTML=defs.map(d=>`
     <div class="stat-cell">
       <div class="stat-name"><span class="stat-icon ${d.icon}"></span>${d.label}</div>
-      <div class="stat-val">${formatStat(d.key,S.stats[d.key]??0)}</div>
+      <div class="stat-val">:${formatStat(d.key,S.stats[d.key]??0)}</div>
     </div>`).join('');
 }
 const FUND_DEFS={
@@ -85,7 +85,7 @@ function renderBattle(){
             const val=(c[d.key]??base)*(['atk','hp'].includes(d.key)?spawnRarityMultDisplay:1);
             return `<div class="stat-cell">
               <div class="stat-name"><span class="stat-icon ${d.icon}"></span>${d.label}</div>
-              <div class="stat-val">${formatStat(d.key,val)}</div>
+              <div class="stat-val">:${formatStat(d.key,val)}</div>
             </div>`;
           }).join('')}</div>
         </div>
@@ -223,11 +223,12 @@ function renderAll(){
   renderStats();
   renderFundamentals();
   renderBattle();
-  renderShop();       
+  renderShop();
   updateBloodUI();
   renderCodex();
   updateBattleUI();
   updateResources();
+  renderInventory();
 }
 // ═══════════════════════════════════════════════════════
 // M.COIN SYNTHESIZER UI
