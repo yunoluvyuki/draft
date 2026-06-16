@@ -30,6 +30,9 @@ function loadGame(){
     S.reincarnations = loaded.reincarnations || 0;
     S.quintPending = loaded.quintPending || 0;
     S.quintLifetime = loaded.quintLifetime || 0;
+    S.lifetimeEarned = Object.assign({old:0}, loaded.lifetimeEarned || {});
+    S.sessionEarned = Object.assign({bronze:0,silver:0,gold:0,plat:0}, loaded.sessionEarned || {});
+    S.mCoins = Object.assign({old:0,bronze:0,silver:0,gold:0,plat:0}, loaded.mCoins || {});
     B.playerHP = (loaded.savedPlayerHP && loaded.savedPlayerHP > 0) ? loaded.savedPlayerHP : maxHP();
   }catch(e){console.error('Load failed', e);}
   initBattleQueue();

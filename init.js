@@ -98,12 +98,6 @@ function setupSettings(){
     document.body.style.filter=S.settings.lightMode?'invert(1) hue-rotate(180deg)':'';
     document.getElementById('btn-light-mode').textContent=S.settings.lightMode?'SWITCH TO DARK MODE':'SWITCH TO LIGHT MODE';
   });
-  document.getElementById('btn-invert-img').addEventListener('click',()=>{
-    S.settings.invertImg=!S.settings.invertImg;
-    const f=S.settings.invertImg?'invert(1)':'';
-    document.querySelectorAll('.card-art svg,.card-art img,#battle-art svg,#portrait-box svg,.codex-card.unlocked svg').forEach(s=>s.style.filter=f);
-    document.getElementById('btn-invert-img').textContent=S.settings.invertImg?'RESTORE IMAGES':'SWITCH TO INVERTED IMAGES';
-  });
   document.getElementById('btn-fullscreen').addEventListener('click',()=>{
     if(!document.fullscreenElement)document.documentElement.requestFullscreen().catch(()=>{});
     else document.exitFullscreen();
@@ -174,9 +168,6 @@ function setupSettings(){
   document.getElementById('fs-reset').addEventListener('click',()=>{fs=FS_DEFAULT;applyFontSize(fs);});
 
   // Checkboxes
-  document.getElementById('chk-protocols').addEventListener('change',function(){
-    document.getElementById('right-sidebar').style.display=this.checked?'flex':'none';
-  });
   document.getElementById('chk-combat-log').addEventListener('change',function(){S.settings.combatLog=this.checked;});
   document.getElementById('chk-hide-scroll').addEventListener('change',function(){
     document.body.style.overflow=this.checked?'hidden':'';
@@ -277,6 +268,8 @@ function setupSettings(){
     S.quintPending=0;
     S.battleUnlocked=[];
     S.battleQueue=[];
+    S.sessionEarned={bronze:0,silver:0,gold:0,plat:0};
+    S.mCoins={old:0,bronze:0,silver:0,gold:0,plat:0};
     B={active:false,creature:null,playerHP:0,enemyHP:0,deathTimer:0,dying:false,fleeTimer:0,lastTick:0};
     initBattleQueue();
     renderAll();
@@ -326,6 +319,7 @@ function gameLoop(){
     document.getElementById('active-time').textContent = fmtTime(S.activeTime);
   }
   if(frameCount % 30 === 0){
+    milestoneTick();
     renderStats();
     renderFundamentals();
     const archActive = document.getElementById('tab-archive').classList.contains('active');

@@ -1,8 +1,7 @@
 # Draft Throne — Game Design Document (Living Doc)
 
 > Browser idle/RPG game. No server, no dependencies.
-> Files: `index.html` (markup) + `style.css` (all CSS) + `script.js` (all game logic)
-> Save: `localStorage` (key: `rejected_draft_save`)
+> Save: `localStorage` (key: `draft_throne_save`)
 
 > **This file is the project memory.** Update it after every change so future
 > sessions don't need to re-read the whole codebase. Keep it accurate over complete —
@@ -12,227 +11,201 @@
 
 ## File Map
 
-| File | Lines (approx) | Contents |
-|------|------|----------|
-| `index.html` | ~440 | All markup: topbar, tabs (Battle/Inventory/Shop/Prestige/Settings), bottom bar panels |
-| `style.css` | ~370 | All styles |
-| `script.js` | ~1700 | All game logic: state, battle loop, rendering, save/load |
+| File | Contents |
+|------|----------|
+| `index.html` | All markup: topbar, tabs (Battle/Inventory/Shop/Prestige/Settings), bottom bar panels |
+| `style.css` | All styles |
+| `state.js` | Game state, DEFAULT_STATE, STAT_DEFS, RARITY system constants |
+| `data.js` | CREATURES array, SHOP_ITEMS, SVGs, RESOURCE_LABELS |
+| `utils.js` | fmt, fmtStat, fmtTime, toast, getCreature, getVictories, isMaxed, maxHP, formatStat |
+| `battle.js` | Battle loop, startBattle, stopBattle, onWin, onLose, updateBattleUI, firePlayerTurn, fireEnemyTurn |
+| `render.js` | renderStats, renderBattle, renderShop, renderMastery, renderCodex, updateResources, updateQuintUI |
+| `shop.js` | buyShopItem, buyMasteryUpgrade |
+| `save.js` | saveGame, loadGame |
+| `milestone.js` | milestoneTick, getMilestoneCount, getNextMilestone — Blood Coin generation system |
+| `init.js` | Game loop, tab switching, settings, reincarnate, font size override (FS_RULES) |
 
 ---
 
-## Tabs (renamed 2026-06-14)
+## Tabs
 
-- **BATTLE** tab (was "Gallery"/"World") — `tab-battle`, `#battle-grid`, `renderBattle()`,
-  `battleQueue`/`initBattleQueue`, `battleUnlocked`, `battle-dot`.
-- **PRESTIGE** tab — internally still `tab-archive`/`archive-dot` in some places, but
-  sub-tab CSS classes renamed: `.archive-tabs`→`.prestige-tabs`, `.arch-tab`→`.prestige-tab`,
-  `.arch-pane`→`.prestige-pane`. Dot only shows when `quintPending>=100` OR a mastery
-  upgrade is affordable (`hasAffordableMasteryUpgrade()`), cleared on tab view
-  (`updateArchiveDot()`, called every 3 frames from `gameLoop`).
+- **BATTLE** — `tab-battle`, `#battle-grid`, `renderBattle()`, 4-column grid, shows all 15 enemy stats
+- **INVENTORY** — Codex system (was Glossary), `renderCodex()`, `#codex-grid`
+- **SHOP** — `renderShop()`, `buyShopItem()`
+- **PRESTIGE** — `tab-archive`, sub-tabs: Treasury (Blood Coin/Reincarnate), Mastery (rarity upgrades)
+- **SETTINGS** — font size slider, zoom, combat log toggle
 
 ---
 
-## Currency (renamed 2026-06-13, internal keys renamed again 2026-06-14)
+## Currency
 
 | Internal key | Display name | Notes |
 |---|---|---|
-| `old` (was `gra`) | **Old Coin** | base resource, produced by `bronze` |
-| `bronze` (was `wax`) | **Bronze Coin** | produced by `silver` |
-| `silver` (was `cha`) | **Silver Coin** | produced by `gold` |
-| `gold` | **Gold Coin** | produced by `plat` |
-| `plat` | **Platinum Coin** | top of chain, rate = `victories['contrast_crusher']` |
-| `quint` (S.quintPending / quintLifetime) | **Blood Coin** | prestige currency, drives "Reincarnate" |
+| `old` | **Old Coin** | base resource, from battle rewards |
+| `bronze` | **Bronze Coin** | from battle rewards / synth chain |
+| `silver` | **Silver Coin** | from synth chain |
+| `gold` | **Gold Coin** | from synth chain |
+| `plat` | **Platinum Coin** | from synth chain, top of chain |
+| `quint` | **Blood Coin** | prestige currency, from milestone system |
 
-> Note: item ids like `wax_seal`/`wax_tablet` are flavor names only — NOT related to
-> the renamed `wax`→`bronze` currency key. Left untouched intentionally.
-
-**Production chain:** `plat → gold → silver → bronze → old` (each feeds the one below
-it at `×0.002` rate, except `bronze→old` at `×0.005`). See `synthTick()` in script.js (~line 1158).
-
-**Gated behind upgrade (2026-06-14):** The passive production chain (`synthTick`) and
-the offline OLD/BRONZE catch-up bonus on load are now both `0` / skipped unless
-`S.synthUnlocked===true`. This is set by purchasing the one-time shop item
-`SYNTHESIS CHAIN` (`synth_chain`, cost 1000 OLD, `maxOwned:1`).
-
-**⚠️ Open issue / next-update item:** Shop costs and creature battle rewards still only
-use `old`/`bronze`/`silver`. `gold`/`plat` currently ONLY accumulate via the production
-chain (top-fed by `contrast_crusher` victories) — no direct battle drops yet.
+**Synthesis chain** (`synthTick`): `plat→gold→silver→bronze→old`, gated behind `S.synthUnlocked` (shop item `synth_chain`).
 
 ---
 
-## Rarity System (added 2026-06-13/14)
+## Milestone System (added 2026-06-15) — `milestone.js`
 
-- `RARITY_COLORS`, `RARITY_LABELS`, `RARITY_BG`, `RARITY_MULTS`, `RARITY_UPGRADES`.
-- `RARITY_MULTS = {common:1, uncommon:1.5, rare:3, epic:6, legendary:15}` (script.js ~721).
-- `getRarityChances()` / `rollRarity()` / `getSpawnRarity(id)` — each creature's rarity
-  is rolled ONCE and persisted in `S.spawnRarity[id]`.
-- On `startBattle()`, enemy `atk`/`hp` are multiplied by `RARITY_MULTS[B.rarity]`.
-- Battle rewards (`onWin()`) are multiplied by the same rarity mult AND
-  `(1 + S.reincarnations*0.05)`.
-- Gallery/Battle cards (`renderBattle`) display ATK/HP/reward numbers scaled by the
-  creature's persisted spawn rarity (`spawnRarityMultDisplay`).
-- `RARITY_BG.uncommon` set to `rgba(39,174,96,0.4)` (brighter green card background).
-- On victory, a `↳ Rewards: ...` log line lists every resource/stat gained.
+Blood Coin is generated passively via M.Coins earned by crossing thresholds.
 
-**Removed:** the old `tier` system (`TIER_COLORS/LABELS/BG/DESC`, `getTier()`,
-`tier:N` field on all ~80 creatures) — "tier is not rarity", fully deleted.
+**Thresholds:** `1,024 → 1,024,000 → 1,024,000,000 → ...` (×1000 each step)
 
----
+| M.Coin | Tracked by | Resets on reincarnate? | Produces |
+|---|---|---|---|
+| M.Old | Lifetime Old earned (`S.lifetimeEarned.old`) | No (lifetime) | +1 Blood Coin/sec each |
+| M.Bronze | Session Bronze earned (`S.sessionEarned.bronze`) | Yes | +1 M.Old equivalent/sec each |
+| M.Silver | Session Silver earned | Yes | flows down chain |
+| M.Gold | Session Gold earned | Yes | flows down chain |
+| M.Plat | Session Plat earned | Yes | flows down chain |
 
-## Player Stats (16 total) — `STAT_DEFS` in script.js (~line 624)
+**Production:** All M.Coins ultimately contribute to Blood Coin/sec via chain.
+`milestoneTick()` runs every second from `gameLoop` (`frameCount % 30`).
 
-| Key | Label | Category | Format | Default | Used in combat? |
-|-----|-------|----------|--------|---------|------------------|
-| hp  | HP  | defense | number | 50  | yes (HP pool) |
-| atk | ATK | offense | number | 3   | yes |
-| mnd | MND | defense | %      | 0.7 | yes — **damage floor**, `max(mnd, atk*mxd-def)` |
-| mxd | MXD | offense | x      | 1.0 | yes — multiplier on atk |
-| spd | SPD | utility | number | 100 | not yet wired into tick (real-time loop uses fixed turn timers) |
-| rgn | RGN | defense | number | 0   | yes — heals `rgn*2` HP/turn |
-| dog | DOG | chance  | %      | 0   | yes — dodge enemy attack entirely |
-| crc | CRC | chance  | %      | 0   | yes — crit chance |
-| crd | CRD | offense | x      | 1.0 | yes — crit damage multiplier |
-| arm | ARM | defense | number | 0   | yes — reduces enemy dmg via `/(1+arm*0.15)` |
-| asp | ASP | offense | number | 1.0 | display only ("Attack Speed") — not in formula. **Renamed from `apn`→`asp` 2026-06-13** (was the root cause of a combat-crash bug, now fixed) |
-| frl | FRL | chance  | %      | 0   | **unused**, no combat effect |
-| acc | ACC | chance  | %      | 1.0 | yes — miss chance = `random()>acc` |
-| blk | BLK | defense | %      | 0   | yes — block chance |
-| bld | BLD | defense | number | 0   | yes — flat reduction on blocked hit |
-| ctr | CTR | chance  | %      | 0   | yes — counter-attack chance |
-
-- `formatStat()`: `pct` format now shows **1 decimal** (`70.0%`), was 3 decimals.
-- Stat panel grid (`.stat-profile-grid`) is now **4 columns** (was 2).
+**State fields added:**
+- `S.lifetimeEarned = {old: N}` — persists across reincarnations
+- `S.sessionEarned = {bronze, silver, gold, plat}` — resets on reincarnate
+- `S.mCoins = {old, bronze, silver, gold, plat}` — current M.Coin counts, resets on reincarnate
 
 ---
 
-## Damage Formulas — `firePlayerTurn()` / `fireEnemyTurn()`
+## Rarity System
+
+- `RARITY_MULTS = {common:1, uncommon:1.5, rare:3, epic:6, legendary:15}`
+- Each creature's rarity rolled once, persisted in `S.spawnRarity[id]`
+- Rewards multiplied by rarity mult + reincarnation mult + decay mult
+- `RARITY_UPGRADES` in `state.js` — buyable in Mastery tab
+
+---
+
+## Reward Decay (added 2026-06-15)
+
+Formula: `reward = base_reward / (1 + 0.3 * n)` where `n` = win count for that creature.
+Applied in `onWin()` in `battle.js` and displayed on creature cards in `renderBattle()`.
+Resets on reincarnation since `S.victories` is wiped.
+
+---
+
+## Player Stats (15 total) — `STAT_DEFS` in `state.js`
+
+| Key | Label | Format | Default | Combat use |
+|-----|-------|--------|---------|------------|
+| hp | HP | n | 50 | health pool |
+| atk | ATK | n | 3 | attack damage |
+| mnd | MND | % | 0.7 | damage floor |
+| mxd | MXD | % | 1.2 | damage multiplier |
+| spd | SPD | n | 0 | not yet wired |
+| rgn | RGN | n | 0 | heal per turn |
+| ddc | DDC | % | 0 | dodge chance |
+| crc | CRC | % | 0 | crit chance |
+| crd | CRD | x | 1.0 | crit multiplier |
+| arm | ARM | n | 0 | damage reduction |
+| mth | MTH | % | 0 | multi-attack chance |
+| acc | ACC | % | 1.0 | hit chance |
+| blk | BLK | % | 0 | block chance |
+| bld | BLD | n | 0 | block flat reduction |
+| ctr | CTR | % | 0 | counter chance |
+
+Note: enemy defense stat renamed from `def` to `arm` to match player stat naming.
+
+---
+
+## Damage Formulas
 
 ### Player attack
 ```
-miss?  random() > acc        → if true, no damage, no crit roll
+miss?  random() > acc        → no damage
 crit?  random() < crc
-base = max(mnd, atk * mxd - enemy.def)
+base = max(mnd, atk * mxd - enemy.arm)
 dmg  = base * (crit ? crd : 1)
-enemyHP -= dmg
-// regen, independent of hit/miss:
 if rgn > 0: playerHP = min(maxHP, playerHP + rgn*2)
 ```
 
 ### Enemy attack
 ```
-dodge?  random() < dog        → if true, 0 damage
+dodge?  random() < ddc       → 0 damage
 rawDmg  = max(1, enemy.atk / (1 + arm*0.15))
-block?  random() < blk        → if true, dmg = max(0, rawDmg - bld), else dmg = rawDmg
-counter? random() < ctr       → if true, counterDmg = max(0.1, atk*0.5 - enemy.def), applied to enemyHP
+block?  random() < blk       → dmg = max(0, rawDmg - bld)
+counter? random() < ctr      → counterDmg applied to enemy
 playerHP -= dmg
 ```
 
-**Open issue (unchanged):** Min/Max Damage display rows are cosmetic estimates
-(`atk-enemy.def`, `atk*mxd-enemy.def`) and don't reflect the real `mnd` floor.
+---
+
+## Battle System
+
+- `startBattle(id)` — blocked during `B.dying` (recovery state)
+- `onLose()` — sets `B.dying=true`, clears `B.creature`, `S.currentCreature`, calls `renderBattle()`
+- Recovery: 10s death timer, then `B.dying=false`, `renderBattle()` restores CHALLENGE buttons
+- `stopBattle()` — flee with 5s penalty
 
 ---
 
-## Achievements — FULLY REMOVED (2026-06-14)
-
-Previously soft-disabled (2026-06-13), now completely deleted: `ACHIEVEMENTS` array,
-`checkAchievements()`, `renderAchievements()`, `S.achievements` state field, and all
-call sites/UI (arch-tab button, pane, `switchTab`/`loadGame`/init references).
-No re-enable path retained.
-
----
-
-## Tutorial / Community / Wishlist — FULLY REMOVED (2026-06-14)
-
-- Tutorial popup CSS (`#tutorial-*`, `.tut-*`) deleted from style.css (JS already gone
-  in prior commit `a234843`); leftover `localStorage.removeItem('rd_tutorial_done')` removed.
-- Settings tab "Community & Feedback" and "Wishlist on Steam" sections removed from
-  `index.html` (`settings-layout2` row), plus `.community-text`/`.wishlist-text` CSS.
-
----
-
-## Prestige — "Reincarnate" (renamed from "Redraw World", 2026-06-13)
+## Prestige — Reincarnate
 
 - Cost: 100 pending Blood Coin (`S.quintPending`)
-- Button: `#reincarnate-btn`, requirement text `.reincarnate-req`
-- Resets stats/resources/victories/shop, increments `S.reincarnations`
-- Reward multiplier: `1 + S.reincarnations*0.05` (applied to battle rewards AND offline
-  catch-up rate)
-- Milestone: each resource (`old`/`bronze`/`silver`/`gold`/`plat`) tracks toward 1618 →
-  +1 pending Blood Coin (`RESOURCE_LABELS` entries all have `milestone:1618`)
+- Resets: stats, victories, resources, shop, battleQueue, sessionEarned, mCoins
+- Persists: `S.reincarnations`, `S.quintLifetime`, `S.lifetimeEarned.old`
+- Bonus: `1 + reincarnations * 0.05` applied to battle rewards
 
 ---
 
-## Creature Images (added 2026-06-14)
+## Codex (was Glossary — renamed 2026-06-15)
 
-- `CREATURES[]` entries may have an optional `img` field (path relative to `index.html`,
-  e.g. `attached_assets/img/1hollow_wretch.jpg`).
-- If `c.img` is set, both the gallery card (`.card-art`) and the battle screen
-  (`#battle-art`) render `<img>` instead of the `SVGs[c.id]` SVG/fallback icon.
-- Currently only `hollow_wretch` has an image (`attached_assets/img/1hollow_wretch.jpg`).
-- To add more: drop the file in `G:\draft\attached_assets\img\` and add `img:'attached_assets/img/<file>'`
-  to the matching creature object (script.js ~line 350+).
+- Shows unlocked creatures (at least 1 victory) + mystery locked slots
+- `renderCodex()` in `render.js`
+- All references renamed: `gloss*` → `codex*` in JS/CSS/HTML
 
 ---
 
-## Font Size Override System — `FS_RULES`/`applyFontSize()` (script.js ~1437)
+## UI / Styling Notes
 
-- Global font-size slider (`#fs-minus`/`#fs-plus`/`#fs-reset`) scales a fixed list of
-  selectors via an injected `#fs-override` `<style>` tag with `!important` rules.
-- **2026-06-14 fix:** base sizes per selector are now read directly from the actual
-  CSS stylesheet rules (`document.styleSheets` → `FS_CSS_MAP`), not from
-  `getComputedStyle` on (possibly-missing/already-overridden) DOM elements. This means:
-  - Manual edits to a selector's `font-size` in `style.css` are picked up correctly on reload.
-  - The slider still scales everything proportionally from `FS_DEFAULT=13`.
-  - No more compounding/locking from repeated overrides.
-
----
-
-## UI Polish (2026-06-13/14)
-
-- `.card-name` color: removed inline `style="color:..."` override in `renderBattle()` —
-  now controlled purely by CSS (`color:#ff0000` in style.css).
-- Removed unused `.res-unknown` "?" topbar block.
-- Resource bar text sizes bumped ~20% (`.res-val` 15→18px, `.res-rate` 11→13px, `.res-icon` 10→12px).
-- `#battle-intro`/`#battle-grid` (was `#gallery-intro`/`#gallery-grid`) — CSS selectors
-  renamed to match `index.html` ids.
+- Font size override system: `FS_RULES` in `init.js`, all sizes set to `14` base
+- Default zoom: `120%` (`S.settings.uiZoom`)
+- Default font size: `16px` (`S.settings.fontSize`)
+- Battle grid: `repeat(4, 1fr)` — always 4 columns
+- Stat grid: `repeat(2, 1fr)` — 2 columns
+- Creature cards show all 15 stats in a 3-column grid
+- Card image: `position:absolute`, fills `card-art` with `object-fit:cover`
+- Rarity badge: inline-block above creature name in `card-info`
+- ATK stat icon: `attached_assets/img/stat icon image/atk.png`
 
 ---
 
-## Recent Commit History (context)
+## Font Size Override — `FS_RULES` in `init.js`
 
-```
-eec9897 add images
-5dacc28 misc
-e955138 text
-8bce49b font size
-d09f802 misc
-6a85e96 remove achievement
-c412811 change currency
-562b688 divided script and css (single index.html → index.html+style.css+script.js)
-a234843 remove tutorial
-3440a89 fix css
-d4c3700 change how mxd is displayed
-fe5eb65 shop test
-24446d2 / 0582040 / 0f705eb fix dmg formula / mxd
-```
+All selectors set to base `14`. Key selectors:
+`.stat-name` (16), `.stat-val` (17), `.card-name` (16), `.card-info .stat-grid .stat-name` (11), `.card-info .stat-grid .stat-val` (12), `.battle-btn` (14), `#death-overlay .timer` (14).
 
-> **Not yet committed as of 2026-06-14:** currency key rename (`gra`/`wax`/`cha`→
-> `old`/`bronze`/`silver`), gallery→battle rename, synth-chain gating, archive→prestige
-> CSS rename, achievements/tutorial/community/wishlist removal, creature image support,
-> font-size override fix, `.card-name` color fix.
+---
+
+## Removed / Cleaned Up (this session)
+
+- `turn-display` and `battle-status` divs removed from `index.html` and `battle.js`
+- `calcGlossaryMult` → `calcCodexMult` (renamed)
+- `countStr` removed from creature cards
+- Card tagline (`c.tag`) removed from battle cards and battle screen
+- `GLOSSARY MULTIPLIER` removed from `FUND_DEFS`
 
 ---
 
 ## NEXT UPDATE — TODO / Open Items
 
-1. **Gold/Platinum integration**: decide whether these drop from battle rewards
-   (would require touching ~80 entries in `CREATURES`) or stay purely passive-chain.
-2. **`frl` stat**: defined but has zero gameplay effect — decide purpose or remove.
-3. **Min/Max Damage display**: cosmetic mismatch with real `mnd` floor formula.
-4. **Shop costs**: still old/bronze/silver only — consider gold/plat tiers for shop items
-   if Gold/Platinum become meaningful currencies.
-5. **Creature images**: only `hollow_wretch` has artwork; rest still use SVG/fallback icon.
+1. **M.Coin UI** — show milestone progress in Prestige tab (total earned, next threshold, M.Coin counts, Blood Coin/sec rate)
+2. **synthTick tracking** — passive synth production should also feed `sessionEarned`
+3. **Gold/Platinum battle drops** — currently only from synth chain
+4. **`ddc` stat** — code uses `ddc` but readme previously said `dog` — verify combat formula uses correct key
+5. **Min/Max Damage display** — cosmetic mismatch with real `mnd` floor
+6. **Creature images** — only `hollow_wretch` has artwork
+7. **M.Coin second+ milestone rates** — currently undefined, all milestones give +1 M.Coin
 
 ---
 
-*Last updated: 2026-06-14*
+*Last updated: 2026-06-15*

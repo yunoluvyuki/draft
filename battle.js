@@ -371,7 +371,14 @@ function onWin(){
     const amount = v * rewardMult * rarityMult * decayMult;
     if(['old', 'bronze', 'silver'].includes(k)){
       S.resources[k] = (S.resources[k] || 0) + amount;
-      if(k === 'old') S.lifeOld = (S.lifeOld || 0) + amount;
+      if(k === 'old'){
+        S.lifeOld = (S.lifeOld || 0) + amount;
+        if(!S.lifetimeEarned) S.lifetimeEarned = {old:0};
+        S.lifetimeEarned.old = (S.lifetimeEarned.old || 0) + amount;
+      } else if(['bronze','silver','gold','plat'].includes(k)){
+        if(!S.sessionEarned) S.sessionEarned = {bronze:0,silver:0,gold:0,plat:0};
+        S.sessionEarned[k] = (S.sessionEarned[k] || 0) + amount;
+      }
     } else if(S.stats[k] !== undefined){
       S.stats[k] += amount;
     }

@@ -2,7 +2,7 @@
 // GAME STATE
 // ═══════════════════════════════════════════════════════
 const DEFAULT_STATE = ()=>({
-  stats:{hp:50,atk:3,mnd:0.7,mxd:1.2,spd:0,rgn:0,ddc:0,crc:0,crd:1.5,arm:0,mth:0,acc:0.01,blk:0,bld:0,ctr:0},
+  stats:{hp:50,atk:3,mnd:0.7,mxd:1.2,spd:0,rgn:0,ddc:0,crc:0,crd:1.0,arm:0,mth:0,acc:1.0,blk:0,bld:0,ctr:0},
   resources:{old:0,bronze:0,silver:0,gold:0,plat:0},
   victories:{},
   shopOwned:{},
@@ -14,12 +14,16 @@ const DEFAULT_STATE = ()=>({
   deaths:0,
   lifeOld:0,
   lastSave:Date.now(),
-  settings:{lightMode:false,invertImg:false,showProtocols:true,combatLog:true,uiZoom:120,battleNav:'manual',numNotation:'mixed',fontSize:16},
+  settings:{lightMode:false,combatLog:true,uiZoom:120,battleNav:'manual',numNotation:'mixed',fontSize:16},
   protocols:{autoChallenge:false,autoRetry:false},
   masteryUpgrades:{},
   battleUnlocked:[],
   battleQueue:[],
   spawnRarity:{},
+  // Milestone system
+  lifetimeEarned:{old:0},           // persists across reincarnations (only old)
+  sessionEarned:{bronze:0,silver:0,gold:0,plat:0}, // resets on reincarnate
+  mCoins:{old:0,bronze:0,silver:0,gold:0,plat:0},  // current M.Coin counts, resets on reincarnate
 });
 let S = DEFAULT_STATE();
 

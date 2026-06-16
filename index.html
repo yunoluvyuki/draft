@@ -121,6 +121,7 @@
     </div>
 
     <div class="tab-pane" id="tab-shop">
+      <div class="section-header">SHOP</div>
       <div id="shop-grid"></div>
     </div>
 
@@ -173,7 +174,6 @@
         <div class="settings-section active-section">
           <div class="settings-title"><span class="settings-icon">⚙</span> INTERFACE</div>
           <button class="settings-btn" id="btn-light-mode">SWITCH TO LIGHT MODE</button>
-          <button class="settings-btn" id="btn-invert-img">SWITCH TO INVERTED IMAGES</button>
           <button class="settings-btn" id="btn-fullscreen">↗ ENTER FULLSCREEN</button>
 
           <div class="settings-row" style="margin-top:6px;">
@@ -199,18 +199,6 @@
           </div>
 
           <label class="settings-check-row">
-            <input type="checkbox" id="chk-protocols" checked>
-            <div><div class="settings-check-label">SHOW PROTOCOL SIDEBAR</div><div class="settings-check-sublabel">Active protocols (and Docked Notifications) on the right.</div></div>
-          </label>
-          <label class="settings-check-row">
-            <input type="checkbox" id="chk-embed-battle">
-            <div><div class="settings-check-label">EMBED BATTLE INFO</div><div class="settings-check-sublabel">Move battle status into the sidebar, replacing player portrait.</div></div>
-          </label>
-          <label class="settings-check-row">
-            <input type="checkbox" id="chk-artist-filter">
-            <div><div class="settings-check-label">CODEX ARTIST FILTER</div><div class="settings-check-sublabel">Enable filtering sketches by artist in the Codex.</div></div>
-          </label>
-          <label class="settings-check-row">
             <input type="checkbox" id="chk-screen-sleep">
             <div><div class="settings-check-label">PREVENT SCREEN SLEEP</div><div class="settings-check-sublabel">Keep screen active while game is open.</div></div>
           </label>
@@ -223,16 +211,8 @@
             <div><div class="settings-check-label">HIDE SCROLLBARS</div><div class="settings-check-sublabel">Cleaner UI – if you have a mouse wheel.</div></div>
           </label>
           <label class="settings-check-row">
-            <input type="checkbox" id="chk-unstick">
-            <div><div class="settings-check-label">UNSTICK BATTLE/CODEX FILTERS</div><div class="settings-check-sublabel">Let filters scroll with the page on cramped screens.</div></div>
-          </label>
-          <label class="settings-check-row">
             <input type="checkbox" id="chk-highlights">
             <div><div class="settings-check-label">ENABLE UI HIGHLIGHTS</div><div class="settings-check-sublabel">Highlight stats (left panel) and currencies (top bar) when hovered.</div></div>
-          </label>
-          <label class="settings-check-row">
-            <input type="checkbox" id="chk-keyboard">
-            <div><div class="settings-check-label">ENABLE KEYBOARD SHORTCUTS</div><div class="settings-check-sublabel">Use keyboard for navigation and quick actions.</div></div>
           </label>
 
           <div class="settings-row" style="margin-top:8px;"><span class="settings-row-label">BATTLE TAB NAVIGATION</span></div>
@@ -426,6 +406,7 @@
 <script src="battle.js"></script>
 <script src="shop.js"></script>
 <script src="save.js"></script>
+<script src="milestone.js"></script>
 <script src="init.js"></script>
 </body>
 </html>
