@@ -62,3 +62,16 @@ function getNextMilestone(total){
   }
   return null; // all maxed
 }
+
+// Called every frame from gameLoop
+// Exists to catch newly-earned M.Coins and fire a toast notification.
+// Blood Coin generation itself is handled by milestoneTick() every 30 frames.
+let _prevMCoinTotal = 0;
+function checkBloodMilestone(){
+  if(!S.mCoins) return;
+  const total = (S.mCoins.old||0)+(S.mCoins.bronze||0)+(S.mCoins.silver||0)+(S.mCoins.gold||0)+(S.mCoins.plat||0);
+  if(total > _prevMCoinTotal){
+    toast(`★ Milestone reached! Blood Coin flowing faster.`, 3000);
+    _prevMCoinTotal = total;
+  }
+}

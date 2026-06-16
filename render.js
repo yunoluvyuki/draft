@@ -8,7 +8,7 @@ function renderStats(){
   g.innerHTML=defs.map(d=>`
     <div class="stat-cell">
       <div class="stat-name"><span class="stat-icon ${d.icon}"></span>${d.label}</div>
-      <div class="stat-val">:${formatStat(d.key,S.stats[d.key]??0)}</div>
+      <div class="stat-val">${formatStat(d.key,S.stats[d.key]??0)}</div>
     </div>`).join('');
 }
 const FUND_DEFS={
@@ -85,7 +85,7 @@ function renderBattle(){
             const val=(c[d.key]??base)*(['atk','hp'].includes(d.key)?spawnRarityMultDisplay:1);
             return `<div class="stat-cell">
               <div class="stat-name"><span class="stat-icon ${d.icon}"></span>${d.label}</div>
-              <div class="stat-val">:${formatStat(d.key,val)}</div>
+              <div class="stat-val">${formatStat(d.key,val)}</div>
             </div>`;
           }).join('')}</div>
         </div>
@@ -151,12 +151,44 @@ function renderCodex(){
   if(!grid) return;
   const bonusCount = S.codexBonusApplied || 0;
   const bonusPct = (Math.pow(1.01, bonusCount) - 1) * 100;
-  const header = `...`;            // the header markup from the inner version
+
+  const header = `
+    <div style="grid-column:1/-1;margin-bottom:10px;">
+      <div style="display:flex;justify-content:space-between;align-items:baseline;margin-bottom:6px;">
+        <div style="font-size:9px;letter-spacing:2px;color:var(--text3);">CODEX</div>
+        <div style="font-size:9px;color:var(--text2);">
+          <span style="color:var(--white);font-weight:bold;">${unlocked}</span>
+          <span style="color:var(--text3);"> / ${total} discovered</span>
+        </div>
+      </div>
+      <div style="padding:8px 10px;background:var(--bg2);border:1px solid var(--border);margin-bottom:10px;">
+        <div style="font-size:8px;color:var(--text3);letter-spacing:1px;margin-bottom:3px;">CODEX BONUS</div>
+        <div style="font-size:10px;color:var(--green);">
+          ATK &amp; HP +${bonusPct.toFixed(2)}%
+          <span style="font-size:8px;color:var(--text3);margin-left:6px;">(${bonusCount} unlocks × 1%)</span>
+        </div>
+      </div>
+    </div>`;
+
   const unlockList = CREATURES.filter(c => getVictories(c.id) > 0);
-  const lockFiller = Array.from({length: Math.max(0, 20 - unlockList.length)});
+  const lockCount = Math.max(0, total - unlockList.length);
+
   grid.innerHTML = header + [
-    ...unlockList.map(c => `<div class="codex-card unlocked">${SVGs[c.id]||''}</div>`),
-    ...lockFiller.map(() => `<div class="codex-card locked">...</div>`)
+    ...unlockList.map(c => {
+      const vic = getVictories(c.id);
+      const rarity = getSpawnRarity(c.id);
+      const rc = RARITY_COLORS[rarity] || '#888';
+      return `<div class="codex-card unlocked" title="${c.name}" style="border-color:${rc}44;">
+        ${SVGs[c.id] || `<div style="font-size:9px;color:var(--text3);text-align:center;padding:4px;">${c.name}</div>`}
+        <div class="codex-locked-name" style="color:${rc};">${c.name}</div>
+        <div class="codex-chance">${vic} win${vic!==1?'s':''}</div>
+      </div>`;
+    }),
+    ...Array.from({length: lockCount}).map(() =>
+      `<div class="codex-card locked">
+        <div class="codex-q">?</div>
+        <div class="codex-locked-name">UNKNOWN</div>
+      </div>`)
   ].join('');
 }
 
@@ -171,12 +203,12 @@ function updateResources(){
   document.getElementById('res-plat').textContent=fmt(S.resources.plat);
 }
 
-function updateQuintUI(){
+function updateBloodUI(){
   document.getElementById('blood-pending').textContent='+'+fmt(S.bloodPending);
   document.getElementById('blood-pend-val').textContent='+'+fmt(S.bloodPending);
   document.getElementById('blood-life-val').textContent=fmt(S.bloodLifetime);
-  const quintCountEl=document.getElementById('blood-count');
-  if(quintCountEl)quintCountEl.textContent=fmt(S.bloodPending);
+  const bloodCountEl=document.getElementById('blood-count');
+  if(bloodCountEl)bloodCountEl.textContent=fmt(S.bloodPending);
   const ready=S.bloodPending>=100;
   const rb=document.getElementById('reincarnate-btn');
   rb.className=ready?'ready':'';
@@ -192,7 +224,7 @@ function renderAll(){
   renderFundamentals();
   renderBattle();
   renderShop();       
-  updateQuintUI();
+  updateBloodUI();
   renderCodex();
   updateBattleUI();
   updateResources();

@@ -51,7 +51,7 @@ function switchTab(name){
   if(name === 'battle') renderBattle();
   if(name === 'shop') renderShop();   
   if(name === 'archive'){
-    updateQuintUI();
+    updateBloodUI();
     renderCodex();
     document.getElementById('archive-dot').style.display = 'none';
   }
@@ -80,7 +80,7 @@ document.querySelectorAll('.prestige-tab').forEach(t=>{
   t.addEventListener('click',()=>{
     document.querySelectorAll('.prestige-tab').forEach(x=>x.classList.toggle('active',x===t));
     document.querySelectorAll('.prestige-pane').forEach(x=>x.classList.toggle('active',x.id==='arch-'+t.dataset.arch));
-    if(t.dataset.arch==='treasury')updateQuintUI();
+    if(t.dataset.arch==='treasury')updateBloodUI();
     if(t.dataset.arch==='codex')renderCodex();
     if(t.dataset.arch==='masterpiece')renderMastery();
   });
@@ -252,7 +252,7 @@ function setupSettings(){
     switchTab('archive');
     document.querySelectorAll('.prestige-tab').forEach(x=>x.classList.toggle('active',x.dataset.arch==='treasury'));
     document.querySelectorAll('.prestige-pane').forEach(x=>x.classList.toggle('active',x.id==='arch-treasury'));
-    updateQuintUI();
+    updateBloodUI();
   });
 
   // Reincarnate
@@ -313,7 +313,7 @@ function gameLoop(){
     fpsTimer = 0;
   }
   battleTick();
-  checkQuintMilestone();
+  checkBloodMilestone();
   S.activeTime = (S.activeTime || 0) + dt;
   if(frameCount % 3 === 0){
     updateBattleUI();
@@ -327,7 +327,7 @@ function gameLoop(){
     renderFundamentals();
     const archActive = document.getElementById('tab-archive').classList.contains('active');
     if(archActive){
-      if(document.getElementById('arch-treasury').classList.contains('active')) updateQuintUI();
+      if(document.getElementById('arch-treasury').classList.contains('active')) updateBloodUI();
     }
     if(document.getElementById('tab-shop').classList.contains('active')){
       const affordKey = SHOP_ITEMS.map(item => {
