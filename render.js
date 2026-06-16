@@ -329,7 +329,7 @@ function renderMCoinSynth() {
       <!-- TOTAL -->
       <div class="mcoin-col-total">
         <div class="mcoin-total-val">${fmt(total)}</div>
-        <div style="font-size:7px;color:var(--text3);">${def.lifetime ? 'lifetime' : 'this run'}</div>
+
       </div>
       <!-- MILESTONE BAR -->
       <div class="mcoin-col-milestone">
