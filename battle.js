@@ -60,6 +60,17 @@ function getSpawnRarity(id){
 // ═══════════════════════════════════════════════════════
 // battle
 // ═══════════════════════════════════════════════════════
+
+// Turn time = SPD directly (in ms). Lower SPD = faster turns.
+// 1ms safety floor so a turn can never be 0ms (which would freeze the game).
+function playerTurnTime(){
+  return Math.max(1, S.stats.spd);
+}
+function enemyTurnTime(c){
+  // Enemies with no spd set default to 3000ms (3s), not 0.
+  return Math.max(1, (c && c.spd != null) ? c.spd : 3000);
+}
+
 function startBattle(creatureId){
   const c = getCreature(creatureId);
   if(!c) return;
@@ -72,8 +83,8 @@ function startBattle(creatureId){
   B.dying = false;
   B.enemyHP = B.creature.hp;
   B.lastTick = Date.now();
-  B.playerTimer = Math.max(200, 3000 - S.stats.spd);
-  B.enemyTimer = Math.max(200, 3000 - (B.creature.spd ?? 0));
+  B.playerTimer = playerTurnTime();
+  B.enemyTimer = enemyTurnTime(B.creature);
   updateBattleUI();
   const rc = RARITY_COLORS[B.rarity];
   const rl = RARITY_LABELS[B.rarity];
@@ -121,8 +132,8 @@ function updateBattleUI(){
 
   // Timer bars
   if(B.active && !B.dying){
-    const pInterval = Math.max(200, 3000 - S.stats.spd);
-    const eInterval = Math.max(200, 3000 - (c.spd ?? 0));
+    const pInterval = playerTurnTime();
+    const eInterval = enemyTurnTime(c);
     const pFill = Math.max(0, Math.min(100, (1 - B.playerTimer / pInterval) * 100));
     const eFill = Math.max(0, Math.min(100, (1 - B.enemyTimer / eInterval) * 100));
     if(ptimerBar){ ptimerBar.style.width = pFill + '%'; ptimerText.textContent = (Math.max(0, B.playerTimer) / 1000).toFixed(2) + 's'; }
@@ -182,13 +193,13 @@ function battleTick(){
   if(B.playerTimer <= 0){
     firePlayerTurn();
     if(!B.active) return;
-    B.playerTimer = Math.max(200, 3000 - S.stats.spd);
+    B.playerTimer = playerTurnTime();
   }
   if(!B.active) return;
   if(B.enemyTimer <= 0){
     fireEnemyTurn();
     if(!B.active) return;
-    B.enemyTimer = Math.max(200, 3000 - (B.creature.spd ?? 0));
+    B.enemyTimer = enemyTurnTime(B.creature);
   }
 }
 
@@ -425,8 +436,8 @@ function onWin(){
     B.active = true;
     B.enemyHP = B.creature.hp;
     B.lastTick = Date.now();
-    B.playerTimer = Math.max(200, 3000 - S.stats.spd);         
-    B.enemyTimer = Math.max(200, 3000 - (B.creature.spd ?? 0)); 
+    B.playerTimer = playerTurnTime();         
+    B.enemyTimer = enemyTurnTime(B.creature); 
   } else {
     stopBattle();
   }
