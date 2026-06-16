@@ -22,10 +22,6 @@ const FUND_DEFS={
     {key:'quint',label:'BLOOD COIN',val:()=>fmt(S.quintLifetime),cat:'economy'},
   ]
 };
-function calcCodexMult(){
-  const unlocked=CREATURES.filter(c=>getVictories(c.id)>0).length;
-  return 1+(unlocked*0.01);
-}
 let currentFundFilter='all';
 function renderFundamentals(){
   const defs=currentFundFilter==='all'?FUND_DEFS.all:FUND_DEFS.all.filter(d=>d.cat===currentFundFilter);
@@ -71,7 +67,6 @@ function renderBattle(){
     const spawnRarityMultDisplay=RARITY_MULTS[maxed?'common':getSpawnRarity(c.id)]||1;
     const decayMult=1/(1+0.3*vic);
     const rewardStr=Object.entries(c.rewards).map(([k,v])=>`<span class="reward-item ${['old','bronze','silver'].includes(k)?'res':''}">${RESOURCE_LABELS[k]||k.toUpperCase()} +${(v*spawnRarityMultDisplay*decayMult).toFixed(2).replace(/\.00$/,'')}</span>`).join('');
-    const countStr='';
     let btnHtml='';
     if(maxed)btnHtml=`<button class="btn-challenge btn-maxed">MAXED</button>`;
     else if(isCurrent)btnHtml=`<button class="btn-challenge btn-current" onclick="stopBattle()">FIGHTING</button>`;
@@ -96,7 +91,6 @@ function renderBattle(){
               <div class="stat-val">:${formatStat(d.key,val)}</div>
             </div>`;
           }).join('')}</div>
-          ${countStr}
         </div>
       </div>
       <div class="card-rewards">
@@ -153,7 +147,6 @@ function renderMastery(){
 // ═══════════════════════════════════════════════════════
 // CODEX
 // ═══════════════════════════════════════════════════════
-const CODEX_TYPES=['ALL','SCRAP'];
 function renderCodex(){
   const filtersEl=document.getElementById('codex-filters');
   const total=CREATURES.length;

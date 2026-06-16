@@ -374,8 +374,6 @@ function onWin(){
       if(k === 'old') S.lifeOld = (S.lifeOld || 0) + amount;
     } else if(S.stats[k] !== undefined){
       S.stats[k] += amount;
-      if(!S.sessionRewards[k]) S.sessionRewards[k] = 0;
-      S.sessionRewards[k] += amount;
     }
     gainStrs.push(`${RESOURCE_LABELS[k] || k.toUpperCase()} +${amount.toFixed(2)}`);
   });

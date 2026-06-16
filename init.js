@@ -137,7 +137,7 @@ function setupSettings(){
   ['#fund-header .label',14],['.fund-row',14],['#protocols-header .title',14],
   ['.protocol-title',14],['.protocol-sub',14],['.toggle-label',14],
   ['.protocol-val',14],['#battle-intro',14],['.card-name',14],
-  ['.card-stats',14],['.new-badge',14],
+  ['.new-badge',14],
   ['.rewards-header',14],['.reward-item',14],['.btn-challenge',14],
   ['.btn-maxed',14],['#battle-creature-name',14],['#battle-creature-tag',14],
   ['.hp-label',14],['#battle-log',14],['.battle-btn',14],['#battle-status',14],
@@ -230,7 +230,7 @@ function setupSettings(){
   document.getElementById('btn-save').addEventListener('click',()=>{saveGame();toast('Game saved!');});
   document.getElementById('btn-hard-reset').addEventListener('click',()=>{
     if(confirm('HARD RESET: All progress will be permanently lost. Are you absolutely sure?')){
-      localStorage.removeItem('rejected_draft_save');
+      localStorage.removeItem('draft_throne_save');
       S = DEFAULT_STATE();
       B = {
         active:false, creature:null, playerHP:0, enemyHP:0,
@@ -275,7 +275,6 @@ function setupSettings(){
     S.resources={old:0,bronze:0,silver:0,gold:0,plat:0};
     S.currentCreature=null;
     S.quintPending=0;
-    S.sessionRewards={};
     S.battleUnlocked=[];
     S.battleQueue=[];
     B={active:false,creature:null,playerHP:0,enemyHP:0,deathTimer:0,dying:false,fleeTimer:0,lastTick:0};

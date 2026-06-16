@@ -17,7 +17,6 @@ const DEFAULT_STATE = ()=>({
   settings:{lightMode:false,invertImg:false,showProtocols:true,combatLog:true,uiZoom:120,battleNav:'manual',numNotation:'mixed',fontSize:16},
   protocols:{autoChallenge:false,autoRetry:false},
   masteryUpgrades:{},
-  sessionRewards:{},
   battleUnlocked:[],
   battleQueue:[],
   spawnRarity:{},

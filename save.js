@@ -5,12 +5,12 @@
 function saveGame(){
   S.lastSave = Date.now();
   S.savedPlayerHP = B.playerHP;
-  localStorage.setItem('rejected_draft_save', JSON.stringify(S));
+  localStorage.setItem('draft_throne_save', JSON.stringify(S));
 }
 
 function loadGame(){
   try{
-    const raw = localStorage.getItem('rejected_draft_save');
+    const raw = localStorage.getItem('draft_throne_save');
     if(!raw){
       B.playerHP = maxHP();
       return;
