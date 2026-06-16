@@ -202,7 +202,7 @@ function firePlayerTurn(){
 
   // Hit Check
   const ddc = c.ddc ?? 0;
-  const acc = st.acc ?? 1;
+  const acc = st.acc ?? 0;
   const isMiss = acc >= ddc ? false : Math.random() < (ddc - acc);
 
   if(isMiss){
@@ -257,7 +257,7 @@ function fireEnemyTurn(){
 
   // Hit Check (enemy acc vs player ddc)
   const ddc = st.ddc ?? 0;
-  const acc = c.acc ?? 1;
+  const acc = c.acc ?? 0;
   const isMiss = acc >= ddc ? false : Math.random() < (ddc - acc);
 
   if(isMiss){
@@ -404,16 +404,6 @@ function onWin(){
   });
   addLog(`<span class="log-reward">↳ Rewards: ${gainStrs.join(', ')}</span>`);
 
-  // Equipment drop
-  initEquipState();
-  const drop = rollEquipDrop(B.rarity || 'common');
-  if(drop){
-    S.equipment.inventory.push(drop);
-    const tierDef = EQUIP_TIERS[drop.tier];
-    addLog(`<span style="color:${tierDef.color};">⚔ ITEM DROP: ${drop.name}! (check Inventory)</span>`);
-    toast(`⚔ ${drop.name} dropped!`, 3000);
-  }
-
   // Render
   renderStats();
   renderFundamentals();
@@ -458,3 +448,7 @@ function addLog(html){
   log.innerHTML=`<div class="log-entry">${html}</div>`+log.innerHTML;
   if(log.children.length>50)log.removeChild(log.lastChild);
 }
+
+// ═══════════════════════════════════════════════════════
+// BLOOD COIN MILESTONE CHECK
+// ═══════════════════════════════════════════════════════
