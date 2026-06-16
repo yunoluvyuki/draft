@@ -309,7 +309,6 @@ function gameLoop(){
     fpsTimer = 0;
   }
   battleTick();
-  checkQuintMilestone();
   S.activeTime = (S.activeTime || 0) + dt;
   if(frameCount % 3 === 0){
     updateBattleUI();

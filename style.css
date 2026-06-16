@@ -33,7 +33,7 @@ body{background:var(--bg);color:var(--text);font-family:'Courier New',monospace;
 .res-unknown{color:var(--text4);font-size:22px;padding:0 16px;border-right:1px solid var(--border);}
 #topbar .fps{margin-left:auto;color:var(--text3);font-size:12px;padding-right:6px;}
 #add-btn{width:26px;height:26px;border:1px solid var(--border2);background:var(--bg3);color:var(--purple2);cursor:pointer;font-size:16px;display:flex;align-items:center;justify-content:center;margin:0 4px;font-family:inherit;}
-#quint-count{color:var(--text2);font-size:13px;padding:0 6px;}
+#blood-count{color:var(--text2);font-size:13px;padding:0 6px;}
 
 /* ── MAIN LAYOUT ────────────────────────────────────── */
 #layout{display:flex;flex:1;overflow:hidden;}
@@ -221,9 +221,9 @@ body{background:var(--bg);color:var(--text);font-family:'Courier New',monospace;
 #treasury-panel{width:160px;flex-shrink:0;}
 .treasury-panel-box{background:var(--bg2);border:1px solid var(--border);padding:12px;margin-bottom:8px;}
 .treasury-panel-title{font-size:8px;color:var(--text3);letter-spacing:1px;text-transform:uppercase;margin-bottom:6px;}
-.quint-pending{font-size:24px;color:var(--purple2);font-weight:bold;text-align:center;}
-.quint-sub{font-size:8px;color:var(--text3);text-align:center;margin-top:2px;}
-.quint-row{display:flex;justify-content:space-between;font-size:9px;margin-top:4px;}
+.blood-pending{font-size:24px;color:var(--purple2);font-weight:bold;text-align:center;}
+.blood-sub{font-size:8px;color:var(--text3);text-align:center;margin-top:2px;}
+.blood-row{display:flex;justify-content:space-between;font-size:9px;margin-top:4px;}
 .softcap-label{color:var(--text3);}
 .softcap-val{color:var(--text);}
 #reincarnate-btn{width:100%;padding:8px;background:var(--bg3);border:1px solid var(--border2);color:var(--text2);font-family:inherit;font-size:9px;letter-spacing:1px;text-transform:uppercase;cursor:not-allowed;margin-top:8px;}
