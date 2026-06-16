@@ -37,10 +37,14 @@ function renderShop(){
     const costStr = Object.entries(item.cost).map(([k,v]) => `${fmt(v)} ${k.toUpperCase()}`).join(' + ');
     const maxed = item.maxOwned && owned >= item.maxOwned;
     const canAfford = !maxed && Object.entries(item.cost).every(([k,v]) => (S.resources[k] || 0) >= v);
+    const iconHtml = Object.keys(item.statBonus).map(k => {
+      const def = STAT_DEFS.find(d => d.key === k);
+      return def ? `<span class="stat-icon ${def.icon}" title="${def.label}"></span>` : '';
+    }).join('');
     return `<div class="shop-card">
       <div class="shop-name">${item.name}</div>
       <div class="shop-desc">${item.desc}</div>
-      <div class="shop-effect">${item.effect}</div>
+      <div class="shop-effect">${iconHtml} ${item.effect}</div>
       <div class="shop-cost">Cost: ${costStr}</div>
       <div class="shop-own">Owned: ${owned}${item.maxOwned ? '/' + item.maxOwned : ''}</div>
       <button class="btn-buy" onclick="buyShopItem('${item.id}')" ${canAfford ? '' : 'disabled'}>${maxed ? 'OWNED' : 'BUY'}</button>
