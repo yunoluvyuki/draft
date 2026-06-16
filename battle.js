@@ -377,7 +377,7 @@ function onWin(){
     }
     gainStrs.push(`${RESOURCE_LABELS[k] || k.toUpperCase()} +${amount.toFixed(2)}`);
   });
-  addLog(`<span class="log-info">↳ Rewards: ${gainStrs.join(', ')}</span>`);
+  addLog(`<span class="log-reward">↳ Rewards: ${gainStrs.join(', ')}</span>`);
 
   // Render
   renderStats();
