@@ -105,8 +105,10 @@ function renderBattle(){
 let masteryActiveCat = 'COMBAT';
 let masterySelectedId = null;
 
+// Steeper cost ramp: base × scale^level × MASTERY_RAMP^(level²).
+// MASTERY_RAMP is defined in shop.js (loaded alongside this file).
 function masteryLevelCost(up, level){
-  return effCost(Object.fromEntries(Object.entries(up.base).map(([r,a]) => [r, Math.floor(a * Math.pow(up.scale, level))])));
+  return effCost(Object.fromEntries(Object.entries(up.base).map(([r,a]) => [r, Math.floor(a * Math.pow(up.scale, level) * Math.pow(MASTERY_RAMP, level * level))])));
 }
 function masteryCostStr(cost){
   return Object.entries(cost).map(([r,a]) => `${fmt(a)} ${COIN_LABELS[r]||r.toUpperCase()}`).join(' + ');

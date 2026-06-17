@@ -48,6 +48,10 @@ function buyShopItem(id){
   renderStats();
 }
 
+// Steeper mastery cost ramp. Higher = costs explode faster at high levels.
+// Final cost = base × scale^level × MASTERY_RAMP^(level²).
+const MASTERY_RAMP = 1.07;
+
 function buyMasteryUpgrade(id){
   const up=RARITY_UPGRADES.find(u=>u.id===id)||MASTERY_UPGRADES.find(u=>u.id===id);
   if(!up)return;
@@ -55,7 +59,7 @@ function buyMasteryUpgrade(id){
   const level=S.masteryUpgrades[id]||0;
   if(level>=up.maxLevel)return;
   const rawCost={};
-  Object.entries(up.base).forEach(([res,amt])=>{ rawCost[res]=Math.floor(amt*Math.pow(up.scale,level)); });
+  Object.entries(up.base).forEach(([res,amt])=>{ rawCost[res]=Math.floor(amt*Math.pow(up.scale,level)*Math.pow(MASTERY_RAMP, level*level)); });
   const cost=effCost(rawCost);
   // Use mastery.js currency helpers (they handle Blood Coin from S.bloodPending)
   if(!canAffordCost(cost)){toast('Not enough resources.',2000);return;}
