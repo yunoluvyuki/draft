@@ -27,6 +27,7 @@ const DEFAULT_STATE = ()=>({
   sessionEarned:{bronze:0,silver:0,gold:0,plat:0}, // resets on reincarnate
   mCoins:{old:0,bronze:0,silver:0,gold:0,plat:0},  // current M.Coin counts, resets on reincarnate
   codexBonusApplied: 0,  // how many codex bonuses have been applied
+  codexUnlocked: {},     // creature ids that have ever granted the codex bonus (persists across reincarnate)
 
 });
 let S = DEFAULT_STATE();

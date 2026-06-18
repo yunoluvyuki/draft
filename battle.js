@@ -416,8 +416,13 @@ function onWin(){
         if(!S.sessionEarned) S.sessionEarned = {bronze:0,silver:0,gold:0,plat:0};
         S.sessionEarned[k] = (S.sessionEarned[k] || 0) + amount;
       }
-      // Codex bonus: first victory on a creature = +1% ATK and HP
-      if(prevVic === 0){
+      // Codex bonus: first-ever victory on a creature = +1% ATK and HP.
+      // Tracked in S.codexUnlocked (persists across reincarnate) so each
+      // creature grants the bonus only ONCE, ever — re-killing after a
+      // reincarnate does not re-grant it.
+      if(!S.codexUnlocked) S.codexUnlocked = {};
+      if(!S.codexUnlocked[c.id]){
+      S.codexUnlocked[c.id] = true;
       const atkBonus = S.stats.atk * 0.01;
       const hpBonus  = S.stats.hp  * 0.01;
       S.stats.atk += atkBonus;

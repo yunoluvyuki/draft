@@ -37,6 +37,15 @@ function loadGame(){
     S.mCoins = Object.assign({old:0,bronze:0,silver:0,gold:0,plat:0}, loaded.mCoins || {});
     B.playerHP = (loaded.savedPlayerHP && loaded.savedPlayerHP > 0) ? loaded.savedPlayerHP : maxHP();
     S.codexBonusApplied = loaded.codexBonusApplied || 0;
+    // codexUnlocked: persistent set of creatures that have granted the codex bonus.
+    // Old saves without it: seed from any creature that currently has victories>0,
+    // so the bonus isn't re-granted on first kill after this update.
+    if(loaded.codexUnlocked){
+      S.codexUnlocked = Object.assign({}, loaded.codexUnlocked);
+    }else{
+      S.codexUnlocked = {};
+      Object.keys(S.victories || {}).forEach(id => { if(S.victories[id] > 0) S.codexUnlocked[id] = true; });
+    }
     // Equipment
     S.equipNextId = loaded.equipNextId || 0;
     S.baseStats = loaded.baseStats || null;
