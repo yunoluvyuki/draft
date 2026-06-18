@@ -257,11 +257,11 @@ function firePlayerTurn(){
       rolled = Math.max(0, rolled - (c.arm ?? 0));
       totalDmg += rolled;
       hits++;
-    } while(Math.random() < (st.mth ?? 0) && hits < 10);
+    } while(Math.random() < (st.mth ?? 0) && hits < 2);
 
     // Apply Damage
     B.enemyHP = Math.max(0, B.enemyHP - totalDmg);
-
+    DTHit.enemy(totalDmg, isCrit);
     // Log
     const hitStr = hits > 1 ? ` <span style="color:var(--cyan)">(${hits} hits!)</span>` : '';
     if(isCrit){
@@ -313,10 +313,11 @@ function fireEnemyTurn(){
       rolled = Math.max(0, rolled - (st.arm ?? 0));             // 4. player armor reduction
       totalDmg += rolled;
       hits++;
-    } while(Math.random() < (c.mth ?? 0) && hits < 10);
+    } while(Math.random() < (c.mth ?? 0) && hits < 2);
 
     // Apply Damage
     B.playerHP = Math.max(0, B.playerHP - totalDmg);
+    DTHit.player(totalDmg, isCrit);
 
     // Counter Check (player counters enemy hit)
     if(Math.random() < (st.ctr ?? 0)){
@@ -325,6 +326,7 @@ function fireEnemyTurn(){
       let counterDmg = cMnd + Math.random() * (cMxd - cMnd);
       counterDmg = Math.max(0, counterDmg - (c.arm ?? 0));
       B.enemyHP = Math.max(0, B.enemyHP - counterDmg);
+      DTHit.enemy(counterDmg, true);
       addLog(`<span class="log-crit">↩ COUNTER — <b>${counterDmg.toFixed(2)}</b> to ${c.name}!</span>`);
       if(B.enemyHP <= 0){ onWin(); return; }
     }
@@ -362,10 +364,11 @@ function fireEnemyCounterAttack(){
     rolled = Math.max(0, rolled - (st.arm ?? 0));
     totalDmg += rolled;
     hits++;
-  } while(Math.random() < (c.mth ?? 0) && hits < 10);
+  } while(Math.random() < (c.mth ?? 0) && hits < 2);
 
   // Apply Damage
   B.playerHP = Math.max(0, B.playerHP - totalDmg);
+  DTHit.player(totalDmg, isCrit);
 
   const hitStr = hits > 1 ? ` <span style="color:var(--cyan)">(${hits} hits!)</span>` : '';
   if(isCrit){
@@ -381,6 +384,7 @@ function fireEnemyCounterAttack(){
     let counterDmg = cMnd + Math.random() * (cMxd - cMnd);
     counterDmg = Math.max(0, counterDmg - (c.arm ?? 0));
     B.enemyHP = Math.max(0, B.enemyHP - counterDmg);
+    DTHit.enemy(counterDmg, true);
     addLog(`<span class="log-crit">↩ COUNTER — <b>${counterDmg.toFixed(2)}</b> to ${c.name}!</span>`);
     if(B.enemyHP <= 0){ onWin(); return; }
   }
