@@ -41,34 +41,54 @@ function milestoneTick(){
   if(!S.lifetimeEarned) S.lifetimeEarned = {old:0};
   if(!S.sessionEarned) S.sessionEarned = {bronze:0,silver:0,gold:0,plat:0};
   if(!S.mCoins) S.mCoins = {old:0,bronze:0,silver:0,gold:0,plat:0};
+  if(!S.mAccum) S.mAccum = {old:0,bronze:0,silver:0,gold:0,plat:0};
 
-  // Update M.Old from lifetime Old earned
-  S.mCoins.old = getMilestoneCount(S.lifetimeEarned.old || 0);
-
-  // Update session-based M.Coins
+  // Milestone counts (from crossing earning thresholds) — set the chain's "seed" rate.
+  S.mCoins.old    = getMilestoneCount(S.lifetimeEarned.old || 0);
   S.mCoins.bronze = getMilestoneCount(S.sessionEarned.bronze || 0);
   S.mCoins.silver = getMilestoneCount(S.sessionEarned.silver || 0);
   S.mCoins.gold   = getMilestoneCount(S.sessionEarned.gold   || 0);
   S.mCoins.plat   = getMilestoneCount(S.sessionEarned.plat   || 0);
 
-  // Production chain (per second):
-  // M.Plat → M.Gold, M.Gold → M.Silver, M.Silver → M.Bronze, M.Bronze → M.Old
-  // These are virtual — they boost production rates, not stored separately
-  const effectiveMOld =
-    S.mCoins.old +
-    S.mCoins.bronze +          // each M.Bronze produces 1 M.Old/sec
-    S.mCoins.silver +          // each M.Silver produces 1 M.Bronze/sec → flows to M.Old
-    S.mCoins.gold +            // each M.Gold produces 1 M.Silver/sec → flows down
-    S.mCoins.plat;             // each M.Plat produces 1 M.Gold/sec → flows down
+  // ── PRODUCTION CHAIN (per tick = per second) ──────────
+  // TOTAL of a tier = milestone count + accumulated-from-above.
+  // Each tier's TOTAL produces that many of the tier BELOW it per second,
+  // accumulating into S.mAccum (which grows until reincarnate).
+  // Process top→down so each tier sees the up-to-date total above it.
+  // Plat → Gold → Silver → Bronze → Old → Blood.
+  const totalPlat   = S.mCoins.plat   + S.mAccum.plat;
+  S.mAccum.gold   += totalPlat;
 
-  // Each effective M.Old generates 1 Blood Coin/sec
-  if(effectiveMOld > 0){
-    const gained = effectiveMOld
+  const totalGold   = S.mCoins.gold   + S.mAccum.gold;
+  S.mAccum.silver += totalGold;
+
+  const totalSilver = S.mCoins.silver + S.mAccum.silver;
+  S.mAccum.bronze += totalSilver;
+
+  const totalBronze = S.mCoins.bronze + S.mAccum.bronze;
+  S.mAccum.old    += totalBronze;
+
+  const totalOld    = S.mCoins.old    + S.mAccum.old;
+
+  // Blood/sec = ACCUMULATED M.Old × M.Old MILESTONE LEVEL (multiplier) × mults.
+  // The milestone level scales how much blood each accumulated M.Old is worth
+  // (e.g. milestone 2 → each accumulated M.Old = 2 blood/sec).
+  // Note: if M.Old milestone level is 0 (under 1024 lifetime Old), blood = 0.
+  const bloodQty = S.mAccum.old * S.mCoins.old;
+  if(bloodQty > 0){
+    const gained = bloodQty
       * (typeof masteryGainMult==='function' ? masteryGainMult('blood') : 1)
       * bloodGainMult();   // diminishing-gain throttle past the reference caps
     S.bloodPending = (S.bloodPending || 0) + gained;
     S.bloodLifetime = (S.bloodLifetime || 0) + gained;
   }
+}
+
+// Total M.Coins for a tier (milestone count + accumulated). Used by the UI.
+function mCoinTotal(coin){
+  const mc = (S.mCoins && S.mCoins[coin]) || 0;
+  const ac = (S.mAccum && S.mAccum[coin]) || 0;
+  return mc + ac;
 }
 
 // Next milestone threshold for display

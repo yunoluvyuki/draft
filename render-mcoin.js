@@ -68,18 +68,13 @@ function renderMCoinSynth() {
   if (!S.sessionEarned) S.sessionEarned = { bronze: 0, silver: 0, gold: 0, plat: 0 };
   if (!S.mCoins) S.mCoins = { old: 0, bronze: 0, silver: 0, gold: 0, plat: 0 };
 
-  // Blood coin rate = effectiveMOld × the same multipliers milestoneTick applies
-  // (BLOOD HARVEST mastery gain + diminishing bloodGainMult throttle), so the
-  // RATE display matches the blood actually generated per second.
-  const effectiveMOld =
-    (S.mCoins.old || 0) +
-    (S.mCoins.bronze || 0) +
-    (S.mCoins.silver || 0) +
-    (S.mCoins.gold || 0) +
-    (S.mCoins.plat || 0);
+  // Blood rate = ACCUMULATED M.Old × M.Old MILESTONE LEVEL × mults — matches
+  // the formula in milestoneTick (milestone level scales blood per M.Old).
+  const accumOld = (S.mAccum && S.mAccum.old) || 0;
+  const oldMilestone = (S.mCoins && S.mCoins.old) || 0;
   const gainMult = (typeof masteryGainMult === 'function') ? masteryGainMult('blood') : 1;
   const throttle = (typeof bloodGainMult === 'function') ? bloodGainMult() : 1;
-  const bloodRate = effectiveMOld * gainMult * throttle; // per second, real
+  const bloodRate = accumOld * oldMilestone * gainMult * throttle; // per second, real
 
   // Update rate display in left panel
   const rateEl = document.getElementById('blood-rate-val');
@@ -88,11 +83,17 @@ function renderMCoinSynth() {
   const newHtml = MCOIN_DEFS.map((def, idx) => {
     const store = def.lifetime ? (S.lifetimeEarned || {}) : (S.sessionEarned || {});
     const total = store[def.trackField] || 0;
-    const count = S.mCoins[def.key] || 0;
+    // COUNT shows the TOTAL for the tier: milestone count + accumulated-from-above.
+    const count = (typeof mCoinTotal === 'function')
+      ? mCoinTotal(def.key)
+      : ((S.mCoins[def.key] || 0) + (S.mAccum ? (S.mAccum[def.key] || 0) : 0));
 
-    // Milestone progress
-    const currentThreshold = count < MILESTONE_THRESHOLDS.length ? MILESTONE_THRESHOLDS[count] : null;
-    const prevThreshold = count > 0 ? MILESTONE_THRESHOLDS[count - 1] : 0;
+    // Milestone progress — uses the MILESTONE LEVEL (from earnings), NOT the
+    // accumulated total, so the bar tracks real earning progress and only shows
+    // MAX when all earning thresholds are actually crossed.
+    const mLevel = (S.mCoins && S.mCoins[def.key]) || 0;
+    const currentThreshold = mLevel < MILESTONE_THRESHOLDS.length ? MILESTONE_THRESHOLDS[mLevel] : null;
+    const prevThreshold = mLevel > 0 ? MILESTONE_THRESHOLDS[mLevel - 1] : 0;
     let pct = 0;
     let etaStr = '';
     let nextLabel = '';
