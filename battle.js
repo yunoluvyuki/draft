@@ -46,12 +46,13 @@ function unlockNextCreature(){
 function isUnlocked(id){return S.battleUnlocked&&S.battleUnlocked.includes(id);}
 
 function getRarityChances(){
-  const ups=S.masteryUpgrades||{};
-  const unc=0+(ups.unc_rate||0)*1;
-  const rare=0+(ups.rare_rate||0)*0.5;
-  const epic=0+(ups.epic_rate||0)*0.2;
-  const leg=0+(ups.leg_rate||0)*0.05;
-  return{uncommon:Math.min(unc,50),rare:Math.min(rare,25),epic:Math.min(epic,10),legendary:Math.min(leg,5)};
+  // Spawn chances now come from the RARITY mastery upgrades (blood-paid).
+  // No caps — at max level these reach 70/40/20/10%.
+  const unc  = (typeof masteryRarityChance==='function') ? masteryRarityChance('uncommon')  : 0;
+  const rare = (typeof masteryRarityChance==='function') ? masteryRarityChance('rare')      : 0;
+  const epic = (typeof masteryRarityChance==='function') ? masteryRarityChance('epic')      : 0;
+  const leg  = (typeof masteryRarityChance==='function') ? masteryRarityChance('legendary') : 0;
+  return {uncommon:unc, rare:rare, epic:epic, legendary:leg};
 }
 function rollRarity(){
   const ch=getRarityChances();

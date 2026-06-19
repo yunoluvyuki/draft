@@ -56,6 +56,12 @@ const MASTERY_UPGRADES = [
   { id:'automult_gold',   cat:'AUTOMATION', type:'automult', coin:'gold',   per:0.5,   label:'GOLD SURGE',         desc:'×1.5 Gold Coin auto-gen per level.',       base:{blood:50000000},  scale:10, maxLevel:10, color:'#f0b429' },
   { id:'auto_plat',       cat:'AUTOMATION', type:'auto',     coin:'plat',   per:0.0001, label:'PLATINUM WELLSPRING',desc:'Generate 0.01% of Platinum earned this run per sec, per level.',base:{blood:100000000},scale:10, maxLevel:10, color:'#a8d8ea' },
   { id:'automult_plat',   cat:'AUTOMATION', type:'automult', coin:'plat',   per:0.5,   label:'PLATINUM SURGE',     desc:'×1.5 Platinum Coin auto-gen per level.',   base:{blood:500000000}, scale:10, maxLevel:10, color:'#a8d8ea' },
+
+  // ── RARITY: monster spawn-chance boosts (blood-paid) ───
+  { id:'rar_uncommon',  cat:'RARITY', type:'rarity', rarity:'uncommon',  per:0.7, label:'UNCOMMON OMEN',  desc:'+0.7% uncommon spawn chance per level.',  base:{blood:1000},    scale:10, maxLevel:100, noRamp:true, color:'#27ae60' },
+  { id:'rar_rare',      cat:'RARITY', type:'rarity', rarity:'rare',      per:0.4, label:'RARE OMEN',      desc:'+0.4% rare spawn chance per level.',      base:{blood:10000},   scale:10, maxLevel:100, noRamp:true, color:'#2980b9' },
+  { id:'rar_epic',      cat:'RARITY', type:'rarity', rarity:'epic',      per:0.2, label:'EPIC OMEN',      desc:'+0.2% epic spawn chance per level.',      base:{blood:100000},  scale:10, maxLevel:100, noRamp:true, color:'#9b59b6' },
+  { id:'rar_legendary', cat:'RARITY', type:'rarity', rarity:'legendary', per:0.1, label:'LEGENDARY OMEN', desc:'+0.1% legendary spawn chance per level.', base:{blood:1000000}, scale:10, maxLevel:100, noRamp:true, color:'#f0b429' },
 ];
 
 // ── LOOKUP HELPERS ────────────────────────────────────
@@ -122,6 +128,12 @@ function masteryDecay(){ const d = masteryDef('decay'); return Math.max(d.floor,
 function masteryBonusVictories(){ return 0; }
 function masteryVicReqBonus(){ const d = masteryDef('victory'); return mLvl('victory') * d.per; }
 
+// Spawn-chance bonus (%) for a rarity from the RARITY mastery upgrades.
+function masteryRarityChance(rarity){
+  const def = MASTERY_UPGRADES.find(u => u.type === 'rarity' && u.rarity === rarity);
+  return def ? mLvl(def.id) * def.per : 0;
+}
+
 // Passive generation rate (coins/sec) for a coin.
 // WELLSPRING generates (per × level) as a FRACTION of how much of that coin
 // has been earned THIS RUN (session count) — consistent for all coins,
@@ -166,6 +178,7 @@ function masteryEffectStr(up, level){
     case 'decay':   return `decay ${Math.max(up.floor, 0.7 - level*up.per).toFixed(2)}`;
     case 'victory': return `+${level*up.per}/win`;
     case 'viccap':  return `+${level*up.per} max wins/enemy`;
+    case 'rarity':  return `+${(level*up.per).toFixed(1)}% spawn`;
     case 'auto':    return `${(level*up.per*100).toFixed(2)}% of run ${COIN_LABELS[up.coin]}/s`;
     case 'automult':return `×${(1 + level*up.per).toFixed(2)}`;
     default:        return '';
@@ -173,7 +186,7 @@ function masteryEffectStr(up, level){
 }
 
 // ── MASTERY SECTION UI (appended by renderMastery) ────
-const MASTERY_CATS = ['COMBAT','ECONOMY','AUTOMATION','UTILITY'];
+const MASTERY_CATS = ['COMBAT','ECONOMY','AUTOMATION','UTILITY','RARITY'];
 
 // NOTE: The legacy radial / "manuscript" mastery tree UI (~430 lines) that
 // used to live below this point was unused dead code — the live mastery UI is
