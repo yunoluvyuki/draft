@@ -1,0 +1,320 @@
+/* ═══════════════════════════════════════════════════════════════════════
+   DRAFT THRONE — MAIN MASTERY TREE STYLES  (consolidated)
+   Gothic dark theme · page tabs · tree stage · node OFF/available/ON/maxed/
+   selected states · connector lines · detail panel · responsive layout.
+   All classes are prefixed .mtree / .mnode so nothing collides with other
+   game UI. Load this file in the page <head>; pairs with mastery.js.
+   ─────────────────────────────────────────────────────────────────────── */
+@import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@500;600;700&display=swap');
+
+.mtree-wrap{
+  --mlink:#2a2a30;
+  display:flex; flex-direction:column; gap:12px; padding:10px;
+  color:#b9b4ab; box-sizing:border-box;
+  height:100%; min-height:0;          /* fill the host/standalone container */
+}
+
+/* ── tabs ─────────────────────────────────────────────────────────────── */
+.mtree-tabs{ display:flex; gap:10px; flex-wrap:wrap; flex:0 0 auto; }
+.mtree-tab{
+  flex:1; min-width:130px; height:48px; display:flex; align-items:center;
+  justify-content:center; gap:10px; cursor:pointer; position:relative;
+  background:#161618; border:1px solid #4a4a54; border-radius:2px;
+  color:#6f6c66; font-family:'Cinzel',Georgia,serif; font-weight:600;
+  font-size:15px; letter-spacing:.18em; text-transform:uppercase;
+  transition:color .18s, border-color .18s, box-shadow .25s, background .2s;
+}
+.mtree-tab iconify-icon{ font-size:20px; }
+.mtree-tab.active{
+  color:var(--mbranch); border-color:var(--mbranch);
+  background:linear-gradient(180deg, color-mix(in srgb,var(--mbranch) 12%, #161618) 0%, #101012 100%);
+  box-shadow:0 0 14px color-mix(in srgb,var(--mbranch) 35%, transparent),
+             inset 0 0 18px color-mix(in srgb,var(--mbranch) 10%, transparent);
+}
+.mtree-tab.active span{ color:var(--mbranch); }
+.mtree-tab:hover:not(.active){ color:#b9b4ab; border-color:#6f6c66; }
+
+/* ── middle row: tree (left, flexes) + detail panel (right, fixed-ish) ── */
+.mtree-main{
+  flex:1 1 auto; min-height:0;          /* takes the remaining vertical space */
+  display:flex; gap:12px; align-items:stretch;
+}
+.mtree-tree-area{
+  flex:1 1 auto; min-width:0; min-height:0;
+  display:flex;                          /* lets the stage fill it cleanly */
+}
+
+/* ── stage (the tree canvas) — fills the tree area, scales with the window ── */
+.mtree-stage{
+  position:relative; flex:1 1 auto; width:100%; height:100%;
+  min-width:0; min-height:0; overflow:visible;
+  background:
+    radial-gradient(ellipse 64% 60% at 50% 42%, color-mix(in srgb,var(--mbranch) 7%, transparent) 0%, transparent 70%),
+    linear-gradient(180deg,#101014 0%,#0a0a0c 100%);
+  border:1px solid #3a3a42; box-shadow:inset 0 0 90px rgba(0,0,0,.6);
+}
+/* corner ornaments */
+.mtree-stage::before,.mtree-stage::after{ content:''; position:absolute; width:20px; height:20px; pointer-events:none; }
+.mtree-stage::before{ top:6px; left:6px; border-top:1px solid #4a4a54; border-left:1px solid #4a4a54; }
+.mtree-stage::after { bottom:6px; right:6px; border-bottom:1px solid #4a4a54; border-right:1px solid #4a4a54; }
+
+/* connector layer: full-canvas SVG, behind nodes, never clipped.
+   The layer itself is interactive only on hitbox strokes (thin lines); empty
+   areas pass through and nodes (z-index:2) sit above, so node clicks win. */
+.mtree-links{ position:absolute; inset:0; width:100%; height:100%; display:block;
+  overflow:visible; z-index:1; }
+
+/* ── Per-link connectors ───────────────────────────────────────────────
+   Each Parent→Child link is its own <g class="pnw-link pnw-link--STATE">.
+   State classes are applied PER LINK (never to the whole layer), so sibling
+   forks light independently. Branch color comes from --mbranch on the stage. */
+.pnw-link-visible{
+  fill:none; stroke:#33333b; stroke-width:1.6; pointer-events:none;
+  vector-effect:non-scaling-stroke; stroke-linecap:round; stroke-linejoin:round;
+  transition:stroke .18s ease, stroke-width .18s ease, opacity .18s ease;
+}
+.pnw-link-hitbox{        /* wider clickable area; never controls lighting */
+  fill:none; stroke:transparent; stroke-width:14;
+  vector-effect:non-scaling-stroke; pointer-events:stroke; cursor:pointer;
+}
+
+/* LOCKED — prerequisites not met: dim gray, no glow */
+.pnw-link--locked .pnw-link-visible,
+.pnw-link--invalid .pnw-link-visible{ stroke:#2b2b31; }
+
+/* AVAILABLE — prereqs met, target level 0: subtle branch tint, low glow */
+.pnw-link--available .pnw-link-visible{
+  stroke:color-mix(in srgb, var(--mbranch) 42%, #33333b);
+  opacity:.92;
+}
+
+/* ACTIVE — target level > 0: full branch color + glow */
+.pnw-link--active .pnw-link-visible,
+.pnw-link--maxed .pnw-link-visible{
+  stroke:var(--mbranch); stroke-width:2.4;
+  filter:drop-shadow(0 0 4px var(--mbranch));
+}
+
+/* VISUAL ONLY — decorative, dashed, never progression */
+.pnw-link--visual .pnw-link-visible{
+  stroke:color-mix(in srgb, var(--mbranch) 30%, #33333b);
+  stroke-dasharray:5 6; opacity:.7;
+}
+
+/* SELECTED — editor overlay, does not replace the state color underneath */
+.pnw-link--selected .pnw-link-visible{
+  stroke:#f2efe9; stroke-width:2.6;
+  filter:drop-shadow(0 0 5px rgba(242,239,233,.8));
+}
+
+/* ── nodes (fixed geometry — state never resizes/moves them) ───────────── */
+.mnode{
+  position:absolute; transform:translate(-50%,-50%);
+  display:flex; flex-direction:column; align-items:center; gap:6px;
+  background:none; border:none; padding:0; cursor:pointer; z-index:2;
+  font-family:inherit;
+}
+.mnode-disc{
+  width:64px; height:64px; border-radius:50%;
+  display:flex; align-items:center; justify-content:center;
+  border:1.5px solid #3a3a42;
+  background:radial-gradient(circle at 50% 42%, #1e1e22 0%, #101012 80%);
+  transition:border-color .18s, box-shadow .25s;
+}
+.mnode-disc iconify-icon{ font-size:30px; line-height:0; transition:color .18s; }
+.mnode-lvl{
+  font-family:'Courier New',monospace; font-size:11px; font-weight:bold;
+  letter-spacing:.06em; color:#6f6c66; min-height:13px;
+}
+
+/* root — decorative anchor, not interactive */
+.mnode-root{ cursor:default; }
+.mnode-root .mnode-disc{
+  width:80px; height:80px; border-color:var(--mbranch);
+  background:radial-gradient(circle at 50% 42%, color-mix(in srgb,var(--mbranch) 16%, #161619) 0%, #101012 78%);
+  box-shadow:0 0 22px color-mix(in srgb,var(--mbranch) 60%, transparent),
+             0 0 8px color-mix(in srgb,var(--mbranch) 75%, transparent);
+}
+.mnode-root .mnode-disc iconify-icon{ font-size:38px;
+  filter:drop-shadow(0 0 5px color-mix(in srgb,var(--mbranch) 60%, transparent)); }
+
+/* state: locked (grayscale, dim) */
+.mnode.state-locked .mnode-disc{ opacity:.82; }
+
+/* state: available (grayscale + subtle branch outline + soft glow) */
+.mnode.state-available .mnode-disc{
+  border-color:color-mix(in srgb,var(--mbranch) 55%, #3a3a42);
+  box-shadow:0 0 10px color-mix(in srgb,var(--mbranch) 22%, transparent);
+}
+.mnode.state-available .mnode-lvl{ color:#b9b4ab; }
+
+/* state: unlocked (branch glow, icon lit) */
+.mnode.state-unlocked .mnode-disc,
+.mnode.state-maxed .mnode-disc{
+  border-color:var(--mbranch);
+  background:radial-gradient(circle at 50% 42%, color-mix(in srgb,var(--mbranch) 16%, #161619) 0%, #101012 78%);
+  box-shadow:0 0 16px color-mix(in srgb,var(--mbranch) 55%, transparent);
+}
+.mnode.state-unlocked .mnode-disc iconify-icon,
+.mnode.state-maxed .mnode-disc iconify-icon{
+  filter:drop-shadow(0 0 5px color-mix(in srgb,var(--mbranch) 55%, transparent));
+}
+.mnode.state-unlocked .mnode-lvl,
+.mnode.state-maxed .mnode-lvl{ color:var(--mbranch); }
+
+/* state: maxed (stronger ring + inner ring + stronger glow) */
+.mnode.state-maxed .mnode-disc{
+  border-width:2.5px;
+  box-shadow:0 0 26px color-mix(in srgb,var(--mbranch) 70%, transparent),
+             0 0 8px color-mix(in srgb,var(--mbranch) 80%, transparent);
+  position:relative;
+}
+.mnode.state-maxed .mnode-disc::after{
+  content:''; position:absolute; inset:5px; border-radius:50%;
+  border:1px solid color-mix(in srgb,var(--mbranch) 45%, transparent);
+}
+
+/* selected: overlay ring OUTSIDE the disc (no resize/move) */
+.mnode.selected .mnode-disc{ box-shadow:0 0 0 0 transparent; }
+.mnode.selected::before{
+  content:''; position:absolute; top:-6px; left:50%; transform:translateX(-50%);
+  width:76px; height:76px; border-radius:50%;
+  border:1.5px solid #f2efe9; box-shadow:0 0 0 1px rgba(0,0,0,.6); pointer-events:none;
+}
+/* keep selected glow on top of the white ring for ON nodes */
+.mnode.selected.state-unlocked .mnode-disc,
+.mnode.selected.state-maxed .mnode-disc{
+  box-shadow:0 0 16px color-mix(in srgb,var(--mbranch) 55%, transparent);
+}
+
+.mnode:hover .mnode-disc{ filter:brightness(1.18); }
+
+/* ── detail panel (RIGHT SIDE) ────────────────────────────────────────
+   Flex column: scrollable content + pinned button so the button is never
+   pushed out of view as the panel shrinks. */
+.mtree-detail{
+  flex:0 0 330px; max-width:42vw; min-width:240px; box-sizing:border-box;
+  display:flex; flex-direction:column; min-height:0;
+  background:linear-gradient(180deg, rgba(20,20,24,.92), rgba(10,10,12,.92));
+  border:1px solid #4a4a54; border-radius:3px; padding:16px 16px;
+}
+.mtree-d-scroll{ flex:1 1 auto; min-height:0; overflow-y:auto; overflow-x:hidden; padding-right:2px; }
+.mtree-d-empty{ color:#6f6c66; font-style:italic; font-size:13px; }
+
+.mtree-d-head{ display:flex; align-items:center; gap:12px; margin-bottom:14px; }
+.mtree-d-icon{
+  flex:0 0 auto; width:54px; height:54px; border-radius:3px;
+  display:flex; align-items:center; justify-content:center;
+  border:1px solid var(--mbranch);
+  background:radial-gradient(circle at 50% 42%, color-mix(in srgb,var(--mbranch) 14%, #161619) 0%, #101012 80%);
+  box-shadow:0 0 12px color-mix(in srgb,var(--mbranch) 32%, transparent);
+}
+.mtree-d-icon iconify-icon{ font-size:30px; line-height:0;
+  filter:drop-shadow(0 0 4px color-mix(in srgb,var(--mbranch) 55%, transparent)); }
+.mtree-d-headtext{ min-width:0; }
+.mtree-d-title{
+  font-family:'Cinzel',Georgia,serif; font-weight:700; font-size:19px; line-height:1.1;
+  letter-spacing:.05em; text-transform:uppercase; text-shadow:0 0 16px currentColor;
+  overflow:hidden; text-overflow:ellipsis; white-space:nowrap;
+}
+.mtree-d-badge{
+  display:inline-block; margin-top:6px; padding:3px 8px;
+  font-family:'Courier New',monospace; font-size:10px; font-weight:bold;
+  letter-spacing:.12em; text-transform:uppercase;
+  color:var(--mbranch); border:1px solid var(--mbranch); border-radius:2px;
+}
+
+/* 2-up cells (CURRENT LEVEL / MAX LEVEL / BRANCH / MASTERY ID / COST / STATUS) */
+.mtree-d-cells{ display:grid; grid-template-columns:1fr 1fr; gap:8px; margin-bottom:10px; }
+.mtree-d-cells .cell{
+  background:rgba(0,0,0,.32); border:1px solid #2e2e34; border-radius:2px;
+  padding:8px 10px; display:flex; flex-direction:column; gap:4px; min-width:0;
+}
+.mtree-d-cells label{ font-family:'Courier New',monospace; font-size:9.5px; letter-spacing:.12em; color:#6f6c66; }
+.mtree-d-cells b{ font-family:'Cinzel',Georgia,serif; font-size:16px; font-weight:600; color:#f2efe9;
+  overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+.mtree-d-cells b.mono{ font-family:'Courier New',monospace; font-size:14px; }
+.mtree-d-cells b.ok{ color:#5fd38a; } .mtree-d-cells b.no{ color:#cc4466; }
+
+.mtree-d-sub{ font-family:'Courier New',monospace; font-size:11px; color:#6f6c66;
+  letter-spacing:.04em; margin:2px 0 12px; }
+
+/* CURRENT/NEXT EFFECT boxes */
+.mtree-d-box{
+  background:rgba(0,0,0,.32); border:1px solid #2e2e34; border-radius:2px;
+  padding:9px 11px; margin-bottom:10px;
+}
+.mtree-d-box label{ display:block; font-family:'Courier New',monospace; font-size:9.5px;
+  letter-spacing:.12em; color:#6f6c66; margin-bottom:5px; }
+.mtree-d-bullet{ font-family:'Cinzel',Georgia,serif; font-size:15px; color:#b9b4ab; line-height:1.3; }
+
+.mtree-d-btn{
+  flex:0 0 auto; margin-top:12px;
+  width:100%; height:46px; cursor:pointer; border-radius:2px;
+  background:rgba(0,0,0,.4); border:1px solid var(--mbranch); color:var(--mbranch);
+  font-family:'Cinzel',Georgia,serif; font-weight:600; font-size:14px;
+  letter-spacing:.16em; text-transform:uppercase; transition:box-shadow .2s, background .2s;
+}
+.mtree-d-btn.can:hover{ box-shadow:0 0 16px color-mix(in srgb,var(--mbranch) 45%, transparent); background:rgba(0,0,0,.6); }
+.mtree-d-btn.can:active{ transform:translateY(1px); }
+.mtree-d-btn.cant{ color:#6f6c66; border-color:#3a3a42; cursor:not-allowed; }
+.mtree-d-btn.maxed{ color:#6f6c66; border-color:#3a3a42; cursor:default; }
+
+/* ── bottom panels — Mastery-related info only ────────────────────────── */
+.mtree-bottom{ flex:0 0 auto; display:flex; gap:12px; align-items:stretch;
+  max-height:30vh; min-height:0; }
+.mtree-panel{
+  flex:1 1 0; min-width:0; box-sizing:border-box; overflow-y:auto;
+  background:linear-gradient(180deg, rgba(20,20,24,.92), rgba(10,10,12,.92));
+  border:1px solid #4a4a54; border-radius:3px; padding:14px 16px;
+}
+.mtree-panel-title{ font-family:'Cinzel',Georgia,serif; font-weight:700; font-size:14px;
+  letter-spacing:.14em; color:#f2efe9; text-transform:uppercase; margin-bottom:10px; }
+.mtree-panel-desc{ font-size:12px; line-height:1.5; color:#8d897f; margin:0 0 12px; }
+.mtree-panel-stats{ display:flex; flex-wrap:wrap; gap:10px 34px; }
+.mtree-panel-stats > div{ display:flex; flex-direction:column; gap:3px; }
+.mtree-panel-stats label{ font-family:'Courier New',monospace; font-size:10px; letter-spacing:.12em; color:#6f6c66; }
+.mtree-panel-stats b{ font-family:'Cinzel',Georgia,serif; font-size:22px; font-weight:600; color:#f2efe9; }
+.mtree-bonus-list{ list-style:none; margin:0; padding:0;
+  display:grid; grid-template-columns:1fr 1fr; gap:5px 22px; }
+.mtree-bonus-list li{ display:flex; align-items:baseline; justify-content:space-between; gap:10px;
+  font-family:'Courier New',monospace; font-size:12px; color:#b9b4ab; }
+.mtree-bonus-list li::before{ content:'•'; color:var(--mbranch); margin-right:6px; }
+.mtree-bonus-list li span{ flex:1 1 auto; min-width:0; }
+.mtree-bonus-list li b{ color:var(--mbranch); font-weight:bold; white-space:nowrap; }
+
+/* ── responsive: stack detail under the tree, then stack bottom panels ── */
+@media (max-width: 900px){
+  .mtree-main{ flex-direction:column; }
+  .mtree-detail{ flex:0 0 auto; max-width:none; width:100%; max-height:46vh; }
+  .mtree-bottom{ flex-wrap:wrap; max-height:none; }
+  .mtree-panel{ flex:1 1 280px; }
+  .mtree-bonus-list{ grid-template-columns:1fr; }
+}
+
+/* ── standalone toast (mastery.js creates #mtree-toast when no host toast) ─ */
+#mtree-toast{
+  position:fixed; left:50%; bottom:24px; transform:translateX(-50%);
+  background:#1e1e22; border:1px solid #4a4a54; color:#f2efe9;
+  padding:8px 16px; font-family:'Courier New',monospace; font-size:12px;
+  letter-spacing:.06em; border-radius:3px; opacity:0; pointer-events:none;
+  transition:opacity .2s; z-index:50;
+}
+#mtree-toast.show{ opacity:1; }
+
+/* ── host bridge (live game only) ───────────────────────────────────────────
+   The tree layout fills its container (.mtree-wrap{height:100%}), but the
+   game's .prestige-pane is auto-height. fitMasteryHeight() (mastery.js) sets a
+   concrete pixel height inline so the whole UI fits the scroll container with
+   no scrollbar; the calc() below is just a pre-JS fallback. min-height stays 0
+   so a short window can never force the height past the viewport, and
+   overflow:hidden guarantees the host scroll container never gets a scrollbar.
+   Scoped to .mastery-view so no other tab or prestige pane is touched. */
+body.mastery-view #mastery-content{
+  height:calc(100vh - 132px); min-height:0; overflow:hidden;
+}
+
+/* hide the bottom panel only while viewing PRESTIGE → MASTERY. Toggled by
+   syncMasteryBottomBar() in mastery.js. The panel is only hidden, never
+   removed; leaving Mastery restores it exactly. */
+body.mastery-view #bottom-bar{ display:none !important; }
