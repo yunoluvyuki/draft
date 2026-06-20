@@ -325,6 +325,13 @@ document.querySelectorAll('#fund-filters .filter-tab').forEach(t=>{
     renderFundamentals();
   });
 });
+document.querySelectorAll('#shop-filters .filter-tab').forEach(t=>{
+  t.addEventListener('click',()=>{
+    document.querySelectorAll('#shop-filters .filter-tab').forEach(x=>x.classList.toggle('active',x===t));
+    currentShopFilter=t.dataset.shop;
+    renderShop();
+  });
+});
 
 // ═══════════════════════════════════════════════════════
 // GAME LOOP

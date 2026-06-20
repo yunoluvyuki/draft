@@ -29,10 +29,12 @@ function renderFundamentals(){
     defs.map(d=>`<div class="fund-row"><span class="fund-key">${d.label}</span><span class="fund-val">${d.val()}</span></div>`).join('');
 }
 
+let currentShopFilter='all';
 function renderShop(){
   const g = document.getElementById('shop-grid');
   if(!g) return;
-  g.innerHTML = SHOP_ITEMS.map(item => {
+  const items = currentShopFilter==='all' ? SHOP_ITEMS : SHOP_ITEMS.filter(i => i.cat===currentShopFilter);
+  g.innerHTML = items.map(item => {
     const owned = S.shopOwned[item.id] || 0;
     const cost = shopScaledCost(item);
     const costStr = Object.entries(cost).map(([k,v]) => `${fmt(v)} ${k.toUpperCase()}`).join(' + ');
