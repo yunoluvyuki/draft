@@ -1,0 +1,29 @@
+/* ════════════════════════════════════════════════════════════
+   TYPOGRAPHY — Draft Throne Mastery Tree
+   ════════════════════════════════════════════════════════════ */
+:root {
+  /* Families */
+  --dt-font-display: 'Cinzel', 'Trajan Pro', Georgia, serif;   /* engraved caps */
+  --dt-font-label:   'Spectral SC', Georgia, serif;            /* small-caps labels */
+  --dt-font-mono:    'JetBrains Mono', 'Courier New', monospace; /* data / levels */
+
+  /* Display scale (tabs, titles) */
+  --dt-text-tab:      18px;   /* top tab label */
+  --dt-text-title:    22px;   /* panel / detail title */
+  --dt-text-heading:  15px;   /* node title */
+
+  /* Label / body */
+  --dt-text-label:    12px;   /* node sublabel, section labels */
+  --dt-text-body:     13px;   /* descriptions */
+  --dt-text-data:     12px;   /* level / cost mono */
+  --dt-text-micro:    10px;   /* meta */
+
+  /* Tracking — gothic caps run wide */
+  --dt-track-tab:    0.22em;
+  --dt-track-title:  0.14em;
+  --dt-track-label:  0.10em;
+
+  --dt-weight-display: 600;
+  --dt-weight-label:   500;
+  --dt-leading-body:   1.5;
+}

@@ -1,0 +1,64 @@
+/* ════════════════════════════════════════════════════════════
+   COLORS — Draft Throne Mastery Tree
+   Dark gothic parchment palette + per-branch glow colors + node states.
+   Base values first, semantic aliases below.
+   ════════════════════════════════════════════════════════════ */
+:root {
+  /* ── Surfaces (near-black gothic vignette) ───────────────── */
+  --dt-bg-0: #0a0a0c;   /* outermost / letterbox */
+  --dt-bg-1: #101012;   /* page field */
+  --dt-bg-2: #161618;   /* raised panel */
+  --dt-bg-3: #1e1e22;   /* node fill / tab fill */
+  --dt-bg-4: #26262b;   /* hover fill */
+
+  /* ── Hairline borders (thin ornamental frames) ──────────── */
+  --dt-line-0: #2a2a30;  /* faint connector / divider */
+  --dt-line-1: #3a3a42;  /* node ring (locked) */
+  --dt-line-2: #4a4a54;  /* tab border */
+
+  /* ── Ink / text ─────────────────────────────────────────── */
+  --dt-ink-0: #f2efe9;   /* brightest (active label) */
+  --dt-ink-1: #b9b4ab;   /* primary parchment text */
+  --dt-ink-2: #6f6c66;   /* muted label */
+  --dt-ink-3: #45433f;   /* locked icon / disabled */
+
+  /* ── Branch base colors ─────────────────────────────────── */
+  --dt-combat:      #e0392b;   /* red */
+  --dt-combat-deep: #7a1d16;
+  --dt-economy:      #e8a417;  /* gold / amber */
+  --dt-economy-deep: #6e4d09;
+  --dt-utility:      #29b6d8;  /* blue / cyan */
+  --dt-utility-deep: #135866;
+  --dt-automation:      #a85cd6; /* purple / violet */
+  --dt-automation-deep: #4d2566;
+
+  /* ── Node state ink (grayscale OFF) ─────────────────────── */
+  --dt-node-off-fill:  #161619;
+  --dt-node-off-ring:  #3a3a42;
+  --dt-node-off-icon:  #6a6862;
+  --dt-node-dim-icon:  #4a4844;  /* deepest locked */
+
+  /* ── Semantic aliases ───────────────────────────────────── */
+  --dt-surface-page:  var(--dt-bg-1);
+  --dt-surface-panel: var(--dt-bg-2);
+  --dt-surface-node:  var(--dt-node-off-fill);
+  --dt-text-body:     var(--dt-ink-1);
+  --dt-text-label:    var(--dt-ink-2);
+  --dt-text-bright:   var(--dt-ink-0);
+  --dt-connector:     var(--dt-line-0);
+  --dt-tab-border:    var(--dt-line-2);
+
+  /* Active branch color + glow — overridden per .branch-* scope.
+     Defaults to COMBAT so a bare component still looks on-theme. */
+  --dt-branch:       var(--dt-combat);
+  --dt-branch-deep:  var(--dt-combat-deep);
+  --dt-glow: 0 0 14px color-mix(in srgb, var(--dt-branch) 55%, transparent);
+  --dt-glow-strong: 0 0 22px color-mix(in srgb, var(--dt-branch) 75%, transparent),
+                    0 0 6px color-mix(in srgb, var(--dt-branch) 90%, transparent);
+}
+
+/* ── Per-branch scopes — set --dt-branch + glow for any subtree ── */
+.branch-combat     { --dt-branch: var(--dt-combat);     --dt-branch-deep: var(--dt-combat-deep); }
+.branch-economy    { --dt-branch: var(--dt-economy);    --dt-branch-deep: var(--dt-economy-deep); }
+.branch-utility    { --dt-branch: var(--dt-utility);    --dt-branch-deep: var(--dt-utility-deep); }
+.branch-automation { --dt-branch: var(--dt-automation); --dt-branch-deep: var(--dt-automation-deep); }

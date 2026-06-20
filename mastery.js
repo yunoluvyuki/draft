@@ -466,6 +466,34 @@ function masteryNodeState(nodeId, cat){
   return 'locked';
 }
 
+// Is this node upgradeable RIGHT NOW? Reuses the existing availability + cost
+// logic — no duplicated progression rules. True only when ALL hold:
+//   • prerequisites satisfied   • not already maxed   • next level affordable
+function masteryNodeUpgradeable(nodeId, cat){
+  const def = masteryDef(nodeId);
+  if(!def) return false;
+  const level = getNodeLevel(nodeId);
+  if(level >= def.maxLevel) return false;            // maxed
+  if(!areRequirementsMet(nodeId, cat)) return false; // prereq missing
+  return canAffordCost(masteryLevelCost(def, level)); // affordable?
+}
+
+// Lightweight refresh: toggles ONLY the .mastery-can-upgrade class on the nodes
+// already in the DOM — no rebuild, no layout change. Safe to call cheaply (e.g.
+// when Blood Coin changes while the mastery screen is open). No-op if the tree
+// isn't mounted. The game may call this from its tick; it's idempotent.
+function refreshMasteryUpgradeable(){
+  const el = document.getElementById('mastery-content');
+  if(!el) return;
+  const cat = masteryActiveCat;
+  el.querySelectorAll('.mnode[onclick]').forEach(btn => {
+    const m = /selectMasteryNode\('([^']+)'\)/.exec(btn.getAttribute('onclick') || '');
+    if(!m) return;
+    btn.classList.toggle('mastery-can-upgrade', masteryNodeUpgradeable(m[1], cat));
+  });
+}
+if(typeof window !== 'undefined') window.refreshMasteryUpgradeable = refreshMasteryUpgradeable;
+
 // ── COST DISPLAY (same formula as buyMasteryUpgrade) ────
 function masteryLevelCost(up, level){
   if(up.costs && up.costs[level]) return effCost(up.costs[level]);
@@ -477,10 +505,39 @@ function masteryCostStr(cost){
 }
 
 // ── TAB / SELECT ───────────────────────────────────────
-function selectMasteryNode(id){ masterySelectedId = id; masterySelectedLinkId = null; renderMastery(); }
+// Selecting a node/link does NOT change the tree structure or any node/link
+// STATE — only which node is .selected and what the detail panel shows. A full
+// renderMastery() here rebuilds the whole stage via innerHTML, which destroys
+// and recreates every <iconify-icon> and restarts the pulse → a visible blink
+// on each click. So we update in place: move the .selected marker and repaint
+// ONLY the detail panel. (setMasteryCat still full-renders — a branch change
+// genuinely rebuilds the tree.)
+function selectMasteryNode(id){
+  masterySelectedId = id;
+  masterySelectedLinkId = null;
+  const el = document.getElementById('mastery-content');
+  const detail = el && el.querySelector('.mtree-detail');
+  if(!el || !detail){ renderMastery(); return; }   // not mounted as expected → safe fallback
+  el.querySelectorAll('.mnode.selected').forEach(n => n.classList.remove('selected'));
+  el.querySelectorAll('.mnode[onclick]').forEach(btn => {
+    const m = /selectMasteryNode\('([^']+)'\)/.exec(btn.getAttribute('onclick') || '');
+    if(m && m[1] === id) btn.classList.add('selected');
+  });
+  // we just cleared masterySelectedLinkId — drop any selected-connector highlight
+  el.querySelectorAll('.pnw-link--selected').forEach(g => g.classList.remove('pnw-link--selected'));
+  detail.innerHTML = masteryDetailHTML(MASTERY_BRANCH_HEX[masteryActiveCat], masteryActiveCat);
+}
 function setMasteryCat(cat){ masteryActiveCat = cat; masterySelectedId = null; masterySelectedLinkId = null; renderMastery(); }
-// Editor hook: select a connector by its link id (keeps links individually addressable).
-function selectMasteryLink(id){ masterySelectedLinkId = id; renderMastery(); }
+// Editor hook: select a connector by its link id. Same in-place update (no full
+// render) so clicking a connector doesn't blink the tree either.
+function selectMasteryLink(id){
+  masterySelectedLinkId = id;
+  const el = document.getElementById('mastery-content');
+  if(!el){ renderMastery(); return; }
+  el.querySelectorAll('.pnw-link--selected').forEach(g => g.classList.remove('pnw-link--selected'));
+  const g = el.querySelector('[data-pnw-link-id="' + id + '"]');
+  if(g) g.classList.add('pnw-link--selected'); else renderMastery();
+}
 
 // ── GUARDED UPGRADE — the only UI entry point ──────────
 // Enforces prerequisites + maxLevel + afford BEFORE delegating to
@@ -571,14 +628,19 @@ function renderMastery(){
   </div>`;
 
   // real nodes
-  layout.nodes.forEach(n => {
+  layout.nodes.forEach((n, i) => {
     const up = masteryDef(n.id);
     const state = masteryNodeState(n.id, cat);
     const level = getNodeLevel(n.id);
     const sel = n.id === masterySelectedId;
     const badge = level >= up.maxLevel ? 'MAX' : `${level}`;
-    nodesHtml += `<button class="mnode state-${state}${sel ? ' selected' : ''}"
-      style="left:${n.x}%;top:${n.y}%;" onclick="selectMasteryNode('${n.id}')" title="${up.label}">
+    // Upgradeable = reuses the REAL availability + cost logic (no duplication):
+    // prereqs met, not maxed, and the player can afford the next level.
+    const canUpg = masteryNodeUpgradeable(n.id, cat);
+    // Stagger the breathing glow so nodes don't pulse in unison (no layout cost).
+    const delay = (i % 6) * 0.45;
+    nodesHtml += `<button class="mnode state-${state}${sel ? ' selected' : ''}${canUpg ? ' mastery-can-upgrade' : ''}"
+      style="left:${n.x}%;top:${n.y}%;--pulse-delay:${delay}s;" onclick="selectMasteryNode('${n.id}')" title="${up.label}">
       <span class="mnode-disc"><iconify-icon icon="game-icons:${n.icon}" style="color:${iconColorFor(state, branchHex)};"></iconify-icon></span>
       <span class="mnode-lvl">${badge}</span>
     </button>`;

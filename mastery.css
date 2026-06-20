@@ -174,13 +174,10 @@
   border:1px solid color-mix(in srgb,var(--mbranch) 45%, transparent);
 }
 
-/* selected: overlay ring OUTSIDE the disc (no resize/move) */
-.mnode.selected .mnode-disc{ box-shadow:0 0 0 0 transparent; }
-.mnode.selected::before{
-  content:''; position:absolute; top:-6px; left:50%; transform:translateX(-50%);
-  width:76px; height:76px; border-radius:50%;
-  border:1.5px solid #f2efe9; box-shadow:0 0 0 1px rgba(0,0,0,.6); pointer-events:none;
-}
+/* selected: overlay ring is intentionally hidden — clicking a node no longer
+   draws a hard white edge around it (the detail panel already shows which node
+   is selected). Kept as a rule (not deleted) so it's easy to restore. */
+.mnode.selected::before{ display:none; }
 /* keep selected glow on top of the white ring for ON nodes */
 .mnode.selected.state-unlocked .mnode-disc,
 .mnode.selected.state-maxed .mnode-disc{
@@ -188,6 +185,39 @@
 }
 
 .mnode:hover .mnode-disc{ filter:brightness(1.18); }
+
+/* ── UPGRADEABLE PULSE ─────────────────────────────────────────────────────
+   .mastery-can-upgrade is added by JS ONLY when the node is genuinely
+   upgradeable (prereqs met + affordable + not maxed). Effect: a soft,
+   branch-colored breathing glow ring (own pseudo, no layout impact) plus a
+   gentle disc brightness. Slow, low-opacity, staggered per node via
+   --pulse-delay. Never on locked / unaffordable / maxed nodes. */
+.mastery-can-upgrade .mnode-disc{ position:relative;
+  animation:masteryDiscBreath 3.1s ease-in-out var(--pulse-delay,0s) infinite; }
+.mastery-can-upgrade .mnode-disc::before{
+  content:''; position:absolute; inset:-5px; border-radius:50%; pointer-events:none;
+  border:1.5px solid color-mix(in srgb, var(--mbranch) 70%, transparent);
+  box-shadow:0 0 12px color-mix(in srgb, var(--mbranch) 55%, transparent);
+  opacity:0;
+  animation:masteryRingBreath 3.1s ease-in-out var(--pulse-delay,0s) infinite;
+}
+@keyframes masteryRingBreath{
+  0%,100%{ opacity:.12; transform:scale(1); }
+  48%{ opacity:.6; transform:scale(1.07); }       /* gentle crest */
+  54%{ opacity:.72; transform:scale(1.075); }     /* tiny glint at the top */
+}
+@keyframes masteryDiscBreath{
+  0%,100%{ filter:brightness(1); }
+  50%{ filter:brightness(1.2); }
+}
+/* selected ring must stay clearly readable above the pulse */
+.mnode.selected.mastery-can-upgrade::before{ z-index:3; }
+
+/* Accessibility: no motion → a static subtle branch outline instead of pulsing */
+@media (prefers-reduced-motion: reduce){
+  .mastery-can-upgrade .mnode-disc{ animation:none; filter:none; }
+  .mastery-can-upgrade .mnode-disc::before{ animation:none; opacity:.5; transform:none; }
+}
 
 /* ── detail panel (RIGHT SIDE) ────────────────────────────────────────
    Flex column: scrollable content + pinned button so the button is never

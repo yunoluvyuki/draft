@@ -1,0 +1,32 @@
+/* ════════════════════════════════════════════════════════════
+   SPACING, SIZING & FRAMES — Draft Throne Mastery Tree
+   Node geometry is fixed so OFF→ON state changes never reflow.
+   ════════════════════════════════════════════════════════════ */
+:root {
+  /* 4px base rhythm */
+  --dt-s1: 4px;  --dt-s2: 8px;  --dt-s3: 12px; --dt-s4: 16px;
+  --dt-s5: 24px; --dt-s6: 32px; --dt-s7: 48px; --dt-s8: 64px;
+
+  /* Node circle geometry — same in every state */
+  --dt-node-root: 96px;   /* tree root node */
+  --dt-node-lg:   84px;   /* tier-1 node */
+  --dt-node-md:   72px;   /* leaf node */
+  --dt-node-ring: 1.5px;  /* hairline ring weight */
+  --dt-node-icon: 0.46;   /* @kind other */ /* icon size as fraction of node diameter */
+
+  /* Tabs */
+  --dt-tab-h: 52px;
+  --dt-tab-pad: 0 22px;
+
+  /* Connectors */
+  --dt-conn-w: 1.5px;     /* connector line weight */
+
+  /* Radii — gothic UI is near-square; corners are clipped, not rounded */
+  --dt-r-0: 0px;
+  --dt-r-tab: 2px;
+  --dt-r-panel: 3px;
+
+  /* Page frame */
+  --dt-page-frame: 1px;
+  --dt-page-pad: 28px;
+}

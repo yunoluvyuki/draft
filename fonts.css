@@ -1,0 +1,10 @@
+/* ════════════════════════════════════════════════════════════
+   FONTS — Draft Throne Mastery Tree
+   Cinzel  → gothic engraved display caps (tabs, node titles, headings)
+   Spectral SC → serif small-caps for node labels / detail copy
+   JetBrains Mono → data, levels, costs (echoes the in-game mono UI)
+   Loaded from Google Fonts CDN. SUBSTITUTION NOTE: the live game uses
+   'Courier New' for data; the gothic tree reference uses an engraved
+   Trajan/Cinzel-style face — Cinzel is the closest free match.
+   ════════════════════════════════════════════════════════════ */
+@import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@500;600;700&family=Spectral+SC:wght@400;500;600&family=JetBrains+Mono:wght@400;500;700&display=swap');
