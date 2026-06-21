@@ -79,12 +79,12 @@ const MASTERY_UPGRADES = [
 
   /// COMBAT
 
-  { id:'stat_atk', cat:'COMBAT', type:'statpct', per:0.02, label:'WRATH',
-    desc:'+2% ATK per level.',
+  { id:'stat_atk', cat:'COMBAT', type:'statpct', per:0.05, label:'WRATH',
+    desc:'+5% ATK per level.',
     cost:{blood:20}, scale:1.5, maxLevel:100, color:'#e74c3c' },
 
-  { id:'stat_hp',  cat:'COMBAT', type:'statpct', per:0.02, label:'VITALITY',
-    desc:'+2% Max HP per level.',
+  { id:'stat_hp',  cat:'COMBAT', type:'statpct', per:0.05, label:'VITALITY',
+    desc:'+5% Max HP per level.',
     cost:{blood:20}, scale:1.5, maxLevel:100, color:'#27ae60' },
 
   /// UTILITY
