@@ -19,7 +19,8 @@ function renderStats(){
 }
 const FUND_DEFS={
   all:[
-    {key:'blood',label:'BLOOD COIN',val:()=>fmt(S.bloodLifetime),cat:'economy'},
+    {key:'atkmult',label:'ATK Multiplier',val:()=>'x'+(typeof masteryAtkMult==='function'?masteryAtkMult():1).toFixed(2),cat:'stats'},
+    {key:'hpmult', label:'HP Multiplier', val:()=>'x'+(typeof masteryHpMult==='function'?masteryHpMult():1).toFixed(2),cat:'stats'},
   ]
 };
 let currentFundFilter='all';
