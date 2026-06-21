@@ -74,7 +74,7 @@ function renderBattle(){
     const pct=Math.min(100,vic/cap*100);
     const spawnRarityMultDisplay=RARITY_MULTS[maxed?'common':getSpawnRarity(c.id)]||1;
     const decayMult=1/(1+masteryDecay()*vic);
-    const rewardStr=Object.entries(c.rewards).map(([k,v])=>{const rv=v*spawnRarityMultDisplay*decayMult;const sign=rv>=0?'+':'';return `<span class="reward-item ${['old','bronze','silver'].includes(k)?'res':''}">${RESOURCE_LABELS[k]||k.toUpperCase()} ${sign}${rv.toFixed(2).replace(/\.00$/,'')}</span>`;}).join('');
+    const rewardStr=Object.entries(c.rewards).map(([k,v])=>{const rv=v*spawnRarityMultDisplay*decayMult;const sign=rv>=0?'+':'';return `<span class="reward-item ${['old','bronze','silver'].includes(k)?'res':''}">${RESOURCE_LABELS[k]||k.toUpperCase()} ${sign}${fmt(rv)}</span>`;}).join('');
     let btnHtml='';
     if(maxed)btnHtml=`<button class="btn-challenge btn-maxed">MAXED</button>`;
     else if(isCurrent)btnHtml=`<button class="btn-challenge btn-current" disabled style="cursor:default;">FIGHTING</button>`;
