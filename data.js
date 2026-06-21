@@ -449,7 +449,7 @@ const CREATURES = [
     vicReq:2},
   {id:'sallow_shade',name:'SALLOW SHADE',
     hp:4000,atk:100,mnd:1,mxd:1.6,spd:4000,rgn:0,ddc:0.3,crc:0,crd:0,arm:0,mth:0,acc:0,blk:0,bld:0,ctr:0,
-    rewards:{ddc:0.05,old:5000,bronze:1000},
+    rewards:{atk:50,old:5000,bronze:1000},
     vicReq:2},
     ///
   {id:'mud_ghoul',name:'MUD GHOUL',
