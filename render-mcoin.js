@@ -145,7 +145,7 @@ function renderMCoinSynth() {
       </div>
       <!-- COUNT -->
       <div class="mcoin-col-count">
-        <div class="mcoin-count-val" style="color:${count > 0 ? def.color : 'var(--text3)'};">${count}</div>
+        <div class="mcoin-count-val" style="color:${count > 0 ? def.color : 'var(--text3)'};">${fmt(count)}</div>
       </div>
       <!-- PRODUCING -->
       <div class="mcoin-col-producing">
