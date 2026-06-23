@@ -63,7 +63,12 @@ body{ background:var(--bg); color:var(--text); }
   box-shadow:inset 0 -2px 0 var(--dt-accent), inset 0 0 18px rgba(224,57,43,.10);
 }
 .res-val{ color:var(--white); }
-.res-icon{ color:var(--text2); }
+.res-icon{ color:var(--text2); display:inline-flex; align-items:center; gap:5px; }
+/* CURRENCY COIN ICONS — engraved metal medallions in the resource strip */
+.currency-icon{ width:21px; height:21px; flex:none; display:inline-block; vertical-align:middle; object-fit:contain; transition:filter .15s; }
+.currency-icon-blood{ width:22px; height:22px; filter:drop-shadow(0 0 3px rgba(210,59,48,.45)); }
+.res-block:hover .currency-icon{ filter:brightness(1.25); }
+.res-block:hover .currency-icon-blood{ filter:brightness(1.2) drop-shadow(0 0 5px rgba(210,59,48,.6)); }
 .res-rate{ color:var(--text3); }
 #blood-count{ color:var(--red2); }
 #add-btn{ background:transparent; border:none; }
