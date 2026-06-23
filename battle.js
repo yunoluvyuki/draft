@@ -443,6 +443,20 @@ function onWin(){
   });
   addLog(`<span class="log-reward">↳ Rewards: ${gainStrs.join(', ')}</span>`);
 
+  // Equipment drop (tier by enemy rank, chance from SCAVENGER mastery)
+  if(typeof rollEquipDrop === 'function'){
+    const drop = rollEquipDrop(c.id);
+    if(drop){
+      if(!S.equipment) initEquipState();
+      S.equipment.inventory.push(drop);
+      addLog(`<span style="color:${drop.color}">⬡ Dropped: ${drop.name} (${Object.entries(drop.stats).map(([k,v])=>k.toUpperCase()+' +'+formatStat(k,v)).join(', ')})</span>`);
+      if(typeof renderInventory === 'function'){
+        const it=document.getElementById('tab-inventory');
+        if(it && it.classList.contains('active')) renderInventory();
+      }
+    }
+  }
+
   // Render
   renderStats();
   renderFundamentals();

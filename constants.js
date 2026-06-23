@@ -9,7 +9,7 @@
 const RESOURCE_KEYS = ['old', 'bronze', 'silver', 'gold', 'plat'];
 
 // Equipment slot keys (kept in sync with EQUIP_SLOTS in equipment.js).
-const EQUIP_SLOT_KEYS = ['weapon', 'helmet', 'armor', 'gloves', 'boots', 'ring'];
+const EQUIP_SLOT_KEYS = ['weapon', 'armor'];
 
 // Fresh "nothing equipped" map — used by equipment init, save load, reincarnate.
 function EMPTY_EQUIPMENT() {

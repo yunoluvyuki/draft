@@ -3,124 +3,97 @@
 // ═══════════════════════════════════════════════════════
 
 // ── SLOTS ─────────────────────────────────────────────
+// Only two equipment types: weapon (gives ATK) and armor (gives HP).
 const EQUIP_SLOTS = [
-  { key: 'weapon',    label: 'WEAPON',    icon: '⚔' },
-  { key: 'helmet',    label: 'HELMET',    icon: '🪖' },
-  { key: 'armor',     label: 'ARMOR',     icon: '🛡' },
-  { key: 'gloves',    label: 'GLOVES',    icon: '🧤' },
-  { key: 'boots',     label: 'BOOTS',     icon: '👢' },
-  { key: 'ring',      label: 'RING',      icon: '💍' },
+  { key: 'weapon', label: 'WEAPON', icon: '⚔', stat: 'atk' },
+  { key: 'armor',  label: 'ARMOR',  icon: '🛡', stat: 'hp'  },
 ];
+const SLOT_PRIMARY = { weapon: 'atk', armor: 'hp' };
 
 // ── TIERS ─────────────────────────────────────────────
-// Tier 1 = weakest drop, Tier 5 = strongest drop
+// Tier N drops from monsters of CREATURES-rank (21..180):
+//   T1: 21-40, T2: 41-60, ... T8: 161-180  (rank 1-20 drops nothing).
+// `range` = [min,max] of the primary stat value (atk for weapon, hp for armor).
 const EQUIP_TIERS = {
-  1: { label: 'TIER I',   color: '#888888', mult: 1.0,  dropChance: 0.25 },
-  2: { label: 'TIER II',  color: '#27ae60', mult: 2.0,  dropChance: 0.15 },
-  3: { label: 'TIER III', color: '#2980b9', mult: 4.0,  dropChance: 0.08 },
-  4: { label: 'TIER IV',  color: '#9b59b6', mult: 8.0,  dropChance: 0.03 },
-  5: { label: 'TIER V',   color: '#f0b429', mult: 16.0, dropChance: 0.01 },
+  1: { label: 'T1', range: [1, 3]  },
+  2: { label: 'T2', range: [2, 5]  },
+  3: { label: 'T3', range: [3, 6]  },
+  4: { label: 'T4', range: [4, 7]  },
+  5: { label: 'T5', range: [5, 8]  },
+  6: { label: 'T6', range: [6, 9]  },
+  7: { label: 'T7', range: [7, 10] },
+  8: { label: 'T8', range: [8, 12] },
 };
 
-// ── SLOT STAT POOLS ───────────────────────────────────
-// Each slot has a fixed primary stat and optional secondary stat
-// Values are BASE amounts scaled by tier mult + random variance
-const SLOT_STAT_POOL = {
-  weapon: [
-    { stat: 'atk', base: 2.0 },
-    { stat: 'crc', base: 0.03 },
-    { stat: 'mxd', base: 0.05 },
-  ],
-  helmet: [
-    { stat: 'hp',  base: 8.0 },
-    { stat: 'mnd', base: 0.03 },
-    { stat: 'ddc', base: 0.02 },
-  ],
-  armor: [
-    { stat: 'arm', base: 1.5 },
-    { stat: 'hp',  base: 5.0 },
-  ],
-  gloves: [
-    { stat: 'atk', base: 1.0 },
-    { stat: 'mth', base: 0.03 },
-    { stat: 'crd', base: 0.08 },
-  ],
-  boots: [
-    { stat: 'spd', base: 80  },
-    { stat: 'ddc', base: 0.02 },
-    { stat: 'rgn', base: 0.5  },
-  ],
-  ring: [
-    { stat: 'crc', base: 0.02 },
-    { stat: 'ctr', base: 0.02 },
-    { stat: 'acc', base: 0.03 },
-  ],
-};
+// ── RARITY ────────────────────────────────────────────
+// Determined by WHERE the rolled stat lands inside the tier's range, as a %:
+//   pct = (value - min) / (max - min) * 100
+//   0-20 common · 21-40 uncommon · 41-60 rare · 61-80 epic · 81-100 legendary
+const EQUIP_RARITY = [
+  { key: 'common',    label: 'COMMON',    color: '#9aa0a6', max: 20  },
+  { key: 'uncommon',  label: 'UNCOMMON',  color: '#27ae60', max: 40  },
+  { key: 'rare',      label: 'RARE',      color: '#2980b9', max: 60  },
+  { key: 'epic',      label: 'EPIC',      color: '#9b59b6', max: 80  },
+  { key: 'legendary', label: 'LEGENDARY', color: '#f0b429', max: 100 },
+];
+function rarityFromPct(pct) {
+  for (const r of EQUIP_RARITY) { if (pct <= r.max) return r; }
+  return EQUIP_RARITY[EQUIP_RARITY.length - 1];
+}
 
-// ── SALVAGE YIELDS ────────────────────────────────────
-// How many Old Coins you get back per tier when salvaging
-const SALVAGE_YIELD = { 1: 5, 2: 25, 3: 100, 4: 400, 5: 2000 };
+// ── SALVAGE YIELDS (Old Coins per tier) ───────────────
+const SALVAGE_YIELD = { 1: 5, 2: 25, 3: 100, 4: 500, 5: 2500, 6: 12000, 7: 60000, 8: 300000 };
 
 // ── ITEM ID COUNTER ───────────────────────────────────
-// Generates unique IDs for each item instance
 function nextItemId() {
   S.equipNextId = (S.equipNextId || 0) + 1;
   return S.equipNextId;
 }
 
+// ── RANK → TIER ───────────────────────────────────────
+// Rank = 1-based index of the creature in CREATURES.
+function creatureRank(id) {
+  const i = (typeof CREATURES !== 'undefined') ? CREATURES.findIndex(c => c.id === id) : -1;
+  return i < 0 ? -1 : i + 1;
+}
+function tierForRank(rank) {
+  if (rank < 21 || rank > 180) return 0; // outside the dropping band
+  return Math.floor((rank - 21) / 20) + 1; // 1..8
+}
+
 // ── ROLL AN ITEM ──────────────────────────────────────
-// slot: key from EQUIP_SLOTS, tier: 1-5
-// Returns an item object
 function rollEquipItem(slot, tier) {
-  const pool = SLOT_STAT_POOL[slot];
-  const tierDef = EQUIP_TIERS[tier];
-
-  // Pick primary stat (always index 0 for the slot)
-  const primary = pool[0];
-  // Pick random secondary (index 1 or 2)
-  const secondary = pool[Math.floor(1 + Math.random() * (pool.length - 1))];
-
-  function rollStat(entry) {
-    // Random value between 80%–120% of base * tier mult
-    const variance = 0.8 + Math.random() * 0.4;
-    return entry.base * tierDef.mult * variance;
-  }
-
-  const stats = {};
-  stats[primary.stat] = (stats[primary.stat] || 0) + rollStat(primary);
-  // Secondary is different from primary
-  if (secondary.stat !== primary.stat) {
-    stats[secondary.stat] = (stats[secondary.stat] || 0) + rollStat(secondary);
-  }
-
+  const t = EQUIP_TIERS[tier];
+  if (!t) return null;
+  const [min, max] = t.range;
+  const stat = SLOT_PRIMARY[slot] || 'atk';
+  const value = min + Math.random() * (max - min);
+  const pct = max > min ? ((value - min) / (max - min)) * 100 : 100;
+  const r = rarityFromPct(pct);
   const slotDef = EQUIP_SLOTS.find(s => s.key === slot);
   return {
-    id:    nextItemId(),
+    id: nextItemId(),
     slot,
     tier,
-    name:  `${tierDef.label} ${slotDef.label}`,
-    stats,
-    color: tierDef.color,
+    stats: { [stat]: value },
+    rarity: r.key,
+    rarityLabel: r.label,
+    rarityPct: pct,
+    name: `${r.label} ${t.label} ${slotDef ? slotDef.label : slot.toUpperCase()}`,
+    color: r.color,
   };
 }
 
 // ── DROP ROLL ─────────────────────────────────────────
-// Called from onWin(). creature rarity boosts tier chances.
-function rollEquipDrop(creatureRarityKey) {
-  const rarityBoost = { common: 0, uncommon: 0.05, rare: 0.10, epic: 0.20, legendary: 0.35 };
-  const boost = rarityBoost[creatureRarityKey] || 0;
-
-  // Roll each tier from highest to lowest — first hit wins
-  const tierOrder = [5, 4, 3, 2, 1];
-  for (const tier of tierOrder) {
-    const chance = EQUIP_TIERS[tier].dropChance + (tier === 1 ? boost : boost * 0.5);
-    if (Math.random() < chance) {
-      // Roll a random slot
-      const slot = EQUIP_SLOTS[Math.floor(Math.random() * EQUIP_SLOTS.length)].key;
-      return rollEquipItem(slot, tier);
-    }
-  }
-  return null; // no drop
+// Called from onWin(creatureId). Tier is fixed by the creature's rank; the
+// CHANCE to drop comes entirely from the SCAVENGER mastery upgrade.
+function rollEquipDrop(creatureId) {
+  const tier = tierForRank(creatureRank(creatureId));
+  if (!tier) return null;
+  const chance = (typeof masteryEquipDropChance === 'function') ? masteryEquipDropChance() : 0;
+  if (chance <= 0 || Math.random() >= chance) return null;
+  const slot = Math.random() < 0.5 ? 'weapon' : 'armor';
+  return rollEquipItem(slot, tier);
 }
 
 // ── EQUIP ─────────────────────────────────────────────
@@ -130,13 +103,9 @@ function equipItem(itemId) {
   if (idx === -1) return;
   const item = S.equipment.inventory[idx];
 
-  // Unequip whatever is currently in that slot → back to inventory
   const current = S.equipment.equipped[item.slot];
-  if (current) {
-    S.equipment.inventory.push(current);
-  }
+  if (current) S.equipment.inventory.push(current);
 
-  // Equip the new item and remove from inventory
   S.equipment.equipped[item.slot] = item;
   S.equipment.inventory.splice(idx, 1);
 
@@ -172,39 +141,30 @@ function salvageItem(itemId) {
   S.equipment.inventory.splice(idx, 1);
   renderInventory();
   updateResources();
-  toast(`Salvaged ${item.name} → +${yield_} OLD`, 2000);
+  toast(`Salvaged ${item.name} → +${fmt(yield_)} OLD`, 2000);
 }
 
 // ── RECALC EQUIP STATS ────────────────────────────────
-// Wipes previous equipment bonuses and reapplies from scratch
 function recalcEquipStats() {
   if (!S.equipment) return;
-
-  // Remove old bonuses
   const base = S.baseStats || DEFAULT_STATE().stats;
   const bonuses = {};
   Object.values(S.equipment.equipped).forEach(item => {
-    if (!item) return;
+    if (!item || !item.stats) return;
     Object.entries(item.stats).forEach(([k, v]) => {
       bonuses[k] = (bonuses[k] || 0) + v;
     });
   });
-
-  // Apply on top of baseStats
   Object.keys(base).forEach(k => {
-    S.stats[k] = (S.baseStats[k] || base[k]) + (bonuses[k] || 0);
+    S.stats[k] = (S.baseStats ? S.baseStats[k] : base[k]) + (bonuses[k] || 0);
   });
 }
 
 // ── INIT EQUIP STATE ──────────────────────────────────
 function initEquipState() {
   if (!S.equipment) {
-    S.equipment = {
-      equipped:  EMPTY_EQUIPMENT(),
-      inventory: [],
-    };
+    S.equipment = { equipped: EMPTY_EQUIPMENT(), inventory: [] };
   }
-  // baseStats: stats without equipment, used as the source of truth
   if (!S.baseStats) {
     S.baseStats = { ...S.stats };
   }
@@ -219,39 +179,34 @@ function renderInventory() {
   const equipped = S.equipment.equipped;
   const inventory = S.equipment.inventory;
 
-  // ── Equipped slots panel ──
+  const statPills = (item) => Object.entries(item.stats).map(([k, v]) => {
+    const def = STAT_DEFS.find(d => d.key === k);
+    return `<span class="equip-stat-pill">${def ? def.label : k.toUpperCase()} +${formatStat(k, v)}</span>`;
+  }).join('');
+
+  // ── Equipped slots ──
   const slotsHtml = EQUIP_SLOTS.map(slot => {
     const item = equipped[slot.key];
     if (item) {
-      const statsHtml = Object.entries(item.stats).map(([k, v]) => {
-        const def = STAT_DEFS.find(d => d.key === k);
-        return `<span class="equip-stat-pill">${def ? def.label : k.toUpperCase()} +${formatStat(k, v)}</span>`;
-      }).join('');
       return `<div class="equip-slot filled" style="border-color:${item.color}44;background:${item.color}11;">
         <div class="equip-slot-label" style="color:var(--text3);">${slot.icon} ${slot.label}</div>
         <div class="equip-item-name" style="color:${item.color};">${item.name}</div>
-        <div class="equip-stat-pills">${statsHtml}</div>
+        <div class="equip-stat-pills">${statPills(item)}</div>
         <button class="equip-btn equip-btn-unequip" onclick="unequipSlot('${slot.key}')">UNEQUIP</button>
       </div>`;
-    } else {
-      return `<div class="equip-slot empty">
-        <div class="equip-slot-label">${slot.icon} ${slot.label}</div>
-        <div class="equip-empty-label">— EMPTY —</div>
-      </div>`;
     }
+    return `<div class="equip-slot empty">
+      <div class="equip-slot-label">${slot.icon} ${slot.label}</div>
+      <div class="equip-empty-label">— EMPTY —</div>
+    </div>`;
   }).join('');
 
   // ── Inventory bag ──
   const bagHtml = inventory.length === 0
-    ? `<div class="equip-bag-empty">No items in bag. Win battles to find equipment!</div>`
+    ? `<div class="equip-bag-empty">No items in bag. Win battles (with SCAVENGER mastery) to find equipment!</div>`
     : inventory.map(item => {
-        const statsHtml = Object.entries(item.stats).map(([k, v]) => {
-          const def = STAT_DEFS.find(d => d.key === k);
-          return `<span class="equip-stat-pill">${def ? def.label : k.toUpperCase()} +${formatStat(k, v)}</span>`;
-        }).join('');
         const slotDef = EQUIP_SLOTS.find(s => s.key === item.slot);
         const currentEquipped = equipped[item.slot];
-        // Compare primary stat to show upgrade/downgrade hint
         const primaryStat = Object.keys(item.stats)[0];
         const currentVal = currentEquipped ? (currentEquipped.stats[primaryStat] || 0) : 0;
         const newVal = item.stats[primaryStat] || 0;
@@ -265,10 +220,10 @@ function renderInventory() {
             <span class="equip-item-name" style="color:${item.color};">${slotDef ? slotDef.icon : ''} ${item.name}</span>
             ${diffStr}
           </div>
-          <div class="equip-stat-pills">${statsHtml}</div>
+          <div class="equip-stat-pills">${statPills(item)}</div>
           <div class="equip-bag-actions">
             <button class="equip-btn equip-btn-equip" onclick="equipItem(${item.id})">EQUIP</button>
-            <button class="equip-btn equip-btn-salvage" onclick="salvageItem(${item.id})">SALVAGE (+${SALVAGE_YIELD[item.tier]} OLD)</button>
+            <button class="equip-btn equip-btn-salvage" onclick="salvageItem(${item.id})">SALVAGE (+${fmt(SALVAGE_YIELD[item.tier])} OLD)</button>
           </div>
         </div>`;
       }).join('');

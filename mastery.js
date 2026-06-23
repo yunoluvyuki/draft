@@ -109,6 +109,11 @@ const MASTERY_UPGRADES = [
     desc:'+1 max win allowed per enemy, per level.',
     maxLevel:3, costs:[{blood:100},{blood:100000000},{blood:100000000000}], color:'#f0b429' },
 
+  { id:'equip_drop', cat:'UTILITY', type:'equipdrop',
+    per:0.01, label:'SCAVENGER',
+    desc:'+1% chance to drop equipment per kill, per level. Tier scales with enemy rank.',
+    cost:{blood:500}, scale:1.4, maxLevel:100, color:'#16a085' },
+
   // ── AUTOMATION: passive coin generation ────────────────
 
   { id:'auto_old',        cat:'AUTOMATION', type:'auto',     coin:'old',    per:0.00005,
@@ -198,6 +203,11 @@ function masteryCostMult(coin){
   const def = MASTERY_UPGRADES.find(u => u.type === 'cost' && u.coin === coin);
   return def ? Math.max(def.floor ?? 0.01, 1 - mLvl(def.id) * def.per) : 1;
 }
+// Equipment drop chance (0..1) from the SCAVENGER upgrade.
+function masteryEquipDropChance(){
+  const d = masteryDef('equip_drop');
+  return d ? mLvl('equip_drop') * d.per : 0;
+}
 function effCost(costObj){
   const out = {};
   Object.entries(costObj).forEach(([res, amt]) => {
@@ -268,6 +278,7 @@ function masteryEffectStr(up, level){
     case 'decay':   return `decay ${Math.max(up.floor ?? 0.05, 0.7 - level*up.per).toFixed(2)}`;
     case 'victory': return `+${level*up.per}/win`;
     case 'viccap':  return `+${level*up.per} max wins/enemy`;
+    case 'equipdrop': return `+${(level*up.per*100).toFixed(0)}% drop`;
     case 'auto':    return `${(level*up.per*100).toFixed(2)}% of run ${COIN_LABELS[up.coin]}/s`;
     case 'automult':return `×${(1 + level*up.per).toFixed(2)}`;
     case 'rarity':  return `+${(level*up.per).toFixed(1)}% spawn`;
@@ -403,6 +414,7 @@ const MASTERY_TREE_LAYOUT = {
       { id: 'time_flee',  icon: 'boot-stomp',   x: 41, y: 66, parent: 'root' },
       { id: 'decay',      icon: 'locked-chest', x: 59, y: 66, parent: 'root' },
       { id: 'victory',    icon: 'laurel-crown', x: 78, y: 66, parent: 'root' },
+      { id: 'equip_drop', icon: 'swap-bag',     x: 50, y: 40, parent: 'root' },
     ],
   },
   AUTOMATION: {
