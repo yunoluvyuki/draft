@@ -2,14 +2,9 @@
 // MILESTONE SYSTEM
 // ═══════════════════════════════════════════════════════
 
-// Milestone thresholds: 1024, 1024*1000, 1024*1000*1000, ...
-const MILESTONE_THRESHOLDS = [
-  1024,
-  1024 * 1000,
-  1024 * 1000 * 1000,
-  1024 * 1000 * 1000 * 1000,
-  1024 * 1000 * 1000 * 1000 * 1000,
-];
+// Milestone thresholds: 1024, then ×2000 each step — 10 levels total.
+// i.e. 1024 * 2000^0 .. 1024 * 2000^9
+const MILESTONE_THRESHOLDS = Array.from({ length: 10 }, (_, i) => 1024 * Math.pow(2000, i));
 
 // How many milestones have been crossed for a given total
 function getMilestoneCount(total){

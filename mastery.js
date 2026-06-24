@@ -117,44 +117,44 @@ const MASTERY_UPGRADES = [
   // ── AUTOMATION: passive coin generation ────────────────
 
   { id:'auto_old',        cat:'AUTOMATION', type:'auto',     coin:'old',    per:0.00005,
-    label:'OLD WELLSPRING',     desc:'Generate 0.01% of Old earned this run per sec, per level.',      
+    label:'OLD WELLSPRING',     desc:'Generate 0.005% of Old earned this run per sec, per level.',      
     cost:{blood:10000},     scale:10, maxLevel:10, color:'#aaaaaa' },
 
   { id:'automult_old',    cat:'AUTOMATION', type:'automult', coin:'old',    per:0.1,   
     label:'OLD SURGE',          desc:'×1.1 Old Coin auto-gen per level.',        
-    cost:{blood:50000},     scale:10, maxLevel:10, color:'#aaaaaa' },
+    cost:{blood:100000},     scale:10, maxLevel:10, color:'#aaaaaa' },
 
   { id:'auto_bronze',     cat:'AUTOMATION', type:'auto',     coin:'bronze', per:0.00005, 
-    label:'BRONZE WELLSPRING',  desc:'Generate 0.01% of Bronze earned this run per sec, per level.', 
-    cost:{blood:100000},    scale:10, maxLevel:10, color:'#cd7f32' },
+    label:'BRONZE WELLSPRING',  desc:'Generate 0.005% of Bronze earned this run per sec, per level.', 
+    cost:{blood:1000000},    scale:10, maxLevel:10, color:'#cd7f32' },
 
   { id:'automult_bronze', cat:'AUTOMATION', type:'automult', coin:'bronze', per:0.1,   
     label:'BRONZE SURGE',       desc:'×1.1 Bronze Coin auto-gen per level.',     
-    cost:{blood:500000},    scale:10, maxLevel:10, color:'#cd7f32' },
+    cost:{blood:10000000},    scale:10, maxLevel:10, color:'#cd7f32' },
 
   { id:'auto_silver',     cat:'AUTOMATION', type:'auto',     coin:'silver', per:0.00005, 
-    label:'SILVER WELLSPRING',  desc:'Generate 0.01% of Silver earned this run per sec, per level.', 
-    cost:{blood:1000000},   scale:10, maxLevel:10, color:'#aaaacc' },
+    label:'SILVER WELLSPRING',  desc:'Generate 0.005% of Silver earned this run per sec, per level.', 
+    cost:{blood:10000000},   scale:10, maxLevel:10, color:'#aaaacc' },
 
   { id:'automult_silver', cat:'AUTOMATION', type:'automult', coin:'silver', per:0.1,   
     label:'SILVER SURGE',       desc:'×1.1 Silver Coin auto-gen per level.',     
-    cost:{blood:5000000},   scale:10, maxLevel:10, color:'#aaaacc' },
+    cost:{blood:100000000},   scale:10, maxLevel:10, color:'#aaaacc' },
 
   { id:'auto_gold',       cat:'AUTOMATION', type:'auto',     coin:'gold',   per:0.00005, 
-    label:'GOLD WELLSPRING',    desc:'Generate 0.01% of Gold earned this run per sec, per level.',    
-    cost:{blood:10000000},  scale:10, maxLevel:10, color:'#f0b429' },
+    label:'GOLD WELLSPRING',    desc:'Generate 0.005% of Gold earned this run per sec, per level.',    
+    cost:{blood:100000000},  scale:10, maxLevel:10, color:'#f0b429' },
 
   { id:'automult_gold',   cat:'AUTOMATION', type:'automult', coin:'gold',   per:0.1,   
     label:'GOLD SURGE',         desc:'×1.1 Gold Coin auto-gen per level.',       
-    cost:{blood:50000000},  scale:10, maxLevel:10, color:'#f0b429' },
+    cost:{blood:1000000000},  scale:10, maxLevel:10, color:'#f0b429' },
 
   { id:'auto_plat',       cat:'AUTOMATION', type:'auto',     coin:'plat',   per:0.00005, 
-    label:'PLATINUM WELLSPRING',desc:'Generate 0.01% of Platinum earned this run per sec, per level.',
-    cost:{blood:100000000},scale:10, maxLevel:10, color:'#a8d8ea' },
+    label:'PLATINUM WELLSPRING',desc:'Generate 0.005% of Platinum earned this run per sec, per level.',
+    cost:{blood:1000000000},scale:10, maxLevel:10, color:'#a8d8ea' },
 
   { id:'automult_plat',   cat:'AUTOMATION', type:'automult', coin:'plat',   per:0.1,   
     label:'PLATINUM SURGE',     desc:'×1.1 Platinum Coin auto-gen per level.',   
-    cost:{blood:500000000}, scale:10, maxLevel:10, color:'#a8d8ea' },
+    cost:{blood:10000000000}, scale:10, maxLevel:10, color:'#a8d8ea' },
   
 
   // ── RARITY: enemy rarity spawn chance (escalating omens) ───────
@@ -165,15 +165,15 @@ const MASTERY_UPGRADES = [
 
   { id:'rar_rare',      cat:'RARITY', type:'rarity', rarity:'rare',      per:0.4,
     label:'RARE OMEN',      desc:'+0.4% Rare enemy spawn chance per level.',
-    cost:{blood:1000},   scale:1.6, maxLevel:100, color:'#2980b9' },
+    cost:{blood:10000},   scale:1.6, maxLevel:100, color:'#2980b9' },
 
   { id:'rar_epic',      cat:'RARITY', type:'rarity', rarity:'epic',      per:0.2,
     label:'EPIC OMEN',      desc:'+0.2% Epic enemy spawn chance per level.',
-    cost:{blood:10000},  scale:1.6, maxLevel:100, color:'#9b59b6' },
+    cost:{blood:1000000},  scale:1.6, maxLevel:100, color:'#9b59b6' },
 
   { id:'rar_legendary', cat:'RARITY', type:'rarity', rarity:'legendary',
     per:0.1, label:'LEGENDARY OMEN', desc:'+0.1% Legendary enemy spawn chance per level.',
-    cost:{blood:1000000}, scale:1.6, maxLevel:100, color:'#f0b429' },
+    cost:{blood:100000000}, scale:1.6, maxLevel:100, color:'#f0b429' },
 ];
 
 // ── LOOKUP HELPERS ────────────────────────────────────
