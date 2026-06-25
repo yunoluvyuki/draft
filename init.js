@@ -303,7 +303,7 @@ function setupSettings(){
   document.querySelectorAll('.speed-btn').forEach(btn=>{
     btn.addEventListener('click',()=>setGameSpeed(Number(btn.dataset.speed)));
   });
-  setGameSpeed([1,4,8,10].includes(S.gameSpeed) ? S.gameSpeed : 1);
+  setGameSpeed([1,2,4,8,10].includes(S.gameSpeed) ? S.gameSpeed : 1);
 
   document.getElementById('add-btn').addEventListener('click',()=>{
     switchTab('archive');
