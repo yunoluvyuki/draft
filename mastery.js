@@ -942,8 +942,8 @@ function validateMasteryBinding(){
   });
 
   const ok = issues.length === 0;
-  if(typeof console !== 'undefined'){
-    console[ok ? 'log' : 'warn'](`[mastery-binding] ${ok ? 'OK — all ' + MASTERY_UPGRADES.length + ' upgrades bound; every Parent→Child link has an independent target-driven state' : issues.length + ' issue(s)'}`);
+  if(!ok && typeof console !== 'undefined'){
+    console.warn(`[mastery-binding] ${issues.length} issue(s)`);
     issues.forEach(i => console.warn('  • ' + i));
   }
   return { ok, issues };
