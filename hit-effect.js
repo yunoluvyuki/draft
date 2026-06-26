@@ -58,7 +58,7 @@
     num.style.left = (r.left + r.width / 2) + 'px';
     num.style.top = (r.top + r.height * 0.42) + 'px';
     num.style.color = crit ? '#e74c3c' : '#f0f0f0';
-    num.style.fontSize = (crit ? 26 : 18) + 'px';
+    num.style.fontSize = (crit ? 44 : 30) + 'px';
     var n = (typeof dmg === 'number') ? dmg.toFixed(0) : dmg;
     num.textContent = (crit ? '✦' : '') + n;
     document.body.appendChild(num);
