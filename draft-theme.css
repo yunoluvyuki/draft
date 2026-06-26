@@ -267,15 +267,22 @@ body{ background:var(--bg); color:var(--text); }
 .tab-pane.active{ flex:1 1 auto; min-height:0; }
 #tab-battle.active{ display:flex; flex-direction:column; }
 #battle-grid{ flex:0 0 auto; }
-#battle-area{ flex:1 1 auto; min-height:0; margin-top:8px; display:flex; align-items:center; }
-#battle-main{ flex:1 1 auto; min-width:0; display:flex; flex-direction:column; justify-content:center; }
-/* size to content (no forced stretch) so the box hugs the combatant panels +
-   controls; #battle-main centers it vertically, splitting any slack evenly. */
-#battle-creature-display{ flex:0 0 auto; }
+#battle-area{ flex:1 1 auto; min-height:0; margin-top:8px; display:flex; }
+#battle-main{ flex:1 1 auto; min-width:0; display:flex; flex-direction:column; }
+/* Fill the available height: the display grows to the dashboard, the two
+   combatant panels (#battle-top) take all the room above the controls, and the
+   portraits scale with that height — so the area reads as full, not an empty
+   frame. Controls stay their natural size. */
+#battle-creature-display{ flex:1 1 auto; min-height:0; display:flex; flex-direction:column; }
+#battle-top{ flex:1 1 auto; min-height:0; align-items:stretch; }
+#battle-controls{ flex:0 0 auto; }
 /* keep the vs-area readable when the window shrinks — let it scroll internally
    as a last resort instead of clipping portraits / bars / speed controls */
 #battle-top{ flex-wrap:wrap; }
 .battle-side-box{ min-width:260px; }
+/* portraits scale with the now-taller combatant panels (capped so they stay
+   tasteful), filling the vertical space instead of leaving a void. */
+#player-art, #battle-art{ width:auto; height:66%; min-height:148px; max-height:260px; aspect-ratio:1/1; }
 
 /* 13b. CURRENT STAT — two-column grid showing ALL stats (matches the original
    look: every stat listed in 2 columns, full values, no truncation). */
