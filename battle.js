@@ -105,7 +105,7 @@ function startBattle(creatureId){
   updateBattleUI();
   const rc = RARITY_COLORS[B.rarity];
   const rl = RARITY_LABELS[B.rarity];
-  addLog(`<span style="color:${B.rarity==='common'?'#ffffff':rc}">⚔ ${c.name} appears [${rl}]${B.rarity!=='common'?' ×'+RARITY_MULTS[B.rarity]:''}</span>`);
+  addLog(`<span style="color:${B.rarity==='common'?'#b9b4ab':rc}">⚔ ${c.name} appears [${rl}]${B.rarity!=='common'?' ×'+RARITY_MULTS[B.rarity]:''}</span>`);
   renderBattle();
   document.getElementById('ac-details').textContent = c.name;
 }

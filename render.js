@@ -96,7 +96,7 @@ function renderBattle(){
         <div class="card-art" style="position:relative;">${c.new?'<span class="new-badge">NEW</span>':''}${c.img?`<img src="${c.img}" style="width:100%;height:100%;object-fit:contain;position:absolute;top:0;left:0;">`:SVGs[c.id]||`<div class="placeholder-icon" style="--c-color:${color}">✦</div>`}</div>
         <div class="card-info">
           ${spawnBadge}
-          <div class="card-name" style="color:${spawnRarityColor||'#ffffff'};text-shadow:-1px -1px 0 #000,1px -1px 0 #000,-1px 1px 0 #000,1px 1px 0 #000;">${c.name}</div>
+          <div class="card-name" style="color:${spawnRarityColor||'#b9b4ab'};text-shadow:-1px -1px 0 #000,1px -1px 0 #000,-1px 1px 0 #000,1px 1px 0 #000;">${c.name}</div>
           <div class="stat-grid">${STAT_DEFS.map(d=>{
             const base=d.key==='hp'?c.hp:d.key==='atk'?c.atk:d.key==='arm'?c.arm:{mnd:0.7,mxd:1.0,spd:0,rgn:0,ddc:0,crc:0,crd:1,mth:0,acc:1,ctr:0}[d.key];
             const val=(c[d.key]??base)*(['atk','hp'].includes(d.key)?spawnRarityMultDisplay:1);
@@ -108,7 +108,7 @@ function renderBattle(){
         </div>
       </div>
       <div class="card-rewards">
-      <div class="rewards-header"><span>${rewardStr}</span><span class="vic">Victories | <span style="color:${vic>=cap?'var(--green)':'#fff'};font-weight:bold;">${Math.min(vic,cap)}</span>/<span style="font-weight:bold;">${cap}</span></span></div>
+      <div class="rewards-header"><span>${rewardStr}</span><span class="vic">Victories | <span style="color:${vic>=cap?'var(--green)':'#b9b4ab'};font-weight:bold;">${Math.min(vic,cap)}</span>/<span style="font-weight:bold;">${cap}</span></span></div>
       <div class="victories-bar"><div class="victories-fill" style="width:${pct}%;background:${maxed?'#2a5a2a':color}"></div></div>
       </div>
       <div class="card-btn">${btnHtml}</div>
