@@ -90,9 +90,10 @@ function switchTab(name){
   if(name === 'shop'){ renderShop(); document.getElementById('shop-dot').style.display = 'none'; }
   if(name === 'archive'){
     updateBloodUI();
-    renderCodex();
     document.getElementById('archive-dot').style.display = 'none';
   }
+  if(name === 'codex') renderCodex();
+  if(name === 'mastery') renderMastery();
 }
 
 function hasAffordableMasteryUpgrade(){

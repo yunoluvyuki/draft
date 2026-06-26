@@ -28,6 +28,8 @@
     <button class="nav-tab" data-tab="inventory">INVENTORY</button>
     <button class="nav-tab" data-tab="shop">SHOP<span class="dot" id="shop-dot" style="display:none"></span></button>
     <button class="nav-tab" data-tab="archive">PRESTIGE<span class="dot" id="archive-dot" style="display:none"></span></button>
+    <button class="nav-tab" data-tab="codex">CODEX</button>
+    <button class="nav-tab" data-tab="mastery">MASTERY</button>
     <button class="nav-tab" data-tab="settings">SETTINGS</button>
   </div>
   <div id="resources">
@@ -142,16 +144,7 @@
 
     <!-- PRESTIGE TAB -->
     <div class="tab-pane" id="tab-archive">
-      <div class="prestige-tabs">
-        <span class="prestige-tab" data-arch="codex">CODEX</span>
-        <span class="prestige-tab active" data-arch="treasury">TREASURY</span>
-        <span class="prestige-tab" data-arch="masterpiece">MASTERY</span>
-      </div>
-      <!-- Codex -->
-      <div class="prestige-pane" id="arch-codex">
-        <div id="codex-grid"></div>
-      </div>
-      <!-- Treasury -->
+      <!-- Treasury (Prestige now opens directly to Treasury; Codex & Mastery are top-level tabs) -->
       <div class="prestige-pane active" id="arch-treasury">
         <div id="treasury-layout">
           <!-- LEFT: M.Coin Synthesizer -->
@@ -201,10 +194,16 @@
           <div class="blood-guide-tip">Tip: once a run's pending passes your last bank, Blood gain throttles (diminishing returns). Reincarnating resets the throttle &mdash; several smaller reincarnations beat one endless run.</div>
         </div>
       </div>
-      <!-- Masterpiece -->
-      <div class="prestige-pane" id="arch-masterpiece">
-        <div id="mastery-content"></div>
-      </div>
+    </div>
+
+    <!-- CODEX TAB (promoted from Prestige sub-menu to a main tab) -->
+    <div class="tab-pane" id="tab-codex">
+      <div id="codex-grid"></div>
+    </div>
+
+    <!-- MASTERY TAB (promoted from Prestige sub-menu to a main tab) -->
+    <div class="tab-pane" id="tab-mastery">
+      <div id="mastery-content"></div>
     </div>
 
     <!-- SETTINGS TAB -->

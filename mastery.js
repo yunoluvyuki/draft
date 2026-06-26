@@ -963,10 +963,8 @@ if(typeof window !== 'undefined'){
 // matching rules live in mastery.css: body.mastery-view #bottom-bar{display:none}
 // and a scoped height bridge so the tree fills the freed space.
 function syncMasteryBottomBar(){
-  const archive     = document.getElementById('tab-archive');
-  const masterpiece = document.getElementById('arch-masterpiece');
-  const onMastery = !!(archive && archive.classList.contains('active') &&
-                       masterpiece && masterpiece.classList.contains('active'));
+  const masteryTab = document.getElementById('tab-mastery');
+  const onMastery = !!(masteryTab && masteryTab.classList.contains('active'));
   document.body.classList.toggle('mastery-view', onMastery);
   // Toggling .mastery-view hides #bottom-bar and grows the scroll container, so
   // the tree's available height is only correct AFTER this class change. Re-fit
