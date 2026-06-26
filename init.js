@@ -69,6 +69,8 @@
   updateAR();
   updateAN();
   updateAB();
+  // Lets other code (e.g. hard reset) resync the toggle visuals to S.protocols.
+  window.refreshProtocolUI = function(){ updateAC(); updateAR(); updateAN(); updateAB(); };
 }
 
 // ═══════════════════════════════════════════════════════
@@ -294,6 +296,14 @@ function setupSettings(){
       B.playerHP = maxHP();
       initBattleQueue();
       renderAll();
+      // Resync controls wired once at init so a previous save's values don't linger:
+      // battle speed, protocol toggles, combat-log setting + its contents.
+      S.gameSpeed = 1;
+      document.querySelectorAll('.speed-btn').forEach(b=>b.classList.toggle('active', Number(b.dataset.speed)===1));
+      if(window.refreshProtocolUI) window.refreshProtocolUI();
+      const cl=document.getElementById('chk-combat-log'); if(cl) cl.checked=S.settings.combatLog;
+      const bl=document.getElementById('battle-log'); if(bl) bl.innerHTML='';
+      saveGame();
       toast('Game has been reset.', 3000);
     }
   });

@@ -18,6 +18,7 @@ const DEFAULT_STATE = ()=>({
   lastSave:Date.now(),
   settings:{lightMode:false,combatLog:true,uiZoom:100,battleNav:'manual',numNotation:'mixed',fontSize:16},
   protocols:{autoChallenge:false,autoRetry:false,autoNext:false,autoBuy:false},
+  gameSpeed:1,
   masteryUpgrades:{},
   battleUnlocked:[],
   battleQueue:[],
