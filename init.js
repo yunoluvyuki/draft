@@ -436,6 +436,7 @@ function gameLoop(){
   restTick(dt);
   regenTick(dt);
   masteryAutoTick(dt);
+  milestoneTick(dt);   // time-based Blood Coin gen; dt includes game speed so the speed button accelerates it
   checkBloodMilestone();
   S.activeTime = (S.activeTime || 0) + dt;
   if(frameCount % 3 === 0){
@@ -447,7 +448,6 @@ function gameLoop(){
     document.getElementById('active-time').textContent = fmtTime(S.activeTime);
   }
   if(frameCount % 30 === 0){
-    milestoneTick();
     renderStats();
     renderFundamentals();
     // Topbar BLOOD COIN count is always visible — keep it live on every tab.

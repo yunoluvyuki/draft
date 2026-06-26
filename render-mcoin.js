@@ -75,7 +75,7 @@ function renderMCoinSynth() {
   const oldScale = (typeof mScale === 'function') ? mScale((S.mCoins && S.mCoins.old) || 0) : 0;
   const gainMult = (typeof masteryGainMult === 'function') ? masteryGainMult('blood') : 1;
   const throttle = (typeof bloodGainMult === 'function') ? bloodGainMult() : 1;
-  const bloodRate = totalOldUI * oldScale * gainMult * throttle; // per second, real
+  const bloodRate = totalOldUI * oldScale * gainMult * throttle * (S.gameSpeed || 1); // per real second, incl. game speed
 
   // Update rate display in left panel
   const rateEl = document.getElementById('blood-rate-val');

@@ -209,7 +209,7 @@ function updateResources(){
   ['old','bronze','silver','gold','plat'].forEach(coin=>{
     const el=document.getElementById('rate-'+coin);
     if(!el) return;
-    const rate=(typeof masteryAutoRate==='function') ? masteryAutoRate(coin) : 0;
+    const rate=((typeof masteryAutoRate==='function') ? masteryAutoRate(coin) : 0) * (S.gameSpeed || 1);
     el.textContent = rate>0 ? '+'+fmt(rate)+'/s' : '';
   });
 }
