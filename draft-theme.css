@@ -258,7 +258,10 @@ body{ background:var(--bg); color:var(--text); }
 
 /* ── 12. MISC ──────────────────────────────────────────────────────────── */
 .section-header{ color:var(--text2); border-bottom:1px solid var(--border); }
-.notification-toast{ background:var(--bg3); border:1px solid var(--border2); color:var(--white); }
+.notification-toast{ background:var(--bg3); border:1px solid var(--border2); color:var(--white);
+  top:50%; bottom:auto; left:50%; transform:translate(-50%,-50%);
+  font-size:20px; padding:20px 36px; max-width:72vw; text-align:center; line-height:1.4;
+  box-shadow:0 8px 40px rgba(0,0,0,.6); }
 .new-badge{ background:var(--dt-accent); }
 /* combat-log semantic colors — keep meaning, harmonize brightness */
 .log-reward{ color:var(--yellow); }
