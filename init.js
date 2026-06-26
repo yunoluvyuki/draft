@@ -441,16 +441,18 @@ function gameLoop(){
 // ═══════════════════════════════════════════════════════
 // INIT
 // ═══════════════════════════════════════════════════════
-loadGame();
-initBattleQueue();
-setupToggles();
-setupSettings();
-renderAll();
-// Start autochallenge if was enabled
-if(S.protocols.autoChallenge&&!B.active){
-  const first=CREATURES.find(c=>isUnlocked(c.id)&&!isMaxed(c));
-  if(first)startBattle(first.id);
-}
-
-// Kick off the game loop
-requestAnimationFrame(gameLoop);
+(async function boot(){
+  if(window.cloudPull) await cloudPull();   // pull VPS save into localStorage first (cloud = source of truth)
+  loadGame();
+  initBattleQueue();
+  setupToggles();
+  setupSettings();
+  renderAll();
+  // Start autochallenge if was enabled
+  if(S.protocols.autoChallenge&&!B.active){
+    const first=CREATURES.find(c=>isUnlocked(c.id)&&!isMaxed(c));
+    if(first)startBattle(first.id);
+  }
+  // Kick off the game loop
+  requestAnimationFrame(gameLoop);
+})();
