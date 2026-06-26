@@ -43,19 +43,19 @@ let B = freshBattleState();
 
 
 const STAT_DEFS=[
-  {key:'hp',label:'HP\u00A0',icon:'si-hp',cat:'defense',fmt:'n'},
-  {key:'atk',label:'ATK',icon:'si-atk',cat:'offense',fmt:'n'},
-  {key:'mnd',label:'MND',icon:'si-mnd',cat:'offense',fmt:'pct'},
-  {key:'mxd',label:'MXD',icon:'si-mxd',cat:'offense',fmt:'pct'},
-  {key:'spd',label:'SPD',icon:'si-spd',cat:'utility',fmt:'n'},
-  {key:'rgn',label:'RGN',icon:'si-rgn',cat:'defense',fmt:'n'},
-  {key:'ddc',label:'DDC',icon:'si-ddc',cat:'chance',fmt:'pct'},
-  {key:'crc',label:'CRC',icon:'si-crc',cat:'chance',fmt:'pct'},
-  {key:'crd',label:'CRD',icon:'si-crd',cat:'offense',fmt:'x'},
-  {key:'arm',label:'ARM',icon:'si-arm',cat:'defense',fmt:'n'},
-  {key:'mth',label:'MTH',icon:'si-mth',cat:'offense',fmt:'pct'},
-  {key:'acc',label:'ACC',icon:'si-acc',cat:'chance',fmt:'pct'},
-  {key:'ctr',label:'CTR',icon:'si-ctr',cat:'chance',fmt:'pct'},
+  {key:'hp',label:'HP\u00A0',icon:'si-hp',cat:'defense',fmt:'n',desc:'Health Points \u2014 damage you can take before dying.'},
+  {key:'atk',label:'ATK',icon:'si-atk',cat:'offense',fmt:'n',desc:'Attack \u2014 base damage dealt per hit.'},
+  {key:'mnd',label:'MND',icon:'si-mnd',cat:'offense',fmt:'pct',desc:'Minimum Damage \u2014 lowest % of ATK a hit can deal.'},
+  {key:'mxd',label:'MXD',icon:'si-mxd',cat:'offense',fmt:'pct',desc:'Maximum Damage \u2014 highest % of ATK a hit can deal.'},
+  {key:'spd',label:'SPD',icon:'si-spd',cat:'utility',fmt:'n',desc:'Speed \u2014 time between actions; lower is faster.'},
+  {key:'rgn',label:'RGN',icon:'si-rgn',cat:'defense',fmt:'n',desc:'Regeneration \u2014 HP restored per second.'},
+  {key:'ddc',label:'DDC',icon:'si-ddc',cat:'chance',fmt:'pct',desc:'Dodge Chance \u2014 chance to fully avoid an incoming hit.'},
+  {key:'crc',label:'CRC',icon:'si-crc',cat:'chance',fmt:'pct',desc:'Critical Chance \u2014 chance for a hit to deal critical damage.'},
+  {key:'crd',label:'CRD',icon:'si-crd',cat:'offense',fmt:'x',desc:'Critical Damage \u2014 damage multiplier on a critical hit.'},
+  {key:'arm',label:'ARM',icon:'si-arm',cat:'defense',fmt:'n',desc:'Armor \u2014 flat damage reduction on each hit taken.'},
+  {key:'mth',label:'MTH',icon:'si-mth',cat:'offense',fmt:'pct',desc:'Multi-Attack Chance \u2014 chance to strike more than once.'},
+  {key:'acc',label:'ACC',icon:'si-acc',cat:'chance',fmt:'pct',desc:'Accuracy \u2014 chance for your attack to land.'},
+  {key:'ctr',label:'CTR',icon:'si-ctr',cat:'chance',fmt:'pct',desc:'Counter Chance \u2014 chance to strike back when hit.'},
   ];
   // hp = healt points
   // atk = attack

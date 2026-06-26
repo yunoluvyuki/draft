@@ -11,7 +11,7 @@ function renderStats(){
     if(d.key==='atk' && typeof masteryAtkMult==='function') val*=masteryAtkMult();
     if(d.key==='hp'  && typeof masteryHpMult==='function')  val*=masteryHpMult();
     return `
-    <div class="stat-cell">
+    <div class="stat-cell" title="${d.desc||''}">
       <div class="stat-name"><span class="stat-icon ${d.icon}"></span>${d.label}</div>
       <div class="stat-val">:${formatStat(d.key,val)}</div>
     </div>`;

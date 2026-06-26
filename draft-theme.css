@@ -196,9 +196,9 @@ body{ background:var(--bg); color:var(--text); }
 .toggle-switch.on::after{ background:var(--red2); }
 .protocol-title, .protocol-sub, .toggle-label, .protocol-val{ color:var(--text); }
 #protocols-header .title{ font-family:var(--dt-head-font); letter-spacing:.14em; }
-/* Hide the CURRENT STAT and FUNDAMENTALS filter rows — both panels default to
-   "ALL" so everything still shows. Delete these two selectors to bring them back. */
-#spec-filters, #fund-filters{ display:none; }
+/* Hide the CURRENT STAT, FUNDAMENTALS and SHOP filter rows — each defaults to
+   "ALL" so everything still shows. Delete these selectors to bring them back. */
+#spec-filters, #fund-filters, #shop-filters{ display:none; }
 
 /* ── 9. PRESTIGE — TREASURY & CODEX ────────────────────────────────────── */
 .prestige-tab{ color:var(--text2); text-transform:uppercase; letter-spacing:.12em; font-family:var(--dt-head-font); }
@@ -287,6 +287,8 @@ body{ background:var(--bg); color:var(--text); }
 /* 13b. CURRENT STAT — two-column grid showing ALL stats (matches the original
    look: every stat listed in 2 columns, full values, no truncation). */
 #stat-grid{ grid-template-columns:1fr 1fr; }
+/* hover a stat for a hint (native tooltip via title=); cursor signals it's there */
+#stat-grid .stat-cell{ cursor:help; }
 
 /* 13c. Bottom dashboard panel widths — Stat large, Fund small, Log medium,
    Protocol small; all stay attached and aligned. */
